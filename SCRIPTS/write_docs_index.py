@@ -1,4 +1,8 @@
-<!doctype html>
+from pathlib import Path
+
+Path("docs").mkdir(parents=True, exist_ok=True)
+
+Path("docs/index.html").write_text("""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -45,3 +49,6 @@ main();
 </script>
 </body>
 </html>
+""", encoding="utf-8")
+
+print("wrote docs/index.html")
