@@ -1,8 +1,8 @@
 # Environment Snapshot
-Last verified: 2025-12-15T20:53:17Z
+Last verified: 2025-12-17T08:05:19Z
 
 ## Source Report
-~/chloe/DIAG/crash/crash_2025-12-15T20:52:54Z.txt
+<none>
 
 ## OS / Kernel
 - PRETTY_NAME: Red Hat Enterprise Linux 10.1 (Coughlan)
@@ -28,5 +28,5 @@ unknown
 - torch cuda_available: not-detected
 
 ## Notes
-- GPU memory in use at capture time (rough): 1447 MiB. Close heavy GUI apps before big runs.
+- GPU memory in use at capture time (rough): 1094 MiB. Close heavy GUI apps before big runs.
 - This file is GENERATED. Edit SCRIPTS/update_state.sh if you want to change content.
