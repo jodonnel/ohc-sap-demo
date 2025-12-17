@@ -15,7 +15,6 @@
     button:active { transform: translateY(1px); }
     pre { white-space: pre-wrap; word-break: break-word; padding: 18px; background:#0f1720; border:1px solid #243244; border-radius:14px; overflow:auto; }
     .hint { opacity:.7; font-size: 13px; margin-top: 10px; }
-    a { color:#79c0ff; }
   </style>
 </head>
 <body>
@@ -32,15 +31,18 @@
 
 <script>
 async function main() {
-  const res = await fetch('./BOOTSTRAP.md', {cache:'no-store'});
+  const res = await fetch('./BOOTSTRAP.md', { cache: 'no-store' });
   const txt = await res.text();
-  document.getElementById('content').textContent = txt;
-  document.getElementById('copy').onclick = async () => {
+  const pre = document.getElementById('content');
+  const btn = document.getElementById('copy');
+
+  pre.textContent = txt;
+
+  btn.onclick = async () => {
     await navigator.clipboard.writeText(txt);
-    const b = document.getElementById('copy');
-    const old = b.textContent;
-    b.textContent = "Copied";
-    setTimeout(()=>b.textContent=old, 900);
+    const old = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => (btn.textContent = old), 900);
   };
 }
 main();
