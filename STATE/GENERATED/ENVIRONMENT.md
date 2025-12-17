@@ -1,5 +1,5 @@
 # Environment Snapshot
-Last verified: 2025-12-17T08:05:19Z
+Last verified: 2025-12-17T18:58:31Z
 
 ## Source Report
 <none>
@@ -13,9 +13,8 @@ Last verified: 2025-12-17T08:05:19Z
 - GPU: NVIDIA GeForce RTX 3070
 - VRAM (reported by nvidia-smi): 8192 MiB
 - NVIDIA driver: 590.44.01
-- CUDA runtime (nvidia-smi): |
-unknown
-- CUDA toolkit (nvcc): not-detected
+- CUDA runtime (nvidia-smi): 13.1
+- CUDA toolkit (nvcc): 13.0
 
 ## Containers
 - Podman: 5.6.0
@@ -28,5 +27,5 @@ unknown
 - torch cuda_available: not-detected
 
 ## Notes
-- GPU memory in use at capture time (rough): 1094 MiB. Close heavy GUI apps before big runs.
+- GPU memory in use at capture time (rough): 1337 MiB. Close heavy GUI apps before big runs.
 - This file is GENERATED. Edit SCRIPTS/update_state.sh if you want to change content.

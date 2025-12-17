@@ -29,3 +29,7 @@ model_cache/
 __pycache__/
 *.pyc
 .venv/
+
+# Chloe generated state (rebuilt frequently)
+STATE/GENERATED/
+STATE/STATE_OF_UNION.txt
