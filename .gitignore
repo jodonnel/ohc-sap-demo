@@ -1,35 +1,3 @@
-# --- generated / transient ---
-DIAG/reports/
-RECOVERY/
-*.log
-*.tmp
-
-# --- local secrets / tokens (if any ever appear) ---
-*.key
-*.pem
-*.token
-.env
-.env.*
-
-# --- model artifacts (keep OUT of git) ---
-*.gguf
-*.safetensors
-*.onnx
-models/
-model_cache/
-
-# --- OS/editor noise ---
-.DS_Store
-*.swp
-*.swo
-.vscode/
-.idea/
-
-# --- python junk ---
-__pycache__/
-*.pyc
-.venv/
-
-# Chloe generated state (rebuilt frequently)
-STATE/GENERATED/
-STATE/STATE_OF_UNION.txt
+# Chloe local backups / scratch
+SCRIPTS/*.bak.*
+SCRIPTS/update_state.sh.bak.*

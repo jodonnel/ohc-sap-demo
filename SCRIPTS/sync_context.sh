@@ -25,18 +25,22 @@ fi
 echo
 
 echo "== ENVIRONMENT.md (tail) =="
-if [[ -f "$STATE/GENERATED/ENVIRONMENT.md" ]]; then
+if [[ -f "$STATE/ENVIRONMENT.md" ]]; then
+  tail -n 120 "$STATE/ENVIRONMENT.md"
+elif [[ -f "$STATE/GENERATED/ENVIRONMENT.md" ]]; then
   tail -n 120 "$STATE/GENERATED/ENVIRONMENT.md"
 else
-  echo "(missing) $STATE/GENERATED/ENVIRONMENT.md"
+  echo "(missing) $STATE/ENVIRONMENT.md (or $STATE/GENERATED/ENVIRONMENT.md)"
 fi
 echo
 
 echo "== INVENTORY.yaml =="
-if [[ -f "$STATE/GENERATED/INVENTORY.yaml" ]]; then
+if [[ -f "$STATE/INVENTORY.yaml" ]]; then
+  sed -n '1,220p' "$STATE/INVENTORY.yaml"
+elif [[ -f "$STATE/GENERATED/INVENTORY.yaml" ]]; then
   sed -n '1,220p' "$STATE/GENERATED/INVENTORY.yaml"
 else
-  echo "(missing) $STATE/GENERATED/INVENTORY.yaml"
+  echo "(missing) $STATE/INVENTORY.yaml (or $STATE/GENERATED/INVENTORY.yaml)"
 fi
 echo
 
