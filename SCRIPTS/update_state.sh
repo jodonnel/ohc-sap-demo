@@ -1,152 +1,147 @@
 #!/usr/bin/env bash
-#===============================================================================
-# Chloe State Updater — canonical "truth snapshot" generator
-#
-# PURPOSE
-# -------
-# This script is the canonical way to refresh Chloe’s state files on a host:
-#
-#   - STATE/ENVIRONMENT.md   (human-readable snapshot for Jim + other Chloes)
-#   - STATE/INVENTORY.yaml   (structured snapshot for scripts/automation)
-#   - STATE/MAILBOX.md       (append-only audit trail / breadcrumbs)
-#   - STATE/SOP_UPDATE_STATE.md (how to teach/use this updater)
-#
-# Why we care:
-#   - We do a lot of iterative debugging and environment drift is constant.
-#   - Multiple “Chloe” contexts exist, and they need one consistent truth source.
-#   - We want an easy one-liner to “re-sync reality” after changes.
-#
-# PRINCIPLES
-# ----------
-#   - Minimal dependencies: bash + python3 only.
-#   - Best-effort: missing optional tools (docker, nvcc, etc.) should not break it.
-#   - Deterministic outputs: always overwrite ENVIRONMENT.md + INVENTORY.yaml.
-#   - Always leave a mailbox breadcrumb that captures *what ran when*.
-#
-# USAGE
-# -----
-#   ~/chloe/SCRIPTS/update_state.sh [optional_report_path]
-#
-# Examples:
-#   ~/chloe/SCRIPTS/update_state.sh
-#   ~/chloe/SCRIPTS/update_state.sh "$HOME/chloe/DIAG/reports/selective_2025-12-15T18:39:06Z.txt"
-#
-# Notes:
-#   - optional_report_path is just provenance (a “source report” reference).
-#   - the snapshots are generated from the live system, not parsed from the report.
-#
-#===============================================================================
-
 set -euo pipefail
 
 #------------------------------------------------------------------------------
-# Repo root: script lives at ~/chloe/SCRIPTS, root is one directory up.
-# We avoid git dependency; this works even if ~/chloe is not a git repo.
+# Chloe: update_state.sh
+# Writes:
+#   - STATE/ENVIRONMENT.md
+#   - STATE/INVENTORY.yaml
+#   - STATE/SOP_UPDATE_STATE.md
+# Appends:
+#   - STATE/MAILBOX.md
 #------------------------------------------------------------------------------
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-#------------------------------------------------------------------------------
-# Timestamp: always UTC to avoid timezone confusion when comparing machines/logs.
-#------------------------------------------------------------------------------
-NOW="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-
-# Optional “source report” (e.g., a previous harvest output path).
-REPORT="${1:-}"
-
-# Ensure state directory exists (safe if already present).
-mkdir -p "$ROOT/STATE"
-
-#------------------------------------------------------------------------------
-# Helper: check if command exists in PATH.
-#------------------------------------------------------------------------------
 have() { command -v "$1" >/dev/null 2>&1; }
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+STATE_DIR="${ROOT}/STATE"
+mkdir -p "${STATE_DIR}"
+
+NOW_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+HOSTNAME_SHORT="$(hostname -s 2>/dev/null || hostname 2>/dev/null || echo unknown)"
+
 #------------------------------------------------------------------------------
-# 0) Gather system facts (best-effort)
-#    We gather once, then write to multiple outputs.
+# OS / Kernel
 #------------------------------------------------------------------------------
 OS_PRETTY="unknown"
-OS_VERSION_ID="unknown"
-KERNEL_UNAME="$(uname -a 2>/dev/null || echo unknown)"
-
-if [ -f /etc/os-release ]; then
+VERSION_ID="unknown"
+if [ -r /etc/os-release ]; then
   # shellcheck disable=SC1091
   . /etc/os-release
   OS_PRETTY="${PRETTY_NAME:-unknown}"
-  OS_VERSION_ID="${VERSION_ID:-unknown}"
+  VERSION_ID="${VERSION_ID:-unknown}"
 fi
+KERNEL_UNAME="$(uname -a 2>/dev/null || echo unknown)"
 
+#------------------------------------------------------------------------------
+# GPU / Driver / CUDA (nvidia-smi is authoritative for runtime)
+#------------------------------------------------------------------------------
 GPU_MODEL="not-detected"
-GPU_VRAM="not-detected"
+GPU_VRAM_MI="not-detected"
 NVIDIA_DRIVER="not-detected"
-CUDA_RUNTIME="not-detected"
-GPU_MEM_USED_MI="not-detected"
+CUDA_RUNTIME="not-reported"
 
 if have nvidia-smi; then
-  GPU_MODEL="$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -n1 || echo unknown)"
-  GPU_VRAM="$(nvidia-smi --query-gpu=memory.total --format=csv,noheader 2>/dev/null | head -n1 || echo unknown)"
-  NVIDIA_DRIVER="$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -n1 || echo unknown)"
-  CUDA_RUNTIME="$(nvidia-smi | awk '/CUDA Version/ {print $NF; exit}' 2>/dev/null || echo unknown)"
-  GPU_MEM_USED_MI="$(nvidia-smi --query-gpu=memory.used --format=csv,noheader 2>/dev/null | head -n1 || echo unknown)"
+  GPU_MODEL="$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -n1 | sed 's/[[:space:]]*$//' || true)"
+  [ -n "${GPU_MODEL}" ] || GPU_MODEL="unknown"
+
+  GPU_VRAM_MI="$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>/dev/null | head -n1 | sed 's/[[:space:]]*$//' || true)"
+  [ -n "${GPU_VRAM_MI}" ] || GPU_VRAM_MI="unknown"
+
+  NVIDIA_DRIVER="$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -n1 | sed 's/[[:space:]]*$//' || true)"
+  [ -n "${NVIDIA_DRIVER}" ] || NVIDIA_DRIVER="unknown"
+
+  CUDA_RUNTIME="$(nvidia-smi 2>/dev/null | sed -n 's/.*CUDA Version:[[:space:]]*\([0-9][0-9.]*\).*/\1/p' | head -n 1 | tr -d '\r\n')"
+  [ -n "${CUDA_RUNTIME}" ] || CUDA_RUNTIME="not-reported"
 fi
 
+#------------------------------------------------------------------------------
+# CUDA toolkit (nvcc)
+#------------------------------------------------------------------------------
 NVCC_VERSION="not-detected"
+
+_nvcc_path=""
 if have nvcc; then
-  NVCC_VERSION="$(nvcc --version 2>/dev/null | awk -F, '/release/ {print $2}' | sed 's/^ *release *//;s/ *$//' | head -n1 || echo unknown)"
+  _nvcc_path="$(command -v nvcc)"
+else
+  # common locations + "latest" cuda-* if present
+  if [ -x /usr/local/cuda/bin/nvcc ]; then
+    _nvcc_path="/usr/local/cuda/bin/nvcc"
+  else
+    _nvcc_path="$(ls -1 /usr/local/cuda-*/bin/nvcc 2>/dev/null | sort -V | tail -n1 || true)"
+  fi
 fi
 
+if [ -n "${_nvcc_path}" ] && [ -x "${_nvcc_path}" ]; then
+  NVCC_VERSION="$("${_nvcc_path}" --version 2>/dev/null | sed -n 's/.*release[[:space:]]*\([0-9][0-9.]*\).*/\1/p' | head -n 1 | tr -d '[:space:]')"
+  [ -n "${NVCC_VERSION}" ] || NVCC_VERSION="unknown"
+fi
+
+#------------------------------------------------------------------------------
+# Containers
+#------------------------------------------------------------------------------
 PODMAN_VERSION="not-detected"
 DOCKER_VERSION="not-detected"
-if have podman; then PODMAN_VERSION="$(podman --version 2>/dev/null | awk '{print $3}' || echo unknown)"; fi
-if have docker; then DOCKER_VERSION="$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',' || echo unknown)"; fi
+if have podman; then PODMAN_VERSION="$(podman --version 2>/dev/null | awk '{print $3}' | tr -d '[:space:]' || echo unknown)"; fi
+if have docker; then DOCKER_VERSION="$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',[:space:]' || echo unknown)"; fi
 
+#------------------------------------------------------------------------------
+# Python / ML
+#------------------------------------------------------------------------------
 PYTHON_VERSION="not-detected"
-if have python3; then PYTHON_VERSION="$(python3 --version 2>/dev/null | awk '{print $2}' || echo unknown)"; fi
+if have python3; then
+  PYTHON_VERSION="$(python3 --version 2>/dev/null | awk '{print $2}' | tr -d '[:space:]' || echo unknown)"
+fi
 
-# Probe python ML packages (presence + versions) via embedded python.
-# We keep this tiny and non-fatal: if python errors, we just mark as not-detected.
+# Prefer Chloe torch venv for torch detection (falls back to system python3)
+PREFERRED_TORCH_PY="${ROOT}/.venv/torch/bin/python"
+TORCH_PY=""
+if [ -x "${PREFERRED_TORCH_PY}" ]; then
+  TORCH_PY="${PREFERRED_TORCH_PY}"
+elif have python3; then
+  TORCH_PY="$(command -v python3)"
+fi
+
 TORCH_VER="not-detected"
 TORCH_CUDA="not-detected"
 TORCH_CUDA_AVAIL="not-detected"
 
-if have python3; then
-  read -r TORCH_VER TORCH_CUDA TORCH_CUDA_AVAIL < <(python3 - <<'PY' 2>/dev/null || true
+if [ -n "${TORCH_PY}" ] && [ -x "${TORCH_PY}" ]; then
+  read -r TORCH_VER TORCH_CUDA TORCH_CUDA_AVAIL < <("${TORCH_PY}" - <<'PY' 2>/dev/null || true
 import importlib
 torch_ver="not-detected"; torch_cuda="not-detected"; cuda_avail="not-detected"
 try:
-    torch=importlib.import_module("torch")
-    torch_ver=getattr(torch,"__version__","?")
-    torch_cuda=getattr(getattr(torch,"version",None),"cuda","?")
+    torch = importlib.import_module("torch")
+    torch_ver = getattr(torch, "__version__", "?")
+    torch_cuda = getattr(getattr(torch, "version", None), "cuda", "?")
     try:
-        cuda_avail=str(bool(torch.cuda.is_available()))
+        cuda_avail = "true" if bool(torch.cuda.is_available()) else "false"
     except Exception:
-        cuda_avail="?"
+        cuda_avail = "not-detected"
 except Exception:
     pass
 print(torch_ver, torch_cuda, cuda_avail)
 PY
-)
+  )
 fi
 
 #------------------------------------------------------------------------------
-# 1) Write STATE/ENVIRONMENT.md (human-readable)
+# Write STATE/ENVIRONMENT.md
 #------------------------------------------------------------------------------
-ENV_MD="$ROOT/STATE/ENVIRONMENT.md"
+ENV_MD="${STATE_DIR}/ENVIRONMENT.md"
 {
   echo "# Environment Snapshot"
-  echo "Last verified: ${NOW}"
-  echo
-  echo "## Source Report"
-  echo "${REPORT:-<none>}"
+  echo "Last verified: ${NOW_UTC}"
   echo
   echo "## OS / Kernel"
   echo "- PRETTY_NAME: ${OS_PRETTY}"
-  echo "- VERSION_ID: ${OS_VERSION_ID}"
+  echo "- VERSION_ID: ${VERSION_ID}"
   echo "- Kernel (uname -a): ${KERNEL_UNAME}"
   echo
   echo "## GPU / Driver / CUDA"
   echo "- GPU: ${GPU_MODEL}"
-  echo "- VRAM (reported by nvidia-smi): ${GPU_VRAM}"
+  echo "- VRAM (reported by nvidia-smi): ${GPU_VRAM_MI} MiB"
   echo "- NVIDIA driver: ${NVIDIA_DRIVER}"
   echo "- CUDA runtime (nvidia-smi): ${CUDA_RUNTIME}"
   echo "- CUDA toolkit (nvcc): ${NVCC_VERSION}"
@@ -162,46 +157,32 @@ ENV_MD="$ROOT/STATE/ENVIRONMENT.md"
   echo "- torch cuda_available: ${TORCH_CUDA_AVAIL}"
   echo
   echo "## Notes"
-  if [ "${GPU_MEM_USED_MI}" != "not-detected" ]; then
-    echo "- GPU memory in use at capture time (rough): ${GPU_MEM_USED_MI}. Close heavy GUI apps before big runs."
-  else
-    echo "- nvidia-smi not detected; GPU headroom unknown."
+  if have nvidia-smi; then
+    GPU_MEM_USED_MI="$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits 2>/dev/null | head -n1 | sed 's/[[:space:]]*$//' || echo unknown)"
+    echo "- GPU memory in use at capture time (rough): ${GPU_MEM_USED_MI} MiB. Close heavy GUI apps before big runs."
   fi
   echo "- This file is GENERATED. Edit SCRIPTS/update_state.sh if you want to change content."
-} > "$ENV_MD"
+} > "${ENV_MD}"
 
 #------------------------------------------------------------------------------
-# 2) Write STATE/INVENTORY.yaml (structured)
-#
-# Important:
-#   - We avoid YAML libraries by writing “simple YAML” ourselves.
-#   - Keep it stable and boring; this is for scripting and diffing.
+# Write STATE/INVENTORY.yaml
 #------------------------------------------------------------------------------
-INV_YAML="$ROOT/STATE/INVENTORY.yaml"
+INV_YAML="${STATE_DIR}/INVENTORY.yaml"
 {
-  echo "timestamp: \"${NOW}\""
+  echo "timestamp: \"${NOW_UTC}\""
   echo "hosts:"
-  echo "  - name: \"$(hostname 2>/dev/null || echo unknown)\""
+  echo "  - name: \"${HOSTNAME_SHORT}\""
   echo "    os: \"${OS_PRETTY}\""
-  echo "    version: \"${OS_VERSION_ID}\""
+  echo "    version: \"${VERSION_ID}\""
   echo "    kernel: \"${KERNEL_UNAME}\""
   echo "gpus:"
   echo "  - model: \"${GPU_MODEL}\""
-  # vram_gb: try to parse an integer from "8192 MiB" style outputs; fall back to null.
-  python3 - <<PY 2>/dev/null || echo "    vram_gb: null"
-import re
-s=${GPU_VRAM@Q}
-m=re.search(r'(\d+)', s)
-if not m:
-    print("    vram_gb: null")
-else:
-    mib=int(m.group(1))
-    gb=round(mib/1024, 2)
-    if float(gb).is_integer():
-        print(f"    vram_gb: {int(gb)}")
-    else:
-        print(f"    vram_gb: {gb}")
-PY
+  if [[ "${GPU_VRAM_MI}" =~ ^[0-9]+$ ]]; then
+    # 8192 MiB -> 8 GiB-ish; keep it simple
+    echo "    vram_gb: $(( (GPU_VRAM_MI + 512) / 1024 ))"
+  else
+    echo "    vram_gb: 0"
+  fi
   echo "drivers:"
   echo "  nvidia_driver: \"${NVIDIA_DRIVER}\""
   echo "cuda:"
@@ -217,89 +198,41 @@ PY
   echo "    torch_cuda: \"${TORCH_CUDA}\""
   echo "models: []"
   echo "services: []"
-} > "$INV_YAML"
+} > "${INV_YAML}"
 
 #------------------------------------------------------------------------------
-# 3) Append to STATE/MAILBOX.md (audit trail)
-#
-# This is intentionally append-only:
-#   - You can grep for a date/time and see what was updated
-#   - You can see the source report used (if any)
+# Write SOP
 #------------------------------------------------------------------------------
-MAILBOX="$ROOT/STATE/MAILBOX.md"
-if [ ! -f "$MAILBOX" ]; then
-  cat > "$MAILBOX" <<'MD'
-# Chloe Mailbox
-
-## How to write
-Add this helper to your shell:
-
-  chloe_mail () { echo "- $(date -u +'%Y-%m-%dT%H:%M:%SZ') [${1:-note}]: ${2:-(no message)}" >> $HOME/chloe/STATE/MAILBOX.md; tail -n 5 $HOME/chloe/STATE/MAILBOX.md; }
-
-## Recent
-MD
-fi
-
-echo "- ${NOW} [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml (report: ${REPORT:-<none>})" >> "$MAILBOX"
+SOP_MD="${STATE_DIR}/SOP_UPDATE_STATE.md"
+{
+  echo "# SOP: Update Chloe State"
+  echo
+  echo "Run:"
+  echo
+  echo '```bash'
+  echo 'cd ~/chloe || exit 1'
+  echo 'SCRIPTS/update_state.sh'
+  echo '```'
+  echo
+  echo "Outputs:"
+  echo "- STATE/ENVIRONMENT.md"
+  echo "- STATE/INVENTORY.yaml"
+  echo "- STATE/SOP_UPDATE_STATE.md"
+  echo "- Appends to STATE/MAILBOX.md"
+} > "${SOP_MD}"
 
 #------------------------------------------------------------------------------
-# 4) Write the teaching doc (SOP)
+# Append mailbox note (curated, small)
 #------------------------------------------------------------------------------
-SOP="$ROOT/STATE/SOP_UPDATE_STATE.md"
-cat > "$SOP" <<'MD'
-# SOP: Updating Chloe State
+MAILBOX="${STATE_DIR}/MAILBOX.md"
+touch "${MAILBOX}"
+{
+  echo "- ${NOW_UTC} [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml"
+} >> "${MAILBOX}"
 
-## What this does
-Running `SCRIPTS/update_state.sh` refreshes the **canonical host snapshot**:
-
-- `STATE/ENVIRONMENT.md` (human-readable)
-- `STATE/INVENTORY.yaml` (structured)
-- appends a breadcrumb to `STATE/MAILBOX.md` (audit trail)
-
-This is the official “tell the truth” command for Chloe environments.
-
-## When to run it
-Run it whenever you change anything environment-related, especially:
-
-- kernel / OS updates
-- NVIDIA driver changes
-- CUDA toolkit/runtime changes
-- installing/removing ML Python packages
-- changing container runtime setup
-
-## Command
-From `~/chloe`:
-
-```bash
-./SCRIPTS/update_state.sh
-```
-
-Optionally attach a harvest report path (provenance only):
-
-```bash
-./SCRIPTS/update_state.sh "$HOME/chloe/DIAG/reports/selective_<timestamp>.txt"
-```
-
-## Teaching other Chloes
-“Other Chloes” should treat these files as the source of truth:
-
-1. Read `STATE/ENVIRONMENT.md` for narrative understanding.
-2. Parse `STATE/INVENTORY.yaml` if you need structured decisions.
-3. Check `STATE/MAILBOX.md` for what changed recently.
-
-If a Chloe suspects drift, the remedy is always:
-`./SCRIPTS/update_state.sh`
-MD
-
-chmod +x "$ROOT/SCRIPTS/update_state.sh"
-
-#------------------------------------------------------------------------------
-# Final console summary: keep it short but useful.
-#------------------------------------------------------------------------------
 echo "OK: wrote:"
-echo "  - $ENV_MD"
-echo "  - $INV_YAML"
-echo "  - $SOP"
+echo "  - ${ENV_MD}"
+echo "  - ${INV_YAML}"
+echo "  - ${SOP_MD}"
 echo "OK: appended mailbox:"
-echo "  - $MAILBOX"
-BASH
+echo "  - ${MAILBOX}"
