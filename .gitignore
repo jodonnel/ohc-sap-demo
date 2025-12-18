@@ -13,3 +13,6 @@ STATE/GENERATED/STATE_OF_UNION.txt
 SCRIPTS/*.bak.*
 SCRIPTS/*.pre_fix.*
 SCRIPTS/*.bak.*
+
+# one-off fix scripts
+SCRIPTS/chloe_fix_cuda_state.sh
