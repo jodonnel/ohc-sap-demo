@@ -1,3 +1,15 @@
-# Chloe local backups / scratch
+# local envs / scratch
+.venv/
+DIAG/
+RECOVERY/
+
+# generated state (host-specific outputs)
+STATE/ENVIRONMENT.md
+STATE/INVENTORY.yaml
+STATE/STATE_OF_UNION.txt
+STATE/GENERATED/STATE_OF_UNION.txt
+
+# backups / accidentals
 SCRIPTS/*.bak.*
-SCRIPTS/update_state.sh.bak.*
+SCRIPTS/*.pre_fix.*
+SCRIPTS/*.bak.*
