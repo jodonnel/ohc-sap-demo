@@ -1,0 +1,24 @@
+timestamp: "2025-12-20T02:40:05Z"
+hosts:
+  - name: "rhel-workstation"
+    os: "Red Hat Enterprise Linux 10.1 (Coughlan)"
+    version: "10.1"
+    kernel: "Linux rhel-workstation 6.12.0-124.21.1.el10_1.x86_64 #1 SMP PREEMPT_DYNAMIC Thu Dec  4 09:29:44 EST 2025 x86_64 GNU/Linux"
+gpus:
+  - model: "NVIDIA GeForce RTX 3070"
+    vram_gb: 8
+drivers:
+  nvidia_driver: "590.44.01"
+cuda:
+  toolkit: "13.0"
+  runtime: "13.1"
+runtimes:
+  podman: "5.6.0"
+  docker: "not-detected"
+pyenvs:
+  - name: "system"
+    python: "3.12.11"
+    torch: "2.9.1+cu126"
+    torch_cuda: "12.6"
+models: []
+services: []

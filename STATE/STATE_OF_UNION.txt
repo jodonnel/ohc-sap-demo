@@ -1,0 +1,112 @@
+=== CHLOE STATE OF UNION BEGIN ===
+timestamp_utc: 2025-12-20T02:40:07Z
+host: rhel-workstation
+repo_root: /home/jodonnell/chloe
+
+----- STATE/ENVIRONMENT.md -----
+# Environment Snapshot
+Last verified: 2025-12-20T02:40:05Z
+
+## OS / Kernel
+- PRETTY_NAME: Red Hat Enterprise Linux 10.1 (Coughlan)
+- VERSION_ID: 10.1
+- Kernel (uname -a): Linux rhel-workstation 6.12.0-124.21.1.el10_1.x86_64 #1 SMP PREEMPT_DYNAMIC Thu Dec  4 09:29:44 EST 2025 x86_64 GNU/Linux
+
+## GPU / Driver / CUDA
+- GPU: NVIDIA GeForce RTX 3070
+- VRAM (reported by nvidia-smi): 8192 MiB
+- NVIDIA driver: 590.44.01
+- CUDA runtime (nvidia-smi): 13.1
+- CUDA toolkit (nvcc): 13.0
+
+## Containers
+- Podman: 5.6.0
+- Docker: not-detected
+
+## Python / ML Runtimes
+- Python: 3.12.11
+- PyTorch: 2.9.1+cu126
+- torch CUDA: 12.6
+- torch cuda_available: true
+
+## Notes
+- GPU memory in use at capture time (rough): 1284 MiB. Close heavy GUI apps before big runs.
+- This file is GENERATED. Edit SCRIPTS/update_state.sh if you want to change content.
+
+----- STATE/INVENTORY.yaml -----
+timestamp: "2025-12-20T02:40:05Z"
+hosts:
+  - name: "rhel-workstation"
+    os: "Red Hat Enterprise Linux 10.1 (Coughlan)"
+    version: "10.1"
+    kernel: "Linux rhel-workstation 6.12.0-124.21.1.el10_1.x86_64 #1 SMP PREEMPT_DYNAMIC Thu Dec  4 09:29:44 EST 2025 x86_64 GNU/Linux"
+gpus:
+  - model: "NVIDIA GeForce RTX 3070"
+    vram_gb: 8
+drivers:
+  nvidia_driver: "590.44.01"
+cuda:
+  toolkit: "13.0"
+  runtime: "13.1"
+runtimes:
+  podman: "5.6.0"
+  docker: "not-detected"
+pyenvs:
+  - name: "system"
+    python: "3.12.11"
+    torch: "2.9.1+cu126"
+    torch_cuda: "12.6"
+models: []
+services: []
+
+----- STATE/CHANGELOG.md (head 200) -----
+- 2025-12-15T18:42:20Z: Initialized ENVIRONMENT.md & INVENTORY.yaml from /home/jodonnell/chloe/DIAG/reports/selective_2025-12-15T18:39:06Z.txt.
+
+- 2025-12-17T08:04:04Z [obs/meet/firefox]: RHEL 10 Wayland+PipeWire: Firefox may not enumerate OBS v4l2loopback virtual camera in Google Meet. Fix: about:config media.webrtc.camera.allow-pipewire=false; restart Firefox; re-allow camera permission for meet.google.com. Verify /dev/video10 name and OBS holds it via fuser.
+- 2025-12-17T08:14:28Z [cuda]: CUDA toolkit confirmed installed (cuda-toolkit-13-0 RPMs; /usr/local/cuda-13.0; nvcc V13.0.88). Updated state detection and PATH.
+- 2025-12-17T08:18:17Z [fix]: Fixed update_state.sh stray 'BASH' delimiter line; ensured CUDA PATH via /etc/profile.d/cuda.sh; ensured chloe_mail helper in ~/.bashrc; ran update_state.sh.
+
+----- STATE/MAILBOX.md (tail 200) -----
+# MAILBOX (curated)
+
+## Active
+- Clean up repo: commit remaining modified files + decide what to do with untracked scripts.
+- Fix docs/index.html contamination reliably via a small script (no long pastes).
+- Build Stream Deck “Kind Meeting Launch” script: browser → OBS → start virtual cam.
+
+## Notes
+- Raw session dumps are stored under STATE/JOURNAL/.
+- 2025-12-17T20:01:10Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml (report: <none>)
+- 2025-12-17T20:01:12Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml (report: <none>)
+- 2025-12-17T20:10:22Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml (report: <none>)
+- 2025-12-17T20:15:41Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml (report: <none>)
+- 2025-12-17T20:16:21Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml (report: <none>)
+- 2025-12-17T20:19:22Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:20:18Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:20:31Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:25:39Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:27:55Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:29:05Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:30:27Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:31:15Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:34:23Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:37:53Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T03:42:49Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T05:42:51Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-18T05:50:58Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-20T02:40:05Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+
+----- GIT CONTEXT -----
+git_head: 141722766042457941449d51f5612d64f527a577
+git_branch: main
+git_status:
+ M STATE/MAILBOX.md
+?? STATE/JOURNAL/sync_2025-12-17T22_42_49-05_00.txt
+
+----- CHECKSUMS -----
+4bb848f5e5d28ac36ae2d5ee0e6ce4ee6e3396ff760af6e92f32bd9ec016ad10  STATE/ENVIRONMENT.md
+766cb36460e799c627306ddd4bf873ae0cdafed0c88ac099b6950b5752581f1c  STATE/INVENTORY.yaml
+f378f29f511b0f4d377e1cb8eb258ef493bb0be922a309f7dd77251d9544f6be  STATE/CHANGELOG.md
+416d87e9ddad7bf8750c618dc01f0250858c0463c80b1ca13687c0b360e2ca4d  STATE/MAILBOX.md
+
+=== CHLOE STATE OF UNION END ===
