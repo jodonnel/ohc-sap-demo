@@ -27,3 +27,4 @@
 - 2025-12-18T05:50:58Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 - 2025-12-20T02:40:05Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 - 2025-12-20T02:50:00Z [todo]: Refreshed TODO list: removed completed nvcc check; promoted docs index contamination + Stream Deck meeting launcher; added decision on tracked script backups; kept llama.cpp/vLLM validation items.
+- 2025-12-20T02:55:30Z [docs]: Verified docs/index.html generation is deterministic: write_docs_index.py rewrites index but produces no git diff.

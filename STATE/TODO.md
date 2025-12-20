@@ -2,7 +2,7 @@
 
 ## Now
 - [ ] Decide what to do with tracked backup scripts in SCRIPTS/ (keep, move to RECOVERY/, or ignore/remove).
-- [ ] Fix docs/index.html contamination reliably (deterministic regeneration; no long pastes).
+- [x] Fix docs/index.html contamination reliably (deterministic regeneration; no long pastes).
 - [ ] Build Stream Deck “Kind Meeting Launch” script: browser → OBS → start virtual cam.
 
 ## Soon
