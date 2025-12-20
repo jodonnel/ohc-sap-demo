@@ -16,3 +16,12 @@ SCRIPTS/*.bak.*
 
 # one-off fix scripts
 SCRIPTS/chloe_fix_cuda_state.sh
+
+# --- Chloe: track key state snapshots (overrides earlier ignores) ---
+!STATE/ENVIRONMENT.md
+!STATE/INVENTORY.yaml
+!STATE/STATE_OF_UNION.txt
+
+# --- Chloe: ignore raw session dumps ---
+STATE/JOURNAL/
+STATE/JOURNAL/**
