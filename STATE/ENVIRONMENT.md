@@ -1,5 +1,5 @@
 # Environment Snapshot
-Last verified: 2025-12-21T17:22:50Z
+Last verified: 2025-12-22T02:53:04Z
 
 ## OS / Kernel
 - PRETTY_NAME: Red Hat Enterprise Linux 10.1 (Coughlan)
@@ -24,5 +24,5 @@ Last verified: 2025-12-21T17:22:50Z
 - torch cuda_available: true
 
 ## Notes
-- GPU memory in use at capture time (rough): 1243 MiB. Close heavy GUI apps before big runs.
+- GPU memory in use at capture time (rough): 1566 MiB. Close heavy GUI apps before big runs.
 - This file is GENERATED. Edit SCRIPTS/update_state.sh if you want to change content.

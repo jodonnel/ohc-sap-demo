@@ -1,11 +1,11 @@
 === CHLOE STATE OF UNION BEGIN ===
-timestamp_utc: 2025-12-21T17:22:51Z
+timestamp_utc: 2025-12-22T02:53:05Z
 host: rhel-workstation
 repo_root: /home/jodonnell/chloe
 
 ----- STATE/ENVIRONMENT.md -----
 # Environment Snapshot
-Last verified: 2025-12-21T17:22:50Z
+Last verified: 2025-12-22T02:53:04Z
 
 ## OS / Kernel
 - PRETTY_NAME: Red Hat Enterprise Linux 10.1 (Coughlan)
@@ -30,11 +30,11 @@ Last verified: 2025-12-21T17:22:50Z
 - torch cuda_available: true
 
 ## Notes
-- GPU memory in use at capture time (rough): 1243 MiB. Close heavy GUI apps before big runs.
+- GPU memory in use at capture time (rough): 1566 MiB. Close heavy GUI apps before big runs.
 - This file is GENERATED. Edit SCRIPTS/update_state.sh if you want to change content.
 
 ----- STATE/INVENTORY.yaml -----
-timestamp: "2025-12-21T17:22:50Z"
+timestamp: "2025-12-22T02:53:04Z"
 hosts:
   - name: "rhel-workstation"
     os: "Red Hat Enterprise Linux 10.1 (Coughlan)"
@@ -102,9 +102,11 @@ services: []
 - 2025-12-21T13:10:04Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 - 2025-12-21T17:22:48Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 - 2025-12-21T17:22:50Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-22T02:53:02Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-22T02:53:04Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 
 ----- GIT CONTEXT -----
-git_head: 0ae91e9a6abf635a7384c706b456f1bd0aa98ba6
+git_head: c3e744e5919bf0d5140fd83d10cb99521be7e7b0
 git_branch: main
 git_status:
  M STATE/ENVIRONMENT.md
@@ -113,9 +115,9 @@ git_status:
  M STATE/STATE_OF_UNION.txt
 
 ----- CHECKSUMS -----
-ec683ce5507f59f56e07cc7e72afc8af65ba1d1e9648c92d966e3adc3f99a866  STATE/ENVIRONMENT.md
-e4f1928c196f75cdab461baf3bf85ddaed9e6c79355ce20337403af27fb7ced0  STATE/INVENTORY.yaml
+e988c44eb9357bccde254afd7d04955035d21ab68e5f80c0487e17a11d3dd4dc  STATE/ENVIRONMENT.md
+c27ebc495e58afc0cd58d5f37b96475d70ce26f1b5e0bf26323a09d908707f32  STATE/INVENTORY.yaml
 f378f29f511b0f4d377e1cb8eb258ef493bb0be922a309f7dd77251d9544f6be  STATE/CHANGELOG.md
-c544532bb06b305099dd7f012877a2173d78b121d3a3bc094f219cb4a14160f8  STATE/MAILBOX.md
+a9560a3b2d40595830746d4f7ed22228805e73ccf2677b5b4947e141b54fe00c  STATE/MAILBOX.md
 
 === CHLOE STATE OF UNION END ===
