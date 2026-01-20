@@ -35,3 +35,16 @@
 - 2025-12-21T17:22:50Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 - 2025-12-22T02:53:02Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 - 2025-12-22T02:53:04Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T09:28:34Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T09:28:35Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T09:29:01Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T09:29:03Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T14:01:50Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T14:01:51Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2026-01-04T12:08:49Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2026-01-06T05:14:55Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2026-01-06T15:30:36Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2026-01-06T15:30:46Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2026-01-06T15:30:54Z [note]: Session C active: ARO southbound demo v0.1 live at south-hello route; moving toward richer south-end app while awaiting EIC subscription.
+- 2026-01-20T12:00:08Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2026-01-20T12:00:30Z [note]: narrative checkpoint: focus is OHC demo execution; single architecture carries Open Hybrid Cloud + AI + virtualization messaging together

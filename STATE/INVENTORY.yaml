@@ -1,4 +1,4 @@
-timestamp: "2025-12-22T02:53:04Z"
+timestamp: "2026-01-20T12:00:08Z"
 hosts:
   - name: "rhel-workstation"
     os: "Red Hat Enterprise Linux 10.1 (Coughlan)"
@@ -8,7 +8,7 @@ gpus:
   - model: "NVIDIA GeForce RTX 3070"
     vram_gb: 8
 drivers:
-  nvidia_driver: "590.44.01"
+  nvidia_driver: "590.48.01"
 cuda:
   toolkit: "13.0"
   runtime: "13.1"
@@ -17,7 +17,7 @@ runtimes:
   docker: "not-detected"
 pyenvs:
   - name: "system"
-    python: "3.12.11"
+    python: "3.12.12"
     torch: "2.9.1+cu126"
     torch_cuda: "12.6"
 models: []

@@ -1,5 +1,5 @@
 # Environment Snapshot
-Last verified: 2025-12-22T02:53:04Z
+Last verified: 2026-01-20T12:00:08Z
 
 ## OS / Kernel
 - PRETTY_NAME: Red Hat Enterprise Linux 10.1 (Coughlan)
@@ -9,7 +9,7 @@ Last verified: 2025-12-22T02:53:04Z
 ## GPU / Driver / CUDA
 - GPU: NVIDIA GeForce RTX 3070
 - VRAM (reported by nvidia-smi): 8192 MiB
-- NVIDIA driver: 590.44.01
+- NVIDIA driver: 590.48.01
 - CUDA runtime (nvidia-smi): 13.1
 - CUDA toolkit (nvcc): 13.0
 
@@ -18,11 +18,11 @@ Last verified: 2025-12-22T02:53:04Z
 - Docker: not-detected
 
 ## Python / ML Runtimes
-- Python: 3.12.11
+- Python: 3.12.12
 - PyTorch: 2.9.1+cu126
 - torch CUDA: 12.6
 - torch cuda_available: true
 
 ## Notes
-- GPU memory in use at capture time (rough): 1566 MiB. Close heavy GUI apps before big runs.
+- GPU memory in use at capture time (rough): 2279 MiB. Close heavy GUI apps before big runs.
 - This file is GENERATED. Edit SCRIPTS/update_state.sh if you want to change content.

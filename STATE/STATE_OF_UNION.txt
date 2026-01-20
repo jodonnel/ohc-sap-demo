@@ -1,11 +1,11 @@
 === CHLOE STATE OF UNION BEGIN ===
-timestamp_utc: 2025-12-22T02:53:05Z
+timestamp_utc: 2026-01-06T05:14:56Z
 host: rhel-workstation
 repo_root: /home/jodonnell/chloe
 
 ----- STATE/ENVIRONMENT.md -----
 # Environment Snapshot
-Last verified: 2025-12-22T02:53:04Z
+Last verified: 2026-01-06T05:14:55Z
 
 ## OS / Kernel
 - PRETTY_NAME: Red Hat Enterprise Linux 10.1 (Coughlan)
@@ -15,7 +15,7 @@ Last verified: 2025-12-22T02:53:04Z
 ## GPU / Driver / CUDA
 - GPU: NVIDIA GeForce RTX 3070
 - VRAM (reported by nvidia-smi): 8192 MiB
-- NVIDIA driver: 590.44.01
+- NVIDIA driver: 590.48.01
 - CUDA runtime (nvidia-smi): 13.1
 - CUDA toolkit (nvcc): 13.0
 
@@ -24,17 +24,17 @@ Last verified: 2025-12-22T02:53:04Z
 - Docker: not-detected
 
 ## Python / ML Runtimes
-- Python: 3.12.11
+- Python: 3.12.12
 - PyTorch: 2.9.1+cu126
 - torch CUDA: 12.6
 - torch cuda_available: true
 
 ## Notes
-- GPU memory in use at capture time (rough): 1566 MiB. Close heavy GUI apps before big runs.
+- GPU memory in use at capture time (rough): 2580 MiB. Close heavy GUI apps before big runs.
 - This file is GENERATED. Edit SCRIPTS/update_state.sh if you want to change content.
 
 ----- STATE/INVENTORY.yaml -----
-timestamp: "2025-12-22T02:53:04Z"
+timestamp: "2026-01-06T05:14:55Z"
 hosts:
   - name: "rhel-workstation"
     os: "Red Hat Enterprise Linux 10.1 (Coughlan)"
@@ -44,7 +44,7 @@ gpus:
   - model: "NVIDIA GeForce RTX 3070"
     vram_gb: 8
 drivers:
-  nvidia_driver: "590.44.01"
+  nvidia_driver: "590.48.01"
 cuda:
   toolkit: "13.0"
   runtime: "13.1"
@@ -53,7 +53,7 @@ runtimes:
   docker: "not-detected"
 pyenvs:
   - name: "system"
-    python: "3.12.11"
+    python: "3.12.12"
     torch: "2.9.1+cu126"
     torch_cuda: "12.6"
 models: []
@@ -65,6 +65,7 @@ services: []
 - 2025-12-17T08:04:04Z [obs/meet/firefox]: RHEL 10 Wayland+PipeWire: Firefox may not enumerate OBS v4l2loopback virtual camera in Google Meet. Fix: about:config media.webrtc.camera.allow-pipewire=false; restart Firefox; re-allow camera permission for meet.google.com. Verify /dev/video10 name and OBS holds it via fuser.
 - 2025-12-17T08:14:28Z [cuda]: CUDA toolkit confirmed installed (cuda-toolkit-13-0 RPMs; /usr/local/cuda-13.0; nvcc V13.0.88). Updated state detection and PATH.
 - 2025-12-17T08:18:17Z [fix]: Fixed update_state.sh stray 'BASH' delimiter line; ensured CUDA PATH via /etc/profile.d/cuda.sh; ensured chloe_mail helper in ~/.bashrc; ran update_state.sh.
+- 2025-12-22T03:05:01Z [cuda/insights]: Removed global LD_LIBRARY_PATH from /etc/profile.d/cuda.sh; added /etc/ld.so.conf.d/cuda.conf + ldconfig. cuda.sh now sets PATH only (prefers /usr/local/cuda/bin).
 
 ----- STATE/MAILBOX.md (tail 200) -----
 # MAILBOX (curated)
@@ -104,20 +105,29 @@ services: []
 - 2025-12-21T17:22:50Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 - 2025-12-22T02:53:02Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 - 2025-12-22T02:53:04Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T09:28:34Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T09:28:35Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T09:29:01Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T09:29:03Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T14:01:50Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2025-12-23T14:01:51Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2026-01-04T12:08:49Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
+- 2026-01-06T05:14:55Z [state]: update_state.sh wrote ENVIRONMENT.md + INVENTORY.yaml
 
 ----- GIT CONTEXT -----
-git_head: c3e744e5919bf0d5140fd83d10cb99521be7e7b0
+git_head: 8b84962044238f48ba7d716e006cdd3bdd086ac9
 git_branch: main
 git_status:
  M STATE/ENVIRONMENT.md
  M STATE/INVENTORY.yaml
  M STATE/MAILBOX.md
  M STATE/STATE_OF_UNION.txt
+?? GENERATED/
 
 ----- CHECKSUMS -----
-e988c44eb9357bccde254afd7d04955035d21ab68e5f80c0487e17a11d3dd4dc  STATE/ENVIRONMENT.md
-c27ebc495e58afc0cd58d5f37b96475d70ce26f1b5e0bf26323a09d908707f32  STATE/INVENTORY.yaml
-f378f29f511b0f4d377e1cb8eb258ef493bb0be922a309f7dd77251d9544f6be  STATE/CHANGELOG.md
-a9560a3b2d40595830746d4f7ed22228805e73ccf2677b5b4947e141b54fe00c  STATE/MAILBOX.md
+161819cb719b00de6e4338bf4d03ecf9b47f90353d76e45e3b681c229ca84b51  STATE/ENVIRONMENT.md
+e36045d44bd19e7cbf5f7d782b576d22ac8609bca96b4170d16a8f46d10ac026  STATE/INVENTORY.yaml
+da0156043f8b13fbd208c05a35c4c6f818715fb9275b14fbb0f21a8567ce8334  STATE/CHANGELOG.md
+a655614bd772d3aa7611ab83dea1fe283809e7fdc158f0c0bc2ad8ab0bfd6f3e  STATE/MAILBOX.md
 
 === CHLOE STATE OF UNION END ===
