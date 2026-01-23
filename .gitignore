@@ -25,3 +25,4 @@ SCRIPTS/chloe_fix_cuda_state.sh
 # --- Chloe: ignore raw session dumps ---
 STATE/JOURNAL/
 STATE/JOURNAL/**
+GENERATED/
