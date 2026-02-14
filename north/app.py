@@ -1,11 +1,9 @@
 from flask import Flask, request, Response, send_from_directory
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import queue
 import threading
 import os
-import time
-import queue
 
 app = Flask(__name__)
 
@@ -51,7 +49,7 @@ def ingest():
     data = request.get_json(silent=True) or {}
     count += 1
     last = {
-        "ts": datetime.utcnow().isoformat() + "Z",
+        "ts": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "payload": data,
         "count": count
     }
