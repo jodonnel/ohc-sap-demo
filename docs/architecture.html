@@ -49,7 +49,8 @@
   <p class="subtitle">Closed-loop hybrid cloud — events up, decisions down</p>
 </div>
 
-<svg viewBox="0 0 900 860" width="900" height="860">
+<div id="svg-wrap" style="position:relative;display:inline-block">
+<svg id="arch" viewBox="0 0 900 860" width="900" height="860">
   <defs>
     <marker id="arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#4E5D6C" />
@@ -214,27 +215,27 @@
   <line x1="420" y1="475" x2="420" y2="322" stroke="url(#flowUp)" stroke-width="3" opacity="0.12" />
 
   <!-- Northbound animated dots — mixed event colors -->
-  <circle r="5" fill="#00D26A" filter="url(#glow-green)">
+  <circle r="5" fill="#00D26A" filter="url(#glow-green)" data-cls="tap">
     <animateMotion dur="1.6s" repeatCount="indefinite" begin="0s" path="M420,475 L420,322" />
     <animate attributeName="opacity" values="1;0.45;1" dur="1.6s" repeatCount="indefinite" begin="0s" />
   </circle>
-  <circle r="4" fill="#3B82F6">
+  <circle r="4" fill="#3B82F6" data-cls="status">
     <animateMotion dur="1.6s" repeatCount="indefinite" begin="0.35s" path="M420,475 L420,322" />
     <animate attributeName="opacity" values="0.9;0.35;0.9" dur="1.6s" repeatCount="indefinite" begin="0.35s" />
   </circle>
-  <circle r="5" fill="#00D26A" filter="url(#glow-green)">
+  <circle r="5" fill="#00D26A" filter="url(#glow-green)" data-cls="tap">
     <animateMotion dur="1.6s" repeatCount="indefinite" begin="0.6s" path="M420,475 L420,322" />
     <animate attributeName="opacity" values="0.95;0.4;0.95" dur="1.6s" repeatCount="indefinite" begin="0.6s" />
   </circle>
-  <circle r="3.5" fill="#F97316">
+  <circle r="3.5" fill="#F97316" data-cls="alert">
     <animateMotion dur="1.6s" repeatCount="indefinite" begin="0.85s" path="M420,475 L420,322" />
     <animate attributeName="opacity" values="0.85;0.3;0.85" dur="1.6s" repeatCount="indefinite" begin="0.85s" />
   </circle>
-  <circle r="4.5" fill="#00D26A" filter="url(#glow-green)">
+  <circle r="4.5" fill="#00D26A" filter="url(#glow-green)" data-cls="tap">
     <animateMotion dur="1.6s" repeatCount="indefinite" begin="1.1s" path="M420,475 L420,322" />
     <animate attributeName="opacity" values="0.95;0.4;0.95" dur="1.6s" repeatCount="indefinite" begin="1.1s" />
   </circle>
-  <circle r="3" fill="#A855F7">
+  <circle r="3" fill="#A855F7" data-cls="telemetry">
     <animateMotion dur="1.6s" repeatCount="indefinite" begin="1.3s" path="M420,475 L420,322" />
     <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.6s" repeatCount="indefinite" begin="1.3s" />
   </circle>
@@ -322,7 +323,7 @@
     Click a device to take it offline
   </text>
 
-  <!-- Device cards — click to toggle offline -->
+  <!-- Device cards -->
   <rect x="168" y="648" width="134" height="98" rx="12" fill="#0D1117" stroke="#00D26A" stroke-width="1.5" />
   <rect x="168" y="648" width="134" height="3" rx="1.5" fill="#00D26A" opacity="0.7" />
   <text x="235" y="680" text-anchor="middle" font-size="28">📱</text>
@@ -359,53 +360,53 @@
   <!-- ══════════════════════════════════════════════════════ -->
 
   <!-- Northbound fan-in (green, events up) -->
-  <path d="M235,648 C235,620 360,600 420,580" fill="none" stroke="#00D26A" stroke-width="1.2" opacity="0.25" />
-  <path d="M385,648 C385,630 410,610 420,580" fill="none" stroke="#3B82F6" stroke-width="1" opacity="0.2" />
-  <path d="M535,648 C535,630 490,610 480,580" fill="none" stroke="#F97316" stroke-width="1" opacity="0.2" />
-  <path d="M679,648 C679,620 540,600 480,580" fill="none" stroke="#A855F7" stroke-width="1" opacity="0.15" />
+  <path d="M235,648 C235,620 360,600 420,580" fill="none" stroke="#00D26A" data-cls="tap" stroke-width="1.2" opacity="0.25" />
+  <path d="M385,648 C385,630 410,610 420,580" fill="none" stroke="#3B82F6" data-cls="status" stroke-width="1" opacity="0.2" />
+  <path d="M535,648 C535,630 490,610 480,580" fill="none" stroke="#F97316" data-cls="alert" stroke-width="1" opacity="0.2" />
+  <path d="M679,648 C679,620 540,600 480,580" fill="none" stroke="#A855F7" data-cls="telemetry" stroke-width="1" opacity="0.15" />
 
   <!-- Northbound fan-in dots -->
-  <circle r="3.5" fill="#00D26A" opacity="0.8">
+  <circle r="3.5" fill="#00D26A" opacity="0.8" data-cls="tap">
     <animateMotion dur="1.1s" repeatCount="indefinite" begin="0s" path="M235,648 C235,620 360,600 420,580" />
     <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.1s" repeatCount="indefinite" />
   </circle>
-  <circle r="3" fill="#00D26A" opacity="0.7">
+  <circle r="3" fill="#00D26A" opacity="0.7" data-cls="tap">
     <animateMotion dur="1.1s" repeatCount="indefinite" begin="0.5s" path="M235,648 C235,620 360,600 420,580" />
     <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.1s" repeatCount="indefinite" begin="0.5s" />
   </circle>
-  <circle r="2.5" fill="#3B82F6" opacity="0.7">
+  <circle r="2.5" fill="#3B82F6" opacity="0.7" data-cls="status">
     <animateMotion dur="1.3s" repeatCount="indefinite" begin="0.2s" path="M385,648 C385,630 410,610 420,580" />
     <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.3s" repeatCount="indefinite" begin="0.2s" />
   </circle>
-  <circle r="2.5" fill="#F97316" opacity="0.7">
+  <circle r="2.5" fill="#F97316" opacity="0.7" data-cls="alert">
     <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.4s" path="M535,648 C535,630 490,610 480,580" />
     <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite" begin="0.4s" />
   </circle>
-  <circle r="2" fill="#A855F7" opacity="0.6">
+  <circle r="2" fill="#A855F7" opacity="0.6" data-cls="telemetry">
     <animateMotion dur="1.7s" repeatCount="indefinite" begin="0.6s" path="M679,648 C679,620 540,600 480,580" />
     <animate attributeName="opacity" values="0.6;0.15;0.6" dur="1.7s" repeatCount="indefinite" begin="0.6s" />
   </circle>
 
   <!-- Southbound fan-out (amber, decisions down) -->
-  <path d="M480,580 C480,600 360,620 235,648" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
-  <path d="M480,580 C480,600 430,620 385,648" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
-  <path d="M480,580 C480,600 510,620 535,648" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
-  <path d="M480,580 C480,600 570,620 679,648" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.12" stroke-dasharray="4,4" />
+  <path d="M480,580 C480,600 360,620 235,648" fill="none" stroke="#F59E0B" data-cls="tap" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
+  <path d="M480,580 C480,600 430,620 385,648" fill="none" stroke="#F59E0B" data-cls="status" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
+  <path d="M480,580 C480,600 510,620 535,648" fill="none" stroke="#F59E0B" data-cls="alert" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
+  <path d="M480,580 C480,600 570,620 679,648" fill="none" stroke="#F59E0B" data-cls="telemetry" stroke-width="1" opacity="0.12" stroke-dasharray="4,4" />
 
   <!-- Southbound fan-out dots -->
-  <circle r="3" fill="#F59E0B" filter="url(#glow-amber)">
+  <circle r="3" fill="#F59E0B" filter="url(#glow-amber)" data-cls="tap">
     <animateMotion dur="1.4s" repeatCount="indefinite" begin="0.8s" path="M480,580 C480,600 360,620 235,648" />
     <animate attributeName="opacity" values="0.8;0.25;0.8" dur="1.4s" repeatCount="indefinite" begin="0.8s" />
   </circle>
-  <circle r="2.5" fill="#F59E0B">
+  <circle r="2.5" fill="#F59E0B" data-cls="status">
     <animateMotion dur="1.5s" repeatCount="indefinite" begin="1.2s" path="M480,580 C480,600 430,620 385,648" />
     <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite" begin="1.2s" />
   </circle>
-  <circle r="2.5" fill="#F59E0B">
+  <circle r="2.5" fill="#F59E0B" data-cls="alert">
     <animateMotion dur="1.6s" repeatCount="indefinite" begin="0.5s" path="M480,580 C480,600 510,620 535,648" />
     <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.6s" repeatCount="indefinite" begin="0.5s" />
   </circle>
-  <circle r="2" fill="#F59E0B">
+  <circle r="2" fill="#F59E0B" data-cls="telemetry">
     <animateMotion dur="1.8s" repeatCount="indefinite" begin="1.5s" path="M480,580 C480,600 570,620 679,648" />
     <animate attributeName="opacity" values="0.6;0.15;0.6" dur="1.8s" repeatCount="indefinite" begin="1.5s" />
   </circle>
@@ -451,6 +452,8 @@
     Kustomize overlays · TLS everywhere · Sandbox → Pilot → Production
   </text>
 </svg>
+<div id="overlays"></div>
+</div>
 
 <!-- Legend -->
 <div class="legend">
@@ -499,120 +502,69 @@
 
 
 <script>
-/* Device class toggle — click card to take offline/online
-   Uses SVG click coordinates to detect which card was hit. */
 (function () {
   var svg = document.getElementById("arch");
-  var allPaths = svg.querySelectorAll("path");
-  var allCircles = svg.querySelectorAll("circle");
+  var wrap = document.getElementById("svg-wrap");
+  var overlayContainer = document.getElementById("overlays");
   var state = { tap: true, status: true, alert: true, telemetry: true };
 
-  var cards = [
-    { xMin: 168, xMax: 302, cls: "tap" },
-    { xMin: 318, xMax: 452, cls: "status" },
-    { xMin: 468, xMax: 602, cls: "alert" },
-    { xMin: 618, xMax: 740, cls: "telemetry" }
+  var cardDefs = [
+    { cls: "tap",       vx: 168, vy: 648, vw: 134, vh: 98 },
+    { cls: "status",    vx: 318, vy: 648, vw: 134, vh: 98 },
+    { cls: "alert",     vx: 468, vy: 648, vw: 134, vh: 98 },
+    { cls: "telemetry", vx: 618, vy: 648, vw: 122, vh: 98 }
   ];
 
-  var fanInPaths = {
-    tap:       "M235,648 C235,620 360,600 420,580",
-    status:    "M385,648 C385,630 410,610 420,580",
-    alert:     "M535,648 C535,630 490,610 480,580",
-    telemetry: "M679,648 C679,620 540,600 480,580"
-  };
-  var fanOutPaths = {
-    tap:       "M480,580 C480,600 360,620 235,648",
-    status:    "M480,580 C480,600 430,620 385,648",
-    alert:     "M480,580 C480,600 510,620 535,648",
-    telemetry: "M480,580 C480,600 570,620 679,648"
-  };
-  var streamColors = {
-    tap: "#00D26A", status: "#3B82F6", alert: "#F97316", telemetry: "#A855F7"
-  };
-
-  // Cache card elements by class
+  // Cache card visual elements for dimming
   var cardEls = {};
-  cards.forEach(function (card) {
+  cardDefs.forEach(function (card) {
     cardEls[card.cls] = [];
     svg.querySelectorAll("rect, text, circle").forEach(function (el) {
-      var ex = parseFloat(el.getAttribute("x") || el.getAttribute("cx") || -1);
-      var ey = parseFloat(el.getAttribute("y") || el.getAttribute("cy") || -1);
-      if (ex >= card.xMin && ex <= card.xMax && ey >= 648 && ey <= 760) {
+      var ex = parseFloat(el.getAttribute("x") || el.getAttribute("cx") || -999);
+      var ey = parseFloat(el.getAttribute("y") || el.getAttribute("cy") || -999);
+      if (ex >= card.vx - 5 && ex <= card.vx + card.vw + 5 && ey >= card.vy - 5 && ey <= card.vy + card.vh + 20) {
         cardEls[card.cls].push(el);
       }
     });
   });
 
-  // Convert SVG click to viewBox coordinates
-  function svgPoint(evt) {
-    var pt = svg.createSVGPoint();
-    pt.x = evt.clientX;
-    pt.y = evt.clientY;
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
-  }
-
-  svg.style.cursor = "default";
-  
-  // Track mouse for cursor hint
-  svg.addEventListener("mousemove", function (evt) {
-    var p = svgPoint(evt);
-    var overCard = false;
-    if (p.y >= 648 && p.y <= 746) {
-      cards.forEach(function (card) {
-        if (p.x >= card.xMin && p.x <= card.xMax) overCard = true;
-      });
-    }
-    svg.style.cursor = overCard ? "pointer" : "default";
-  });
-
-  svg.addEventListener("click", function (evt) {
-    var p = svgPoint(evt);
-    if (p.y < 648 || p.y > 746) return;
-
-    var cls = null;
-    cards.forEach(function (card) {
-      if (p.x >= card.xMin && p.x <= card.xMax) cls = card.cls;
-    });
-    if (!cls) return;
-
+  function toggleClass(cls) {
     state[cls] = !state[cls];
     var on = state[cls];
 
     // Dim/restore card
     (cardEls[cls] || []).forEach(function (el) {
-      el.style.transition = "opacity 0.4s";
-      el.style.opacity = on ? "" : "0.15";
+      el.style.opacity = on ? "" : "0.12";
+      el.style.filter = on ? "" : "grayscale(1)";
     });
 
-    // Fan-in/fan-out paths
-    allPaths.forEach(function (p) {
-      var d = p.getAttribute("d");
-      if (d === fanInPaths[cls] || d === fanOutPaths[cls]) {
-        p.style.transition = "opacity 0.4s";
-        p.style.opacity = on ? "" : "0";
-      }
+    // Hide/show ALL elements tagged with this class
+    svg.querySelectorAll('[data-cls="' + cls + '"]').forEach(function (el) {
+      el.style.display = on ? "" : "none";
     });
+  }
 
-    // Dots: fan-in, fan-out, and unified stream
-    allCircles.forEach(function (c) {
-      var fill = c.getAttribute("fill");
-      var motion = c.querySelector("animateMotion");
-      if (!motion) return;
-      var mpath = motion.getAttribute("path");
+  function positionOverlays() {
+    overlayContainer.innerHTML = "";
+    var svgRect = svg.getBoundingClientRect();
+    var vb = svg.viewBox.baseVal;
+    var scaleX = svgRect.width / vb.width;
+    var scaleY = svgRect.height / vb.height;
 
-      // Fan-in or fan-out dots
-      if (mpath === fanInPaths[cls] || mpath === fanOutPaths[cls]) {
-        c.style.transition = "opacity 0.4s";
-        c.style.opacity = on ? "" : "0";
-        return;
-      }
-      // Unified northbound stream dots matching this class color
-      if (fill === streamColors[cls] && mpath === "M420,475 L420,322") {
-        c.style.transition = "opacity 0.4s";
-        c.style.opacity = on ? "" : "0";
-      }
+    cardDefs.forEach(function (card) {
+      var div = document.createElement("div");
+      div.style.cssText = "position:absolute;cursor:pointer;z-index:10;border-radius:12px;";
+      div.style.left = (card.vx * scaleX) + "px";
+      div.style.top = (card.vy * scaleY) + "px";
+      div.style.width = (card.vw * scaleX) + "px";
+      div.style.height = (card.vh * scaleY) + "px";
+      overlayContainer.appendChild(div);
+      div.addEventListener("click", function () { toggleClass(card.cls); });
     });
-  });
+  }
+
+  positionOverlays();
+  window.addEventListener("resize", positionOverlays);
 })();
 </script>
 
