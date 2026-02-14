@@ -12,21 +12,7 @@ Once this boundary works, everything north of it becomes a **design choice**, no
 
 ## Architecture
 
-```
-[ Humans / Devices ]
-        |
-        v
-   South UI (Edge)        ← participants tap buttons on their phones
-        |
-        v
-- - - - - - - - - - - -   ← intentional boundary
-        |
-        v
-   North Service (IT)     ← ingests events, publishes via SSE
-        |
-        v
-   Stage Dashboard         ← operator-only live view (sound + counter)
-```
+[View the animated architecture diagram](https://jodonnel.github.io/ohc-sap-demo/architecture.html)
 
 - **Event-driven** (SSE push, no polling)
 - **Observable and auditable**
