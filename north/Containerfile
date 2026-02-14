@@ -1,0 +1,5 @@
+FROM registry.access.redhat.com/ubi9/python-311:latest
+RUN pip install --no-cache-dir flask
+COPY app.py /opt/app/app.py
+EXPOSE 8080
+CMD ["python", "/opt/app/app.py"]
