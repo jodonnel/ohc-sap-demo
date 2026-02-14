@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OHC Demo — Edge-to-Core Integration Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #06090F;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    font-family: 'Segoe UI', 'SF Pro Display', -apple-system, system-ui, sans-serif;
+  }
+  .header { text-align: center; margin-bottom: 36px; animation: fadeIn 0.8s ease-out; }
+  .brands { display: flex; align-items: center; justify-content: center; gap: 32px; margin-bottom: 14px; }
+  .brands .rh { font-size: 13px; color: #EE0000; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  .brands .sep { color: #4E5D6C; font-size: 20px; }
+  .brands .sap { font-size: 13px; color: #0070F2; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  h1 { font-size: 36px; color: #F0F4F8; font-weight: 300; letter-spacing: -0.5px; }
+  .subtitle { color: #8B98A5; font-size: 15px; margin-top: 10px; }
+  svg { max-width: 100%; animation: fadeIn 1s ease-out 0.3s both; }
+  .footer { display: flex; gap: 40px; margin-top: 28px; align-items: center; animation: fadeIn 1s ease-out 0.6s both; }
+  .footer .rh { color: #EE0000; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+  .footer .mid { color: #4E5D6C; font-size: 11px; }
+  .footer .sap { color: #0070F2; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+  .legend { display: flex; gap: 20px; margin-top: 22px; flex-wrap: wrap; justify-content: center; animation: fadeIn 1s ease-out 0.5s both; }
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .legend-dot { border-radius: 50%; }
+  .legend-label { color: #8B98A5; font-size: 11px; }
+  .legend-live { color: #00D26A; font-size: 10px; font-weight: 600; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brands">
+    <span class="rh">Red Hat OpenShift</span>
+    <span class="sep">×</span>
+    <span class="sap">SAP Business Technology Platform</span>
+  </div>
+  <h1>Edge-to-Core Integration</h1>
+  <p class="subtitle">Closed-loop hybrid cloud — events up, decisions down</p>
+</div>
+
+<svg viewBox="0 0 900 860" width="900" height="860">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4E5D6C" />
+    </marker>
+    <marker id="arr-up" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#00D26A" opacity="0.6" />
+    </marker>
+    <marker id="arr-down" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#F59E0B" opacity="0.6" />
+    </marker>
+    <marker id="arr-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0070F2" opacity="0.6" />
+    </marker>
+    <marker id="arr-amber-down" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#F59E0B" opacity="0.5" />
+    </marker>
+    <linearGradient id="flowUp" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#00D26A" />
+      <stop offset="100%" stop-color="#0070F2" />
+    </linearGradient>
+    <linearGradient id="flowDown" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0070F2" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <filter id="glow-green"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="glow-amber"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SAP BTP — fully north of the wall                      -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <rect x="140" y="10" width="620" height="160" rx="16"
+    fill="rgba(0,112,242,0.06)" stroke="#0070F2" stroke-width="1.2" opacity="0.8" />
+
+  <text x="170" y="34" fill="#1B90FF" font-size="12" font-weight="700" letter-spacing="1.5">
+    SAP BUSINESS TECHNOLOGY PLATFORM
+  </text>
+
+  <rect x="168" y="50" width="135" height="68" rx="10" fill="#0D1117" stroke="#1C2333" stroke-width="1" />
+  <text x="235" y="74" text-anchor="middle" fill="#F0F4F8" font-size="13" font-weight="600">S/4HANA</text>
+  <text x="235" y="92" text-anchor="middle" fill="#4E5D6C" font-size="10">Business Processes</text>
+  <text x="235" y="105" text-anchor="middle" fill="#4E5D6C" font-size="10">Master Data</text>
+
+  <rect x="318" y="50" width="135" height="68" rx="10" fill="#0D1117" stroke="#1C2333" stroke-width="1" />
+  <text x="385" y="74" text-anchor="middle" fill="#F0F4F8" font-size="13" font-weight="600">Analytics</text>
+  <text x="385" y="92" text-anchor="middle" fill="#4E5D6C" font-size="10">SAP Analytics Cloud</text>
+  <text x="385" y="105" text-anchor="middle" fill="#4E5D6C" font-size="10">Dashboards</text>
+
+  <rect x="468" y="50" width="135" height="68" rx="10" fill="#0D1117" stroke="#1C2333" stroke-width="1" />
+  <text x="535" y="74" text-anchor="middle" fill="#F0F4F8" font-size="13" font-weight="600">AI Core</text>
+  <text x="535" y="92" text-anchor="middle" fill="#4E5D6C" font-size="10">ML Inference</text>
+  <text x="535" y="105" text-anchor="middle" fill="#4E5D6C" font-size="10">Generative AI</text>
+
+  <rect x="618" y="50" width="122" height="68" rx="10" fill="#0D1117" stroke="#1C2333" stroke-width="1" />
+  <text x="679" y="74" text-anchor="middle" fill="#F0F4F8" font-size="13" font-weight="600">Event Mesh</text>
+  <text x="679" y="92" text-anchor="middle" fill="#4E5D6C" font-size="10">Cloud Events</text>
+  <text x="679" y="105" text-anchor="middle" fill="#4E5D6C" font-size="10">Routing</text>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SAP INTEGRATION SUITE — straddles the wall             -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <rect x="200" y="140" width="500" height="210" rx="14"
+    fill="none" stroke="#0070F2" stroke-width="2" />
+  <rect x="200" y="140" width="500" height="4" rx="2" fill="#0070F2" opacity="0.5" />
+
+  <text x="450" y="166" text-anchor="middle" fill="#1B90FF"
+    font-size="14" font-weight="700" letter-spacing="1">
+    SAP INTEGRATION SUITE
+  </text>
+  <text x="450" y="184" text-anchor="middle" fill="#8B98A5" font-size="11">
+    Cloud management · Edge execution · Unified governance
+  </text>
+
+  <rect x="244" y="198" width="68" height="20" rx="10" fill="#0070F2" opacity="0.1" />
+  <rect x="244" y="198" width="68" height="20" rx="10" fill="none" stroke="#0070F2" stroke-width="0.5" opacity="0.3" />
+  <text x="278" y="212" text-anchor="middle" fill="#0070F2" font-size="10" font-weight="600">iFlows</text>
+
+  <rect x="322" y="198" width="85" height="20" rx="10" fill="#0070F2" opacity="0.1" />
+  <rect x="322" y="198" width="85" height="20" rx="10" fill="none" stroke="#0070F2" stroke-width="0.5" opacity="0.3" />
+  <text x="364" y="212" text-anchor="middle" fill="#0070F2" font-size="10" font-weight="600">API Mgmt</text>
+
+  <rect x="417" y="198" width="90" height="20" rx="10" fill="#0070F2" opacity="0.1" />
+  <rect x="417" y="198" width="90" height="20" rx="10" fill="none" stroke="#0070F2" stroke-width="0.5" opacity="0.3" />
+  <text x="462" y="212" text-anchor="middle" fill="#0070F2" font-size="10" font-weight="600">Monitoring</text>
+
+  <rect x="517" y="198" width="120" height="20" rx="10" fill="#0070F2" opacity="0.1" />
+  <rect x="517" y="198" width="120" height="20" rx="10" fill="none" stroke="#0070F2" stroke-width="0.5" opacity="0.3" />
+  <text x="577" y="212" text-anchor="middle" fill="#0070F2" font-size="10" font-weight="600">Content Advisor</text>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- THE WALL — y=240                                       -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <line x1="60" y1="240" x2="200" y2="240" stroke="#EE0000" stroke-width="2" stroke-dasharray="6,4" opacity="0.6" />
+  <line x1="700" y1="240" x2="840" y2="240" stroke="#EE0000" stroke-width="2" stroke-dasharray="6,4" opacity="0.6" />
+  <line x1="200" y1="240" x2="700" y2="240" stroke="#EE0000" stroke-width="1" stroke-dasharray="3,5" opacity="0.3" />
+
+  <rect x="60" y="228" width="130" height="24" rx="12" fill="#06090F" />
+  <text x="125" y="244" text-anchor="middle" fill="#EE0000" font-size="10" font-weight="700" letter-spacing="1.5" opacity="0.7">
+    NETWORK EDGE
+  </text>
+  <rect x="720" y="228" width="110" height="24" rx="12" fill="#06090F" />
+  <text x="775" y="244" text-anchor="middle" fill="#EE0000" font-size="10" font-weight="700" letter-spacing="1.5" opacity="0.7">
+    TLS / mTLS
+  </text>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- EIC — inside sandbox, south side of wall               -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <rect x="230" y="258" width="440" height="64" rx="10"
+    fill="#0D1117" stroke="#0070F2" stroke-width="1.2" />
+  <rect x="230" y="258" width="440" height="3" rx="1.5" fill="#0070F2" opacity="0.4" />
+
+  <text x="450" y="284" text-anchor="middle" fill="#F0F4F8" font-size="16" font-weight="600">
+    SAP Edge Integration Cell
+  </text>
+  <text x="450" y="302" text-anchor="middle" fill="#8B98A5" font-size="11">
+    Deployed inside the cluster · MQTT · REST · Bidirectional
+  </text>
+
+  <rect x="230" y="258" width="440" height="64" rx="10"
+    fill="none" stroke="#0070F2" stroke-width="1" opacity="0.3">
+    <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
+    <animate attributeName="stroke-width" values="1;2.5;1" dur="2.5s" repeatCount="indefinite" />
+  </rect>
+
+  <rect x="338" y="328" width="224" height="18" rx="9" fill="#FFB020" opacity="0.15" />
+  <text x="450" y="341" text-anchor="middle" fill="#FFB020" font-size="10" font-weight="600">
+    Reference implementation — live demo
+  </text>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- OPERATOR DASHBOARD                                     -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <rect x="200" y="380" width="500" height="46" rx="10"
+    fill="#0D1117" stroke="#FFB020" stroke-width="0.8" />
+  <text x="420" y="409" text-anchor="middle" fill="#FFB020" font-size="14" font-weight="600">
+    📊  Real-Time Operator Dashboard
+  </text>
+  <text x="670" y="409" fill="#8B98A5" font-size="10">SSE · Live</text>
+  <text x="722" y="409" fill="#8B98A5" font-size="28">👤</text>
+
+  <line x1="450" y1="346" x2="450" y2="380" stroke="#FFB020" stroke-width="1.2" marker-end="url(#arr)" />
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- DUAL FLOW: NORTHBOUND (events) + SOUTHBOUND (commands) -->
+  <!-- Left channel: events UP (green)                        -->
+  <!-- Right channel: decisions DOWN (amber)                  -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <!-- ── NORTHBOUND: BTP ← EIC ← Concentrator ── -->
+
+  <!-- EIC → BTP (through wall) -->
+  <line x1="420" y1="258" x2="420" y2="130" stroke="#0070F2" stroke-width="1.2"
+    stroke-dasharray="4,3" opacity="0.35" marker-end="url(#arr-blue)" />
+
+  <!-- Concentrator → EIC -->
+  <line x1="420" y1="475" x2="420" y2="322" stroke="url(#flowUp)" stroke-width="3" opacity="0.12" />
+
+  <!-- Northbound animated dots — mixed event colors -->
+  <circle r="5" fill="#00D26A" filter="url(#glow-green)">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="0s" path="M420,475 L420,322" />
+    <animate attributeName="opacity" values="1;0.45;1" dur="1.6s" repeatCount="indefinite" begin="0s" />
+  </circle>
+  <circle r="4" fill="#3B82F6">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="0.35s" path="M420,475 L420,322" />
+    <animate attributeName="opacity" values="0.9;0.35;0.9" dur="1.6s" repeatCount="indefinite" begin="0.35s" />
+  </circle>
+  <circle r="5" fill="#00D26A" filter="url(#glow-green)">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="0.6s" path="M420,475 L420,322" />
+    <animate attributeName="opacity" values="0.95;0.4;0.95" dur="1.6s" repeatCount="indefinite" begin="0.6s" />
+  </circle>
+  <circle r="3.5" fill="#F97316">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="0.85s" path="M420,475 L420,322" />
+    <animate attributeName="opacity" values="0.85;0.3;0.85" dur="1.6s" repeatCount="indefinite" begin="0.85s" />
+  </circle>
+  <circle r="4.5" fill="#00D26A" filter="url(#glow-green)">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="1.1s" path="M420,475 L420,322" />
+    <animate attributeName="opacity" values="0.95;0.4;0.95" dur="1.6s" repeatCount="indefinite" begin="1.1s" />
+  </circle>
+  <circle r="3" fill="#A855F7">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="1.3s" path="M420,475 L420,322" />
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.6s" repeatCount="indefinite" begin="1.3s" />
+  </circle>
+
+  <!-- Northbound label -->
+  <text x="395" y="445" fill="#00D26A" font-size="11" font-weight="600" text-anchor="end">
+    Events ▲
+  </text>
+
+  <!-- ── SOUTHBOUND: BTP → EIC → Concentrator → Devices ── -->
+
+  <!-- BTP → EIC (through wall) -->
+  <line x1="480" y1="130" x2="480" y2="258" stroke="#F59E0B" stroke-width="1.2"
+    stroke-dasharray="4,3" opacity="0.3" marker-end="url(#arr-amber-down)" />
+
+  <!-- EIC → Concentrator -->
+  <line x1="480" y1="322" x2="480" y2="475" stroke="url(#flowDown)" stroke-width="2.5" opacity="0.1" />
+
+  <!-- Southbound animated dots — amber/gold (decisions, commands, config) -->
+  <circle r="4" fill="#F59E0B" filter="url(#glow-amber)">
+    <animateMotion dur="2.2s" repeatCount="indefinite" begin="0.3s" path="M480,322 L480,475" />
+    <animate attributeName="opacity" values="0.9;0.35;0.9" dur="2.2s" repeatCount="indefinite" begin="0.3s" />
+  </circle>
+  <circle r="3.5" fill="#F59E0B" filter="url(#glow-amber)">
+    <animateMotion dur="2.2s" repeatCount="indefinite" begin="1.1s" path="M480,322 L480,475" />
+    <animate attributeName="opacity" values="0.85;0.3;0.85" dur="2.2s" repeatCount="indefinite" begin="1.1s" />
+  </circle>
+  <circle r="3" fill="#F59E0B">
+    <animateMotion dur="2.2s" repeatCount="indefinite" begin="1.7s" path="M480,322 L480,475" />
+    <animate attributeName="opacity" values="0.8;0.25;0.8" dur="2.2s" repeatCount="indefinite" begin="1.7s" />
+  </circle>
+
+  <!-- Southbound label -->
+  <text x="505" y="445" fill="#F59E0B" font-size="11" font-weight="600">
+    ▼ Decisions
+  </text>
+
+  <!-- ── Flow direction labels near EIC ── -->
+  <text x="395" y="318" fill="#00D26A" font-size="8" font-weight="600" text-anchor="end" opacity="0.6">INGEST</text>
+  <text x="505" y="318" fill="#F59E0B" font-size="8" font-weight="600" opacity="0.6">COMMAND</text>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- CONCENTRATOR / GATEWAY — bidirectional                 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <rect x="225" y="475" width="450" height="105" rx="12"
+    fill="#0D1117" stroke="#14B8A6" stroke-width="1.5" />
+  <rect x="225" y="475" width="450" height="3" rx="1.5" fill="#14B8A6" opacity="0.5" />
+
+  <text x="450" y="502" text-anchor="middle" fill="#F0F4F8" font-size="15" font-weight="600">
+    Edge Gateway / Concentrator
+  </text>
+  <text x="450" y="520" text-anchor="middle" fill="#8B98A5" font-size="11">
+    Qualifies events northbound · Delivers commands southbound
+  </text>
+
+  <!-- Platform pills -->
+  <rect x="262" y="534" width="88" height="20" rx="10" fill="#14B8A6" opacity="0.1" />
+  <rect x="262" y="534" width="88" height="20" rx="10" fill="none" stroke="#14B8A6" stroke-width="0.5" opacity="0.3" />
+  <text x="306" y="548" text-anchor="middle" fill="#14B8A6" font-size="10" font-weight="600">RegScale</text>
+
+  <rect x="360" y="534" width="118" height="20" rx="10" fill="#14B8A6" opacity="0.1" />
+  <rect x="360" y="534" width="118" height="20" rx="10" fill="none" stroke="#14B8A6" stroke-width="0.5" opacity="0.3" />
+  <text x="419" y="548" text-anchor="middle" fill="#14B8A6" font-size="10" font-weight="600">AlertEnterprise</text>
+
+  <rect x="488" y="534" width="120" height="20" rx="10" fill="#14B8A6" opacity="0.1" />
+  <rect x="488" y="534" width="120" height="20" rx="10" fill="none" stroke="#14B8A6" stroke-width="0.5" opacity="0.3" />
+  <text x="548" y="548" text-anchor="middle" fill="#14B8A6" font-size="10" font-weight="600">Lenel / OnGuard</text>
+
+  <!-- Bidirectional indicator on concentrator -->
+  <text x="450" y="570" text-anchor="middle" fill="#14B8A6" font-size="9" opacity="0.5">
+    ▲ event qualification · policy enforcement ▼
+  </text>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- EDGE DEVICES                                           -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <rect x="140" y="610" width="620" height="150" rx="16"
+    fill="rgba(0,210,106,0.03)" stroke="#00D26A" stroke-width="1" opacity="0.5" />
+  <text x="170" y="633" fill="#00D26A" font-size="11" font-weight="700" letter-spacing="1.5">
+    EDGE DEVICES
+  </text>
+  <text x="540" y="633" fill="#4E5D6C" font-size="10">
+    Audience phones become the edge during the live demo
+  </text>
+
+  <!-- Device cards -->
+  <rect x="168" y="648" width="134" height="98" rx="12" fill="#0D1117" stroke="#00D26A" stroke-width="1.5" />
+  <rect x="168" y="648" width="134" height="3" rx="1.5" fill="#00D26A" opacity="0.7" />
+  <text x="235" y="680" text-anchor="middle" font-size="28">📱</text>
+  <text x="235" y="702" text-anchor="middle" fill="#F0F4F8" font-size="13" font-weight="600">Tap / Swipe</text>
+  <text x="235" y="720" text-anchor="middle" fill="#00D26A" font-size="10" font-weight="500">User interaction</text>
+  <rect x="205" y="726" width="60" height="16" rx="8" fill="#00D26A" opacity="0.15" />
+  <rect x="205" y="726" width="60" height="16" rx="8" fill="none" stroke="#00D26A" stroke-width="0.8" opacity="0.5" />
+  <circle cx="217" cy="734" r="2.5" fill="#00D26A">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" />
+  </circle>
+  <text x="242" y="738" text-anchor="middle" fill="#00D26A" font-size="8" font-weight="700">LIVE</text>
+
+  <rect x="318" y="648" width="134" height="98" rx="12" fill="#0D1117" stroke="#3B82F6" stroke-width="1.2" />
+  <rect x="318" y="648" width="134" height="3" rx="1.5" fill="#3B82F6" opacity="0.6" />
+  <text x="385" y="680" text-anchor="middle" font-size="28">🏭</text>
+  <text x="385" y="702" text-anchor="middle" fill="#F0F4F8" font-size="13" font-weight="600">Status / Metric</text>
+  <text x="385" y="720" text-anchor="middle" fill="#3B82F6" font-size="10">Operational data</text>
+
+  <rect x="468" y="648" width="134" height="98" rx="12" fill="#0D1117" stroke="#F97316" stroke-width="1.2" />
+  <rect x="468" y="648" width="134" height="3" rx="1.5" fill="#F97316" opacity="0.6" />
+  <text x="535" y="680" text-anchor="middle" font-size="28">⚠️</text>
+  <text x="535" y="702" text-anchor="middle" fill="#F0F4F8" font-size="13" font-weight="600">Error / Alert</text>
+  <text x="535" y="720" text-anchor="middle" fill="#F97316" font-size="10">Threshold triggers</text>
+
+  <rect x="618" y="648" width="122" height="98" rx="12" fill="#0D1117" stroke="#A855F7" stroke-width="1.2" />
+  <rect x="618" y="648" width="122" height="3" rx="1.5" fill="#A855F7" opacity="0.6" />
+  <text x="679" y="680" text-anchor="middle" font-size="28">📡</text>
+  <text x="679" y="702" text-anchor="middle" fill="#F0F4F8" font-size="13" font-weight="600">Telemetry</text>
+  <text x="679" y="720" text-anchor="middle" fill="#A855F7" font-size="10">Aggregated streams</text>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- FAN-IN (northbound) + FAN-OUT (southbound)             -->
+  <!-- devices ↔ concentrator                                 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <!-- Northbound fan-in (green, events up) -->
+  <path d="M235,648 C235,620 360,600 420,580" fill="none" stroke="#00D26A" stroke-width="1.2" opacity="0.25" />
+  <path d="M385,648 C385,630 410,610 420,580" fill="none" stroke="#3B82F6" stroke-width="1" opacity="0.2" />
+  <path d="M535,648 C535,630 490,610 480,580" fill="none" stroke="#F97316" stroke-width="1" opacity="0.2" />
+  <path d="M679,648 C679,620 540,600 480,580" fill="none" stroke="#A855F7" stroke-width="1" opacity="0.15" />
+
+  <!-- Northbound fan-in dots -->
+  <circle r="3.5" fill="#00D26A" opacity="0.8">
+    <animateMotion dur="1.1s" repeatCount="indefinite" begin="0s" path="M235,648 C235,620 360,600 420,580" />
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.1s" repeatCount="indefinite" />
+  </circle>
+  <circle r="3" fill="#00D26A" opacity="0.7">
+    <animateMotion dur="1.1s" repeatCount="indefinite" begin="0.5s" path="M235,648 C235,620 360,600 420,580" />
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.1s" repeatCount="indefinite" begin="0.5s" />
+  </circle>
+  <circle r="2.5" fill="#3B82F6" opacity="0.7">
+    <animateMotion dur="1.3s" repeatCount="indefinite" begin="0.2s" path="M385,648 C385,630 410,610 420,580" />
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.3s" repeatCount="indefinite" begin="0.2s" />
+  </circle>
+  <circle r="2.5" fill="#F97316" opacity="0.7">
+    <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.4s" path="M535,648 C535,630 490,610 480,580" />
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite" begin="0.4s" />
+  </circle>
+  <circle r="2" fill="#A855F7" opacity="0.6">
+    <animateMotion dur="1.7s" repeatCount="indefinite" begin="0.6s" path="M679,648 C679,620 540,600 480,580" />
+    <animate attributeName="opacity" values="0.6;0.15;0.6" dur="1.7s" repeatCount="indefinite" begin="0.6s" />
+  </circle>
+
+  <!-- Southbound fan-out (amber, decisions down) -->
+  <path d="M480,580 C480,600 360,620 235,648" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
+  <path d="M480,580 C480,600 430,620 385,648" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
+  <path d="M480,580 C480,600 510,620 535,648" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
+  <path d="M480,580 C480,600 570,620 679,648" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.12" stroke-dasharray="4,4" />
+
+  <!-- Southbound fan-out dots -->
+  <circle r="3" fill="#F59E0B" filter="url(#glow-amber)">
+    <animateMotion dur="1.4s" repeatCount="indefinite" begin="0.8s" path="M480,580 C480,600 360,620 235,648" />
+    <animate attributeName="opacity" values="0.8;0.25;0.8" dur="1.4s" repeatCount="indefinite" begin="0.8s" />
+  </circle>
+  <circle r="2.5" fill="#F59E0B">
+    <animateMotion dur="1.5s" repeatCount="indefinite" begin="1.2s" path="M480,580 C480,600 430,620 385,648" />
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite" begin="1.2s" />
+  </circle>
+  <circle r="2.5" fill="#F59E0B">
+    <animateMotion dur="1.6s" repeatCount="indefinite" begin="0.5s" path="M480,580 C480,600 510,620 535,648" />
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.6s" repeatCount="indefinite" begin="0.5s" />
+  </circle>
+  <circle r="2" fill="#F59E0B">
+    <animateMotion dur="1.8s" repeatCount="indefinite" begin="1.5s" path="M480,580 C480,600 570,620 679,648" />
+    <animate attributeName="opacity" values="0.6;0.15;0.6" dur="1.8s" repeatCount="indefinite" begin="1.5s" />
+  </circle>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- RED HAT OPENSHIFT bracket                              -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <g transform="translate(48, 500) rotate(-90)">
+    <text x="0" y="0" text-anchor="middle" fill="#EE0000"
+      font-size="11" font-weight="700" letter-spacing="2" opacity="0.45">
+      RED HAT OPENSHIFT
+    </text>
+  </g>
+  <line x1="68" y1="225" x2="68" y2="760" stroke="#EE0000" stroke-width="1" opacity="0.12" />
+  <line x1="68" y1="225" x2="78" y2="225" stroke="#EE0000" stroke-width="1" opacity="0.12" />
+  <line x1="68" y1="760" x2="78" y2="760" stroke="#EE0000" stroke-width="1" opacity="0.12" />
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- VALUE PROPS (right rail) — updated for closed loop     -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <text x="785" y="286" font-size="18">🔒</text>
+  <text x="813" y="286" fill="#8B98A5" font-size="11" font-weight="500">Managed</text>
+
+  <text x="785" y="326" font-size="18">🔄</text>
+  <text x="813" y="326" fill="#8B98A5" font-size="11" font-weight="500">Closed-Loop</text>
+
+  <text x="785" y="366" font-size="18">📦</text>
+  <text x="813" y="366" fill="#8B98A5" font-size="11" font-weight="500">GitOps-Ready</text>
+
+  <text x="785" y="406" font-size="18">⚡</text>
+  <text x="813" y="406" fill="#8B98A5" font-size="11" font-weight="500">Real-Time</text>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PLATFORM BAR                                           -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <rect x="80" y="780" width="740" height="36" rx="8"
+    fill="#0D1117" stroke="#1C2333" stroke-width="0.5" />
+  <text x="450" y="803" text-anchor="middle" fill="#4E5D6C"
+    font-size="11" letter-spacing="0.5">
+    Kustomize overlays · TLS everywhere · Sandbox → Pilot → Production
+  </text>
+</svg>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="width:12px;height:12px;background:#00D26A;box-shadow:0 0 8px rgba(0,210,106,0.5)"></div>
+    <span class="legend-label">Events ▲</span>
+    <span class="legend-live">● LIVE</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="width:10px;height:10px;background:#F59E0B;box-shadow:0 0 8px rgba(245,158,11,0.5)"></div>
+    <span class="legend-label">Decisions ▼</span>
+  </div>
+  <div class="legend-item" style="margin-left: 12px; padding-left: 12px; border-left: 1px solid #1C2333;">
+    <div class="legend-dot" style="width:9px;height:9px;background:#3B82F6;box-shadow:0 0 6px rgba(59,130,246,0.4)"></div>
+    <span class="legend-label">Status</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="width:9px;height:9px;background:#F97316;box-shadow:0 0 6px rgba(249,115,22,0.4)"></div>
+    <span class="legend-label">Alert</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="width:7px;height:7px;background:#A855F7;box-shadow:0 0 6px rgba(168,85,247,0.4)"></div>
+    <span class="legend-label">Telemetry</span>
+  </div>
+  <div class="legend-item" style="margin-left: 12px; padding-left: 12px; border-left: 1px solid #1C2333;">
+    <div class="legend-dot" style="width:9px;height:9px;background:#14B8A6;box-shadow:0 0 6px rgba(20,184,166,0.4)"></div>
+    <span class="legend-label">Concentrator</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="width:9px;height:9px;background:#0070F2;box-shadow:0 0 6px rgba(0,112,242,0.4)"></div>
+    <span class="legend-label">SAP</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="width:9px;height:9px;background:#EE0000;box-shadow:0 0 6px rgba(238,0,0,0.3)"></div>
+    <span class="legend-label">OpenShift</span>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="rh">Red Hat</span>
+  <span class="mid">Open Hybrid Cloud Demo — Closed-Loop Reference Architecture</span>
+  <span class="sap">SAP</span>
+</div>
+
+</body>
+</html>
