@@ -1,0 +1,27 @@
+apiVersion: v1
+data:
+  dashboard.html: "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"\
+    UTF-8\" />\n  <title>North \u2013 Stage Dashboard</title>\n  <meta name=\"viewport\"\
+    \ content=\"width=device-width, initial-scale=1.0\" />\n  <style>\n    body {\n\
+    \      margin: 0;\n      padding: 2rem;\n      font-family: system-ui, -apple-system,\
+    \ BlinkMacSystemFont, sans-serif;\n      background: #111;\n      color: #eee;\n\
+    \    }\n    h1 {\n      font-size: 3rem;\n      margin-bottom: 1rem;\n    }\n\
+    \    #total {\n      font-size: 6rem;\n      font-weight: bold;\n      margin:\
+    \ 2rem 0;\n    }\n    .row {\n      display: flex;\n      justify-content: space-between;\n\
+    \      padding: 0.5rem 0;\n      border-bottom: 1px solid #333;\n    }\n    .muted\
+    \ {\n      color: #888;\n    }\n  </style>\n</head>\n<body>\n  <h1>Stage Dashboard</h1>\n\
+    \  <div class=\"muted\">Operator view \xB7 not visible to participants</div>\n\
+    \n  <div id=\"total\">0</div>\n\n  <div id=\"breakdown\"></div>\n\n  <script>\n\
+    \    async function refresh() {\n      try {\n        const res = await fetch('/state');\n\
+    \        const data = await res.json();\n\n        document.getElementById('total').textContent\
+    \ = data.total ?? 0;\n\n        const breakdown = document.getElementById('breakdown');\n\
+    \        breakdown.innerHTML = '';\n\n        if (data.sources) {\n          Object.entries(data.sources).forEach(([k,\
+    \ v]) => {\n            const row = document.createElement('div');\n         \
+    \   row.className = 'row';\n            row.innerHTML = `<div>${k}</div><div>${v}</div>`;\n\
+    \            breakdown.appendChild(row);\n          });\n        }\n      } catch\
+    \ (e) {\n        console.error(e);\n      }\n    }\n\n    setInterval(refresh,\
+    \ 1000);\n    refresh();\n  </script>\n</body>\n</html>\n"
+kind: ConfigMap
+metadata:
+  name: north-stage-dashboard
+

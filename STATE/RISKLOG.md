@@ -1,1 +1,0 @@
-- CUDA 13.x runtime present. Some frameworks/containers may lag 13.x; prefer llama.cpp (cuBLAS) first; pin CUDA base images for containers; test vLLM image before adoption.

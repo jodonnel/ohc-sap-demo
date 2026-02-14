@@ -1,0 +1,75 @@
+apiVersion: v1
+data:
+  app.py: "from flask import Flask, request, Response, send_from_directory\nfrom datetime\
+    \ import datetime\nimport json\nimport queue\nimport threading\nimport os\nimport\
+    \ time\nimport queue\n\napp = Flask(__name__)\n\ncount = 0\nlast = {}\nsubscribers\
+    \ = []\nlock = threading.Lock()\nPOD_NAME = os.environ.get(\"HOSTNAME\", \"unknown\"\
+    )\n\ndef add_cors(resp):\n    resp.headers[\"Access-Control-Allow-Origin\"] =\
+    \ \"*\"\n    resp.headers[\"Access-Control-Allow-Headers\"] = \"Content-Type\"\
+    \n    resp.headers[\"Access-Control-Allow-Methods\"] = \"GET, POST, OPTIONS\"\n\
+    \    return resp\n\ndef publish(event):\n    with lock:\n        for q in list(subscribers):\n\
+    \            q.put(event)\n\n\n@app.route(\"/assets/<path:filename>\")\ndef assets(filename):\n\
+    \    return send_from_directory(\"/assets\", filename)\n\n\n\n@app.route(\"/state\"\
+    , methods=[\"GET\",\"OPTIONS\"])\ndef state():\n    if request.method == \"OPTIONS\"\
+    :\n        return add_cors(Response(status=204))\n    return add_cors(Response(\n\
+    \        json.dumps({\"count\": count, \"last\": last}),\n        mimetype=\"\
+    application/json\"\n    ))\n\n@app.route(\"/ingest\", methods=[\"POST\",\"OPTIONS\"\
+    ])\ndef ingest():\n    global count, last\n    if request.method == \"OPTIONS\"\
+    :\n        return add_cors(Response(status=204))\n\n    data = request.get_json(silent=True)\
+    \ or {}\n    count += 1\n    last = {\n        \"ts\": datetime.utcnow().isoformat()\
+    \ + \"Z\",\n        \"payload\": data,\n        \"count\": count\n    }\n\n  \
+    \  publish(last)\n\n    return add_cors(Response(\n        json.dumps({\"ok\"\
+    : True, \"count\": count}),\n        mimetype=\"application/json\"\n    ))\n\n\
+    \n\n@app.route(\"/events\")\ndef events():\n    q = queue.Queue()\n    with lock:\n\
+    \        subscribers.append(q)\n\n    def stream():\n        try:\n          \
+    \  while True:\n                try:\n                    event = q.get(timeout=15)\n\
+    \                    yield f\"data: {json.dumps(event)}\\n\\n\"\n            \
+    \    except queue.Empty:\n                    # SSE heartbeat (comment)\n    \
+    \                yield \": keepalive\\n\\n\"\n        finally:\n            with\
+    \ lock:\n                subscribers.remove(q)\n\n    resp = Response(stream(),\
+    \ mimetype=\"text/event-stream\")\n    resp.headers[\"Cache-Control\"] = \"no-cache\"\
+    \n    resp.headers[\"X-Accel-Buffering\"] = \"no\"\n    resp.headers[\"Access-Control-Allow-Origin\"\
+    ] = \"*\"\n    return resp\n\n\n\n@app.get(\"/stage\")\ndef stage():\n    return\
+    \ \"\"\"<!DOCTYPE html>\n<html>\n<head>\n  <title>Stage Dashboard</title>\n  <meta\
+    \ name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <style>\n\
+    \    body {{\n      background:#111;\n      color:#eee;\n      font-family:system-ui;\n\
+    \      padding:2rem;\n    }}\n    #topbar {{\n      display:flex;\n      justify-content:space-between;\n\
+    \      align-items:center;\n    }}\n    #count {{\n      font-size:8rem;\n   \
+    \   font-weight:800;\n      margin-top:2rem;\n    }}\n    button {{\n      background:#222;\n\
+    \      color:#eee;\n      border:1px solid #444;\n      padding:0.5rem 1rem;\n\
+    \      cursor:pointer;\n    }}\n    button:hover {{\n      background:#333;\n\
+    \    }}\n    .tiles {{\n      display:grid;\n      grid-template-columns: repeat(auto-fit,\
+    \ minmax(220px,1fr));\n      gap:1rem;\n      margin-top:2rem;\n    }}\n    .tile\
+    \ {{\n      background:#181818;\n      border:1px solid #333;\n      padding:1rem;\n\
+    \    }}\n    pre {{\n      white-space:pre-wrap;\n      font-size:0.85rem;\n \
+    \   }}\n    .muted {{\n      color:#777;\n      font-size:0.85rem;\n    }}\n \
+    \ </style>\n</head>\n<body>\n\n  <div id=\"topbar\">\n    <h1>Stage Dashboard</h1>\n\
+    \    <button id=\"muteBtn\">\U0001F50A Sound ON</button>\n  </div>\n\n  <div id=\"\
+    count\">0</div>\n\n  <audio id=\"beep\"\n    src=\"/assets/Mario-coin-sound.mp3\"\
+    \n    preload=\"auto\"></audio>\n\n  <div class=\"tiles\">\n    <div class=\"\
+    tile\">\n      <h3>Last Event</h3>\n      <pre id=\"last\">\u2014</pre>\n    </div>\n\
+    \    <div class=\"tile\">\n      <h3>Transport</h3>\n      <p><strong>SSE</strong>\
+    \ (push)</p>\n      <p class=\"muted\">Polling disabled</p>\n    </div>\n    <div\
+    \ class=\"tile\">\n      <h3>Runtime</h3>\n      <p>Pod: {POD_NAME}</p>\n    \
+    \  <p class=\"muted\">Live instance</p>\n    </div>\n  </div>\n\n\n\n<script>\n\
+    \  const countEl = document.getElementById(\"count\");\n  const lastEl  = document.getElementById(\"\
+    last\");\n  const beep    = document.getElementById(\"beep\");\n  const muteBtn\
+    \ = document.getElementById(\"muteBtn\");\n\n  let muted = localStorage.getItem(\"\
+    muted\") === \"true\";\n  let audioUnlocked = false;\n\n  function updateMuteUI()\
+    \ {\n    muteBtn.innerText = muted ? \"\U0001F507 Muted\" : \"\U0001F50A Sound\
+    \ ON\";\n  }\n\n  muteBtn.onclick = async () => {\n    muted = !muted;\n    localStorage.setItem(\"\
+    muted\", muted);\n    updateMuteUI();\n\n    // \U0001F511 one-time browser audio\
+    \ unlock\n    if (!audioUnlocked && !muted) {\n      try {\n        await beep.play();\n\
+    \        beep.pause();\n        beep.currentTime = 0;\n        audioUnlocked =\
+    \ true;\n        console.log(\"audio unlocked\");\n      } catch (e) {\n     \
+    \   console.warn(\"audio unlock failed\", e);\n      }\n    }\n  };\n\n  updateMuteUI();\n\
+    \n  const es = new EventSource(\"/events\");\n\n  es.onmessage = (e) => {\n  \
+    \  const d = JSON.parse(e.data);\n    countEl.innerText = d.count;\n    lastEl.innerText\
+    \ = JSON.stringify(d, null, 2);\n\n    if (!muted && audioUnlocked) {\n      beep.currentTime\
+    \ = 0;\n      beep.play().catch(() => {});\n    }\n  };\n</script>\n\n\n\n</body>\n\
+    </html>\"\"\"\n\nif __name__ == \"__main__\":\n    app.run(host=\"0.0.0.0\", port=8080)\n\
+    \n"
+kind: ConfigMap
+metadata:
+  name: north-app
+

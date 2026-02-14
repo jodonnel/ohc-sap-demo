@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>North – Stage Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #111;
+      color: #eee;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    #total {
+      font-size: 6rem;
+      font-weight: bold;
+      margin: 2rem 0;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #333;
+    }
+    .muted {
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <h1>Stage Dashboard</h1>
+  <div class="muted">Operator view · not visible to participants</div>
+
+  <div id="total">0</div>
+
+  <div id="breakdown"></div>
+
+  <script>
+    async function refresh() {
+      try {
+        const res = await fetch('/state');
+        const data = await res.json();
+
+        document.getElementById('total').textContent = data.total ?? 0;
+
+        const breakdown = document.getElementById('breakdown');
+        breakdown.innerHTML = '';
+
+        if (data.sources) {
+          Object.entries(data.sources).forEach(([k, v]) => {
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.innerHTML = `<div>${k}</div><div>${v}</div>`;
+            breakdown.appendChild(row);
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    setInterval(refresh, 1000);
+    refresh();
+  </script>
+</body>
+</html>

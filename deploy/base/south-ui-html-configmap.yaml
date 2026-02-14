@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  index.html: "\n<!doctype html><html><body style=\"font-family:system-ui;margin:40px\"\
+    >\n<h2>South Device</h2>\n<button onclick=\"send()\">Send Event</button>\n<p id=\"\
+    status\"></p>\n<script>\nasync function send(){\n  const r = await fetch(\"https://north-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com/ingest\"\
+    ,{\n    method:\"POST\",\n    headers:{ \"Content-Type\":\"application/json\"\
+    \ },\n    body:JSON.stringify({device:\"lenel-gate-7\",event:\"door_open\",ts:new\
+    \ Date().toISOString()})\n  });\n  const j = await r.json();\n  document.getElementById(\"\
+    status\").innerText = \"ACK from north. North count=\" + j.count;\n}\n</script>\n\
+    </body></html>"
+kind: ConfigMap
+metadata:
+  name: south-ui-html
+

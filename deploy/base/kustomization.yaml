@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # north (Flask event aggregator)
+  - north-deployment.yaml
+  - north-service.yaml
+  - north-route.yaml
+  - north-app-configmap.yaml
+  - north-assets-configmap.yaml
+  - north-stage-dashboard-configmap.yaml
+  # south-ui (edge device simulator)
+  - south-ui-deployment.yaml
+  - south-ui-service.yaml
+  - south-ui-route.yaml
+  - south-ui-env-configmap.yaml
+  - south-ui-html-configmap.yaml
+  # south-hello-site (static south site)
+  - south-hello-site-deployment.yaml
+  - south-hello-site-service.yaml
+  - south-hello-site-route.yaml

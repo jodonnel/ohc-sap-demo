@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: north
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: north
+  sessionAffinity: None
+  type: ClusterIP
+
