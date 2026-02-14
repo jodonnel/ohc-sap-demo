@@ -1,13 +1,36 @@
 apiVersion: v1
 data:
-  index.html: "\n<!doctype html><html><body style=\"font-family:system-ui;margin:40px\"\
-    >\n<h2>South Device</h2>\n<button onclick=\"send()\">Send Event</button>\n<p id=\"\
-    status\"></p>\n<script>\nasync function send(){\n  const r = await fetch(\"https://north-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com/ingest\"\
-    ,{\n    method:\"POST\",\n    headers:{ \"Content-Type\":\"application/json\"\
-    \ },\n    body:JSON.stringify({device:\"lenel-gate-7\",event:\"door_open\",ts:new\
-    \ Date().toISOString()})\n  });\n  const j = await r.json();\n  document.getElementById(\"\
-    status\").innerText = \"ACK from north. North count=\" + j.count;\n}\n</script>\n\
-    </body></html>"
+  index.html: "<!doctype html>\n<html>\n<head>\n  <title>South Sender</title>\n  <style>\n\
+    \    body { font-family: system-ui, sans-serif; background: #111; color: #0f0;\
+    \ margin: 40px; text-align: center; }\n    h2 { color: #ff0; }\n    button { padding:\
+    \ 15px 30px; font-size: 1.2em; margin: 10px; border-radius: 8px; cursor: pointer;\
+    \ }\n    #status { margin-top: 20px; font-size: 1.1em; color: #ff0; }\n  </style>\n\
+    </head>\n<body>\n  <h2>South Sender</h2>\n  <p>Tap to send events north</p>\n\n\
+    \  <button onclick=\"send('tap')\" style=\"background:#0f0;color:#000;\">TAP</button>\n\
+    \  <button onclick=\"send('swipe')\" style=\"background:#ff0;color:#000;\">SWIPE</button>\n\
+    \  <button onclick=\"send('error')\" style=\"background:#f00;color:#fff;\">ERROR</button>\n\
+    \  <button onclick=\"send('status')\" style=\"background:#00f;color:#fff;\">STATUS</button>\n\
+    \  <button onclick=\"send('metric')\" style=\"background:#0ff;color:#000;\">METRIC</button>\n\
+    \n  <p id=\"status\">Waiting...</p>\n\n  <script>\n  const NORTH_URL = \"https://north-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com\"\
+    ;\n\n  async function send(type) {\n    const payload = {\n      device: \"mobile-sim\"\
+    ,\n      event: type,\n      ts: new Date().toISOString(),\n    };\n\n    if (type\
+    \ === 'tap') {\n      payload.action = 'door_open';\n      payload.count = Math.floor(Math.random()\
+    \ * 100);\n    } else if (type === 'swipe') {\n      payload.action = 'card_swipe';\n\
+    \      payload.card_id = 'A' + Math.floor(Math.random() * 9999).toString().padStart(4,\
+    \ '0');\n    } else if (type === 'error') {\n      payload.error = 'Simulated\
+    \ access denied';\n      payload.code = 403;\n    } else if (type === 'status')\
+    \ {\n      payload.status = 'idle';\n      payload.battery = Math.floor(Math.random()\
+    \ * 100) + '%';\n    } else if (type === 'metric') {\n      payload.metric = 'temperature';\n\
+    \      payload.value = (Math.random() * 30 + 10).toFixed(1) + '\xB0C';\n    }\n\
+    \n    try {\n      const r = await fetch(`${NORTH_URL}/ingest`, {\n        method:\
+    \ \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n  \
+    \      body: JSON.stringify(payload)\n      });\n\n      if (!r.ok) {\n      \
+    \  const errText = await r.text();\n        throw new Error(`HTTP ${r.status}:\
+    \ ${errText}`);\n      }\n\n      const j = await r.json();\n      document.getElementById(\"\
+    status\").innerText = `ACK from north. Count now: ${j.count}`;\n    } catch (e)\
+    \ {\n      document.getElementById(\"status\").innerText = `Send failed: ${e.message}`;\n\
+    \      console.error(\"Payload attempted:\", JSON.stringify(payload, null, 2));\n\
+    \      console.error(e);\n    }\n  }\n  </script>\n</body>\n</html>\n"
 kind: ConfigMap
 metadata:
   name: south-ui-html
