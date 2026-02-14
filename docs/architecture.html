@@ -33,6 +33,7 @@
   .legend-dot { border-radius: 50%; }
   .legend-label { color: #8B98A5; font-size: 11px; }
   .legend-live { color: #00D26A; font-size: 10px; font-weight: 600; }
+  .hint { color: #4E5D6C; font-size: 10px; margin-top: 12px; animation: fadeIn 1s ease-out 0.7s both; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
@@ -318,10 +319,10 @@
     EDGE DEVICES
   </text>
   <text x="540" y="633" fill="#4E5D6C" font-size="10">
-    Audience phones become the edge during the live demo
+    Click a device to take it offline
   </text>
 
-  <!-- Device cards -->
+  <!-- Device cards — click to toggle offline -->
   <rect x="168" y="648" width="134" height="98" rx="12" fill="#0D1117" stroke="#00D26A" stroke-width="1.5" />
   <rect x="168" y="648" width="134" height="3" rx="1.5" fill="#00D26A" opacity="0.7" />
   <text x="235" y="680" text-anchor="middle" font-size="28">📱</text>
@@ -488,11 +489,132 @@
   </div>
 </div>
 
+<div class="hint">Click any edge device to take it offline — click again to restore</div>
+
 <div class="footer">
   <span class="rh">Red Hat</span>
   <span class="mid">Open Hybrid Cloud Demo — Closed-Loop Reference Architecture</span>
   <span class="sap">SAP</span>
 </div>
+
+
+<script>
+/* Device class toggle — click card to take offline/online
+   Uses SVG click coordinates to detect which card was hit. */
+(function () {
+  var svg = document.getElementById("arch");
+  var allPaths = svg.querySelectorAll("path");
+  var allCircles = svg.querySelectorAll("circle");
+  var state = { tap: true, status: true, alert: true, telemetry: true };
+
+  var cards = [
+    { xMin: 168, xMax: 302, cls: "tap" },
+    { xMin: 318, xMax: 452, cls: "status" },
+    { xMin: 468, xMax: 602, cls: "alert" },
+    { xMin: 618, xMax: 740, cls: "telemetry" }
+  ];
+
+  var fanInPaths = {
+    tap:       "M235,648 C235,620 360,600 420,580",
+    status:    "M385,648 C385,630 410,610 420,580",
+    alert:     "M535,648 C535,630 490,610 480,580",
+    telemetry: "M679,648 C679,620 540,600 480,580"
+  };
+  var fanOutPaths = {
+    tap:       "M480,580 C480,600 360,620 235,648",
+    status:    "M480,580 C480,600 430,620 385,648",
+    alert:     "M480,580 C480,600 510,620 535,648",
+    telemetry: "M480,580 C480,600 570,620 679,648"
+  };
+  var streamColors = {
+    tap: "#00D26A", status: "#3B82F6", alert: "#F97316", telemetry: "#A855F7"
+  };
+
+  // Cache card elements by class
+  var cardEls = {};
+  cards.forEach(function (card) {
+    cardEls[card.cls] = [];
+    svg.querySelectorAll("rect, text, circle").forEach(function (el) {
+      var ex = parseFloat(el.getAttribute("x") || el.getAttribute("cx") || -1);
+      var ey = parseFloat(el.getAttribute("y") || el.getAttribute("cy") || -1);
+      if (ex >= card.xMin && ex <= card.xMax && ey >= 648 && ey <= 760) {
+        cardEls[card.cls].push(el);
+      }
+    });
+  });
+
+  // Convert SVG click to viewBox coordinates
+  function svgPoint(evt) {
+    var pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  svg.style.cursor = "default";
+  
+  // Track mouse for cursor hint
+  svg.addEventListener("mousemove", function (evt) {
+    var p = svgPoint(evt);
+    var overCard = false;
+    if (p.y >= 648 && p.y <= 746) {
+      cards.forEach(function (card) {
+        if (p.x >= card.xMin && p.x <= card.xMax) overCard = true;
+      });
+    }
+    svg.style.cursor = overCard ? "pointer" : "default";
+  });
+
+  svg.addEventListener("click", function (evt) {
+    var p = svgPoint(evt);
+    if (p.y < 648 || p.y > 746) return;
+
+    var cls = null;
+    cards.forEach(function (card) {
+      if (p.x >= card.xMin && p.x <= card.xMax) cls = card.cls;
+    });
+    if (!cls) return;
+
+    state[cls] = !state[cls];
+    var on = state[cls];
+
+    // Dim/restore card
+    (cardEls[cls] || []).forEach(function (el) {
+      el.style.transition = "opacity 0.4s";
+      el.style.opacity = on ? "" : "0.15";
+    });
+
+    // Fan-in/fan-out paths
+    allPaths.forEach(function (p) {
+      var d = p.getAttribute("d");
+      if (d === fanInPaths[cls] || d === fanOutPaths[cls]) {
+        p.style.transition = "opacity 0.4s";
+        p.style.opacity = on ? "" : "0";
+      }
+    });
+
+    // Dots: fan-in, fan-out, and unified stream
+    allCircles.forEach(function (c) {
+      var fill = c.getAttribute("fill");
+      var motion = c.querySelector("animateMotion");
+      if (!motion) return;
+      var mpath = motion.getAttribute("path");
+
+      // Fan-in or fan-out dots
+      if (mpath === fanInPaths[cls] || mpath === fanOutPaths[cls]) {
+        c.style.transition = "opacity 0.4s";
+        c.style.opacity = on ? "" : "0";
+        return;
+      }
+      // Unified northbound stream dots matching this class color
+      if (fill === streamColors[cls] && mpath === "M420,475 L420,322") {
+        c.style.transition = "opacity 0.4s";
+        c.style.opacity = on ? "" : "0";
+      }
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
