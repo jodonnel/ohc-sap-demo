@@ -1,9 +1,42 @@
+# secrets and credentials
+*.vault
+*.vault.yml
+*secret*.yml
+*secret*.yaml
+.vault-password
+*.pem
+*.key
+.env
+.env.*
+
 # local envs / scratch
 .venv/
 __pycache__/
 *.pyc
+*.pyo
 
 # build artifacts
 *.egg-info/
 dist/
 build/
+
+# IDE / editor
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+*~
+*.kate-swp
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Ansible
+*.retry
+collections/ansible_collections/
+
+# kubeconfig / cluster credentials
+kubeconfig
+kubeconfig.*
+auth/
