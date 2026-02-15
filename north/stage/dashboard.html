@@ -397,6 +397,9 @@
   }
   connect();
 
+  // Pod name
+  fetch("/pod-name").then(r=>r.json()).then(d=>{document.getElementById("podName").innerText=d.pod}).catch(()=>{});
+
   // Rate refresh
   setInterval(calcRate, 1000);
 </script>

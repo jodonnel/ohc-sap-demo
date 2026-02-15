@@ -90,6 +90,10 @@ def events():
 
 
 
+@app.get("/pod-name")
+def pod_name():
+    return add_cors(Response(json.dumps({"pod": POD_NAME}), mimetype="application/json"))
+
 @app.get("/stage")
 def stage():
     return send_from_directory("/stage", "dashboard.html")
