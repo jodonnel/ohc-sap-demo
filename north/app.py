@@ -92,15 +92,15 @@ def events():
 
 @app.get("/stage")
 def stage():
-    return send_from_directory("stage", "dashboard.html")
+    return send_from_directory("/stage", "dashboard.html")
 
 @app.get("/play")
 def play():
-    return send_from_directory("../south-ui", "index.html")
+    return send_from_directory("/south-ui", "index.html")
 
 @app.get("/qr")
 def qr():
-    return send_from_directory("stage", "qr.html")
+    return send_from_directory("/stage", "qr.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
