@@ -14,7 +14,3 @@ resources:
   - south-ui-route.yaml
   - south-ui-env-configmap.yaml
   - south-ui-html-configmap.yaml
-  # south-hello-site (static south site)
-  - south-hello-site-deployment.yaml
-  - south-hello-site-service.yaml
-  - south-hello-site-route.yaml
