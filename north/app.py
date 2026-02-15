@@ -10,8 +10,16 @@ app = Flask(__name__)
 count = 0
 last = {}
 subscribers = []
+event_log = []
 lock = threading.Lock()
 POD_NAME = os.environ.get("HOSTNAME", "unknown")
+
+telemetry = {
+    "batteries": [],
+    "networks": {},
+    "locales": {},
+    "devices": 0
+}
 
 def add_cors(resp):
     resp.headers["Access-Control-Allow-Origin"] = "*"
@@ -56,6 +64,32 @@ def ingest():
 
     publish(last)
 
+    event_log.append(last)
+    if len(event_log) > 200:
+        event_log.pop(0)
+
+    # Telemetry aggregation
+    payload = data.get("data", data.get("payload", data))
+    evt_type = data.get("type", "")
+
+    if "telemetry.battery" in evt_type:
+        try:
+            level = int(str(payload.get("level", "0")).replace("%", ""))
+            telemetry["batteries"].append(level)
+        except Exception:
+            pass
+
+    if "telemetry.network" in evt_type:
+        net_type = payload.get("type", "unknown")
+        telemetry["networks"][net_type] = telemetry["networks"].get(net_type, 0) + 1
+
+    if "telemetry.locale" in evt_type:
+        locale = payload.get("value", "unknown")
+        telemetry["locales"][locale] = telemetry["locales"].get(locale, 0) + 1
+
+    if "telemetry.device" in evt_type:
+        telemetry["devices"] += 1
+
     return add_cors(Response(
         json.dumps({"ok": True, "count": count}),
         mimetype="application/json"
@@ -89,6 +123,21 @@ def events():
     return resp
 
 
+
+@app.get("/telemetry")
+def get_telemetry():
+    avg_battery = round(sum(telemetry["batteries"]) / max(1, len(telemetry["batteries"])))
+    return add_cors(Response(json.dumps({
+        "avgBattery": avg_battery,
+        "batteryCount": len(telemetry["batteries"]),
+        "networks": telemetry["networks"],
+        "locales": telemetry["locales"],
+        "devices": telemetry["devices"],
+    }), mimetype="application/json"))
+
+@app.get("/log")
+def event_log_view():
+    return add_cors(Response(json.dumps(event_log), mimetype="application/json"))
 
 @app.get("/pod-name")
 def pod_name():

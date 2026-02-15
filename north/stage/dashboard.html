@@ -162,7 +162,7 @@
     /* ── Bottom tiles ── */
     .tiles {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
       gap: 16px;
     }
 
@@ -186,6 +186,7 @@
     .tile.event::before { background: var(--green); }
     .tile.transport::before { background: var(--blue); }
     .tile.runtime::before { background: var(--red); }
+    .tile.telemetry::before { background: var(--purple); }
 
     .tile h3 {
       font-size: 10px;
@@ -287,6 +288,13 @@
       <div class="meta">Platform: <strong>Red Hat OpenShift</strong></div>
       <div class="meta">Namespace: <strong>qr-demo-qa</strong></div>
       <div class="meta" style="margin-top:8px;color:var(--green)">● Live instance</div>
+    </div>
+    <div class="tile telemetry">
+      <h3>Audience Telemetry</h3>
+      <div class="meta">Devices: <strong id="tDevices">—</strong></div>
+      <div class="meta">Avg Battery: <strong id="tBattery">—</strong></div>
+      <div class="meta">Networks: <strong id="tNetworks">—</strong></div>
+      <div class="meta">Locales: <strong id="tLocales">—</strong></div>
     </div>
   </div>
 </div>
@@ -402,6 +410,16 @@
 
   // Rate refresh
   setInterval(calcRate, 1000);
+
+  // Telemetry polling
+  setInterval(() => {
+    fetch("/telemetry").then(r=>r.json()).then(d=>{
+      document.getElementById("tDevices").innerText = d.devices;
+      document.getElementById("tBattery").innerText = d.avgBattery + "%";
+      document.getElementById("tNetworks").innerText = Object.entries(d.networks).map(([k,v])=>k+":"+v).join(" \u00b7 ") || "\u2014";
+      document.getElementById("tLocales").innerText = Object.keys(d.locales).length + " locales";
+    }).catch(()=>{});
+  }, 5000);
 </script>
 
 </body>
