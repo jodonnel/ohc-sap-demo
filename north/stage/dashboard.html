@@ -405,6 +405,13 @@
   }
   connect();
 
+  // Hydrate from current state
+  fetch("/state").then(r=>r.json()).then(d=>{
+    if (d.count) countEl.innerText = d.count;
+    if (d.last && d.last.ts) lastTsEl.innerText = new Date(d.last.ts).toLocaleTimeString();
+    if (d.last && d.last.payload) lastEl.innerText = JSON.stringify(d.last.payload, null, 2);
+  }).catch(()=>{});
+
   // Pod name
   fetch("/pod-name").then(r=>r.json()).then(d=>{document.getElementById("podName").innerText=d.pod}).catch(()=>{});
 

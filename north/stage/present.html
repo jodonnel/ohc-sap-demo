@@ -2055,6 +2055,9 @@ function pollTelemetry() {
 setInterval(pollTelemetry, 5000);
 
 // ── Init ──
+fetch('/state').then(r=>r.json()).then(d=>{
+  if (d.count) { eventCount = d.count; updateCounters(); }
+}).catch(()=>{});
 connectSSE();
 pollTelemetry();
 goTo(0);
