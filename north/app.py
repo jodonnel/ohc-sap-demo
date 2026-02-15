@@ -159,6 +159,10 @@ def qr():
 def present():
     return send_from_directory("/stage", "present.html")
 
+@app.get("/present-rh")
+def present_rh():
+    return send_from_directory("/stage", "present-rh.html")
+
 @app.get("/qr-present")
 def qr_present():
     return send_from_directory("/stage", "qr-present.html")

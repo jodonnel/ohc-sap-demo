@@ -16,7 +16,8 @@ Each game action generates realistic Lenel OnGuard access control events in Clou
 
 | Endpoint | Description |
 |----------|-------------|
-| `/present` | Keyboard-driven presentation (10 slides, live dashboard, SSE) |
+| `/present` | SAP seller / customer-facing presentation (10 slides, SSE) |
+| `/present-rh` | Red Hat seller presentation (OHC + Partner comp framing) |
 | `/stage` | Stage dashboard (event counter, telemetry) |
 | `/play` | Mobile wumpus game (Lenel OnGuard badge events) |
 | `/qr` | QR code page for projector |
