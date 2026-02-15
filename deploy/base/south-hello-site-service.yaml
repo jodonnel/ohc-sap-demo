@@ -18,4 +18,3 @@ spec:
     app: south-hello-site
   sessionAffinity: None
   type: ClusterIP
-

@@ -14,4 +14,3 @@ spec:
     name: south-ui
     weight: 100
   wildcardPolicy: None
-
