@@ -92,137 +92,15 @@ def events():
 
 @app.get("/stage")
 def stage():
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-  <title>Stage Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {{
-      background:#111;
-      color:#eee;
-      font-family:system-ui;
-      padding:2rem;
-    }}
-    #topbar {{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }}
-    #count {{
-      font-size:8rem;
-      font-weight:800;
-      margin-top:2rem;
-    }}
-    button {{
-      background:#222;
-      color:#eee;
-      border:1px solid #444;
-      padding:0.5rem 1rem;
-      cursor:pointer;
-    }}
-    button:hover {{
-      background:#333;
-    }}
-    .tiles {{
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-      gap:1rem;
-      margin-top:2rem;
-    }}
-    .tile {{
-      background:#181818;
-      border:1px solid #333;
-      padding:1rem;
-    }}
-    pre {{
-      white-space:pre-wrap;
-      font-size:0.85rem;
-    }}
-    .muted {{
-      color:#777;
-      font-size:0.85rem;
-    }}
-  </style>
-</head>
-<body>
+    return send_from_directory("stage", "dashboard.html")
 
-  <div id="topbar">
-    <h1>Stage Dashboard</h1>
-    <button id="muteBtn">&#x1f50a; Sound ON</button>
-  </div>
+@app.get("/play")
+def play():
+    return send_from_directory("../south-ui", "index.html")
 
-  <div id="count">0</div>
-
-  <audio id="beep"
-    src="/assets/Mario-coin-sound.mp3"
-    preload="auto"></audio>
-
-  <div class="tiles">
-    <div class="tile">
-      <h3>Last Event</h3>
-      <pre id="last">—</pre>
-    </div>
-    <div class="tile">
-      <h3>Transport</h3>
-      <p><strong>SSE</strong> (push)</p>
-      <p class="muted">Polling disabled</p>
-    </div>
-    <div class="tile">
-      <h3>Runtime</h3>
-      <p>Pod: {POD_NAME}</p>
-      <p class="muted">Live instance</p>
-    </div>
-  </div>
-
-<script>
-  const countEl = document.getElementById("count");
-  const lastEl  = document.getElementById("last");
-  const beep    = document.getElementById("beep");
-  const muteBtn = document.getElementById("muteBtn");
-
-  let muted = localStorage.getItem("muted") === "true";
-  let audioUnlocked = false;
-
-  function updateMuteUI() {{
-    muteBtn.innerText = muted ? "\U0001f507 Muted" : "\U0001f50a Sound ON";
-  }}
-
-  muteBtn.onclick = async () => {{
-    muted = !muted;
-    localStorage.setItem("muted", muted);
-    updateMuteUI();
-
-    if (!audioUnlocked && !muted) {{
-      try {{
-        await beep.play();
-        beep.pause();
-        beep.currentTime = 0;
-        audioUnlocked = true;
-      }} catch (e) {{
-        console.warn("audio unlock failed", e);
-      }}
-    }}
-  }};
-
-  updateMuteUI();
-
-  const es = new EventSource("/events");
-
-  es.onmessage = (e) => {{
-    const d = JSON.parse(e.data);
-    countEl.innerText = d.count;
-    lastEl.innerText = JSON.stringify(d, null, 2);
-
-    if (!muted && audioUnlocked) {{
-      const chime = beep.cloneNode();
-      chime.play().catch(() => {{}});
-    }}
-  }};
-</script>
-
-</body>
-</html>"""
+@app.get("/qr")
+def qr():
+    return send_from_directory("stage", "qr.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

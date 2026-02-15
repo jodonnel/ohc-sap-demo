@@ -1,78 +1,578 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>South Sender</title>
-  <style>
-    body { font-family: system-ui, sans-serif; background: #111; color: #0f0; margin: 40px; text-align: center; }
-    h2 { color: #ff0; }
-    button { padding: 15px 30px; font-size: 1.2em; margin: 10px; border-radius: 8px; cursor: pointer; }
-    #status { margin-top: 20px; font-size: 1.1em; color: #ff0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>OHC Edge Demo</title>
+<style>
+  :root {
+    --bg: #06090F; --surface: #0D1117; --border: #1C2333;
+    --muted: #4E5D6C; --text: #F0F4F8;
+    --green: #00D26A; --blue: #0070F2; --red: #EE0000;
+    --amber: #F59E0B; --purple: #A855F7; --orange: #F97316;
+    --teal: #14B8A6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    min-height: 100dvh; overflow-x: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .header .logo { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+  .header .logo .rh { color: var(--red); }
+  .header .logo .sep { color: var(--muted); margin: 0 6px; }
+  .header .logo .sap { color: var(--blue); }
+  .header .status { display: flex; align-items: center; gap: 6px; }
+  .header .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  .header .evtcount { font-size: 11px; color: var(--green); font-variant-numeric: tabular-nums; }
+
+  /* ── Game area ── */
+  .game { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; }
+
+  .room-display {
+    flex: 1; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px;
+    position: relative; overflow: hidden; min-height: 280px;
+  }
+  .room-display::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(0,210,106,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .room-icon { font-size: 64px; margin-bottom: 12px; transition: transform 0.2s; }
+  .room-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .room-desc { font-size: 13px; color: var(--muted); text-align: center; max-width: 280px; line-height: 1.4; }
+  .room-alert {
+    margin-top: 12px; font-size: 12px; font-weight: 600; padding: 6px 14px;
+    border-radius: 20px; animation: fadeIn 0.3s;
+  }
+  .room-alert.warn { background: rgba(249,115,22,0.15); color: var(--orange); border: 1px solid rgba(249,115,22,0.3); }
+  .room-alert.danger { background: rgba(238,0,0,0.15); color: var(--red); border: 1px solid rgba(238,0,0,0.3); }
+  .room-alert.safe { background: rgba(0,210,106,0.1); color: var(--green); border: 1px solid rgba(0,210,106,0.3); }
+  .room-alert.info { background: rgba(0,112,242,0.1); color: var(--blue); border: 1px solid rgba(0,112,242,0.3); }
+
+  /* ── Minimap ── */
+  .minimap {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+    padding: 8px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .map-cell {
+    aspect-ratio: 1; border-radius: 6px; background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; opacity: 0.3; transition: all 0.2s;
+  }
+  .map-cell.visited { opacity: 0.6; background: rgba(0,210,106,0.1); border: 1px solid rgba(0,210,106,0.2); }
+  .map-cell.current { opacity: 1; background: rgba(0,210,106,0.2); border: 1px solid var(--green); box-shadow: 0 0 12px rgba(0,210,106,0.2); }
+  .map-cell.wumpus-found { opacity: 1; background: rgba(238,0,0,0.2); border: 1px solid var(--red); }
+
+  /* ── Actions ── */
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .action-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; color: var(--text);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+    transition: all 0.15s; -webkit-user-select: none; user-select: none;
+  }
+  .action-btn:active { transform: scale(0.96); background: rgba(0,210,106,0.08); border-color: var(--green); }
+  .action-btn .icon { font-size: 18px; }
+  .action-btn.disabled { opacity: 0.3; pointer-events: none; }
+
+  /* ── Event ticker ── */
+  .ticker-toggle {
+    display: flex; justify-content: center; padding: 4px;
+  }
+  .ticker-btn {
+    background: none; border: none; color: var(--muted); font-size: 10px;
+    cursor: pointer; padding: 4px 12px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .ticker-btn:hover { color: var(--text); }
+
+  .ticker {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s;
+    background: var(--surface); border-top: 1px solid var(--border);
+  }
+  .ticker.open { max-height: 200px; }
+  .ticker-inner {
+    padding: 8px 12px; max-height: 180px; overflow-y: auto;
+    font-family: 'Courier New', monospace; font-size: 10px; color: var(--muted);
+    line-height: 1.6;
+  }
+  .ticker-inner .evt { animation: fadeIn 0.2s; }
+  .ticker-inner .evt .ts { color: var(--muted); }
+  .ticker-inner .evt .type { font-weight: 700; }
+  .ticker-inner .evt .type.tap { color: var(--green); }
+  .ticker-inner .evt .type.status { color: var(--blue); }
+  .ticker-inner .evt .type.alert { color: var(--orange); }
+  .ticker-inner .evt .type.telem { color: var(--purple); }
+  .ticker-inner .evt .type.sensor { color: var(--teal); }
+  .ticker-inner .evt .src { color: var(--text); opacity: 0.6; }
+
+  /* ── End screen ── */
+  .end-screen {
+    flex: 1; display: none; flex-direction: column; align-items: center;
+    justify-content: center; padding: 32px; text-align: center; gap: 16px;
+  }
+  .end-screen.active { display: flex; }
+  .end-icon { font-size: 80px; }
+  .end-title { font-size: 28px; font-weight: 700; }
+  .end-stats { font-size: 14px; color: var(--muted); line-height: 1.8; }
+  .end-stats strong { color: var(--green); }
+
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+  /* Splash */
+  .splash {
+    position: fixed; inset: 0; background: var(--bg); z-index: 100;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; padding: 32px;
+  }
+  .splash.gone { display: none; }
+  .splash h1 { font-size: 28px; font-weight: 700; text-align: center; }
+  .splash p { font-size: 14px; color: var(--muted); text-align: center; max-width: 300px; line-height: 1.5; }
+  .splash .start-btn {
+    background: var(--green); color: var(--bg); border: none; border-radius: 12px;
+    padding: 14px 40px; font-size: 16px; font-weight: 700; cursor: pointer;
+    margin-top: 12px; transition: transform 0.15s;
+  }
+  .splash .start-btn:active { transform: scale(0.96); }
+</style>
 </head>
 <body>
-  <h2>South Sender</h2>
-  <p>Tap to send events north</p>
 
-  <button onclick="send('tap')" style="background:#0f0;color:#000;">TAP</button>
-  <button onclick="send('swipe')" style="background:#ff0;color:#000;">SWIPE</button>
-  <button onclick="send('error')" style="background:#f00;color:#fff;">ERROR</button>
-  <button onclick="send('status')" style="background:#00f;color:#fff;">STATUS</button>
-  <button onclick="send('metric')" style="background:#0ff;color:#000;">METRIC</button>
+<!-- Splash / entry -->
+<div class="splash" id="splash">
+  <div style="font-size:64px">🏢</div>
+  <h1>Secure the Building</h1>
+  <p>Navigate 12 rooms. Find the threat. Every action is a real event flowing through SAP Edge Integration Cell on Red Hat OpenShift.</p>
+  <button class="start-btn" id="startBtn">Enter the Building</button>
+  <p style="font-size:11px; margin-top:8px">~90 seconds · Your device becomes the edge</p>
+</div>
 
-  <p id="status">Waiting...</p>
+<!-- Main game -->
+<div class="header">
+  <div class="logo"><span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span></div>
+  <div class="status"><div class="dot" id="dot"></div><span class="evtcount" id="evtCount">0 events</span></div>
+</div>
 
-  <!--
-    NORTH_URL is injected by the deploy overlay. When served via ConfigMap,
-    the kustomize patch replaces this value per-environment.
-    For local development, point at your local north instance.
-  -->
-  <script>
-  const NORTH_URL = "__NORTH_URL__";
+<div class="game" id="gameArea">
+  <div class="room-display" id="roomDisplay">
+    <div class="room-icon" id="roomIcon">🏢</div>
+    <div class="room-name" id="roomName">Lobby</div>
+    <div class="room-desc" id="roomDesc">Main entrance. Security desk ahead.</div>
+    <div class="room-alert" id="roomAlert" style="display:none"></div>
+  </div>
 
-  async function send(type) {
-    const payload = {
-      device: "mobile-sim",
-      event: type,
-      ts: new Date().toISOString(),
-    };
+  <div class="minimap" id="minimap"></div>
 
-    if (type === 'tap') {
-      payload.action = 'door_open';
-      payload.count = Math.floor(Math.random() * 100);
-    } else if (type === 'swipe') {
-      payload.action = 'card_swipe';
-      payload.card_id = 'A' + Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-    } else if (type === 'error') {
-      payload.error = 'Simulated access denied';
-      payload.code = 403;
-    } else if (type === 'status') {
-      payload.status = 'idle';
-      payload.battery = Math.floor(Math.random() * 100) + '%';
-    } else if (type === 'metric') {
-      payload.metric = 'temperature';
-      payload.value = (Math.random() * 30 + 10).toFixed(1) + '°C';
+  <div class="actions" id="actions"></div>
+</div>
+
+<div class="end-screen" id="endScreen">
+  <div class="end-icon" id="endIcon">🏆</div>
+  <div class="end-title" id="endTitle">Building Secured</div>
+  <div class="end-stats" id="endStats"></div>
+</div>
+
+<div class="ticker-toggle">
+  <button class="ticker-btn" id="tickerBtn">▲ Event stream</button>
+</div>
+<div class="ticker" id="ticker">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// SOUTH-SIDE WUMPUS — "Secure the Building"
+//
+// 12 rooms in a 4×3 grid. Wumpus (threat) hides in one.
+// Player navigates, gets hints, makes choices.
+// ~40 events over ~90 seconds.
+// ═══════════════════════════════════════════════════
+
+// ── Config ──
+const INGEST_URL = "/ingest"; // north-side endpoint
+const ROOMS = [
+  { id: 0,  icon: "🏢", name: "Lobby",         desc: "Main entrance. Security desk ahead.", adj: [1, 4] },
+  { id: 1,  icon: "🛗", name: "Elevator Bay",   desc: "Three elevators. One is stuck on floor 3.", adj: [0, 2, 5] },
+  { id: 2,  icon: "☕", name: "Break Room",      desc: "Coffee machine humming. Badge reader on the door.", adj: [1, 3, 6] },
+  { id: 3,  icon: "📦", name: "Loading Dock",    desc: "External access. Camera feeds look grainy.", adj: [2, 7] },
+  { id: 4,  icon: "🖥️", name: "NOC",            desc: "Network Operations Center. Screens everywhere.", adj: [0, 5, 8] },
+  { id: 5,  icon: "🏛️", name: "Main Corridor",  desc: "Long hallway. Motion sensors active.", adj: [1, 4, 6, 9] },
+  { id: 6,  icon: "🔬", name: "Lab",             desc: "R&D floor. Biometric access required.", adj: [2, 5, 7, 10] },
+  { id: 7,  icon: "🚪", name: "Server Room",     desc: "Cold air. Racks blinking. Access logged.", adj: [3, 6, 11] },
+  { id: 8,  icon: "📡", name: "Comms Closet",    desc: "MDF. Fiber trunks. Power meter on the wall.", adj: [4, 9] },
+  { id: 9,  icon: "🪟", name: "Executive Suite", desc: "Corner office. Glass walls. Privacy film engaged.", adj: [5, 8, 10] },
+  { id: 10, icon: "🏥", name: "Wellness Room",   desc: "Quiet zone. Air quality sensor blinking green.", adj: [6, 9, 11] },
+  { id: 11, icon: "🔒", name: "Vault",           desc: "High-security storage. Multi-factor required.", adj: [7, 10] },
+];
+
+// ── State ──
+let currentRoom = 0;
+let visited = new Set([0]);
+let eventCount = 0;
+let wumpusRoom = -1;
+let gameOver = false;
+let startTime = 0;
+let deviceProfile = {};
+let tickerOpen = false;
+let hintRooms = new Set(); // rooms adjacent to wumpus
+
+// ── DOM ──
+const splash = document.getElementById("splash");
+const startBtn = document.getElementById("startBtn");
+const roomIcon = document.getElementById("roomIcon");
+const roomName = document.getElementById("roomName");
+const roomDesc = document.getElementById("roomDesc");
+const roomAlert = document.getElementById("roomAlert");
+const roomDisplay = document.getElementById("roomDisplay");
+const minimapEl = document.getElementById("minimap");
+const actionsEl = document.getElementById("actions");
+const evtCountEl = document.getElementById("evtCount");
+const endScreen = document.getElementById("endScreen");
+const endIcon = document.getElementById("endIcon");
+const endTitle = document.getElementById("endTitle");
+const endStats = document.getElementById("endStats");
+const gameArea = document.getElementById("gameArea");
+const tickerEl = document.getElementById("ticker");
+const tickerInner = document.getElementById("tickerInner");
+const tickerBtn = document.getElementById("tickerBtn");
+const dotEl = document.getElementById("dot");
+
+// ── Ticker toggle ──
+tickerBtn.onclick = () => {
+  tickerOpen = !tickerOpen;
+  tickerEl.classList.toggle("open", tickerOpen);
+  tickerBtn.innerText = tickerOpen ? "▼ Event stream" : "▲ Event stream";
+};
+
+// ── Event sending ──
+function sendEvent(type, cls, source, data) {
+  eventCount++;
+  evtCountEl.innerText = eventCount + " events";
+
+  const evt = {
+    specversion: "1.0",
+    type: "ohc.demo." + type,
+    source: "south/" + source,
+    id: crypto.randomUUID ? crypto.randomUUID() : "evt-" + eventCount,
+    time: new Date().toISOString(),
+    data: {
+      ...data,
+      room: ROOMS[currentRoom].name,
+      seq: eventCount,
     }
+  };
 
+  // Send to north
+  fetch(INGEST_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(evt),
+  }).catch(() => {});
+
+  // Ticker
+  const div = document.createElement("div");
+  div.className = "evt";
+  const tsStr = new Date().toLocaleTimeString();
+  div.innerHTML = '<span class="ts">' + tsStr + '</span> <span class="type ' + cls + '">' + type.toUpperCase() + '</span> <span class="src">' + source + ' → ' + (data.action || data.metric || data.result || "") + '</span>';
+  tickerInner.prepend(div);
+  if (tickerInner.children.length > 50) tickerInner.lastChild.remove();
+}
+
+// ── Device telemetry (passive, no prompts) ──
+async function captureDeviceTelemetry() {
+  // Locale
+  const locale = navigator.language || "unknown";
+  sendEvent("telemetry.locale", "telem", "device-profile", {
+    metric: "locale",
+    value: locale,
+    languages: navigator.languages ? navigator.languages.join(",") : locale,
+  });
+
+  // Screen + device
+  sendEvent("telemetry.device", "telem", "device-profile", {
+    metric: "device",
+    screenW: screen.width,
+    screenH: screen.height,
+    viewportW: window.innerWidth,
+    viewportH: window.innerHeight,
+    dpr: window.devicePixelRatio,
+    cores: navigator.hardwareConcurrency || "unknown",
+    darkMode: window.matchMedia("(prefers-color-scheme:dark)").matches,
+    touch: "ontouchstart" in window,
+  });
+
+  // Network
+  if (navigator.connection) {
+    const c = navigator.connection;
+    sendEvent("telemetry.network", "telem", "device-profile", {
+      metric: "network",
+      type: c.effectiveType || "unknown",
+      downlink: c.downlink || "unknown",
+      rtt: c.rtt || "unknown",
+      saveData: c.saveData || false,
+    });
+  }
+
+  // Battery
+  if (navigator.getBattery) {
     try {
-      const r = await fetch(`${NORTH_URL}/ingest`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+      const b = await navigator.getBattery();
+      sendEvent("telemetry.battery", "telem", "device-profile", {
+        metric: "battery",
+        level: Math.round(b.level * 100) + "%",
+        charging: b.charging,
       });
+    } catch (e) {}
+  }
+}
 
-      if (!r.ok) {
-        const errText = await r.text();
-        throw new Error(`HTTP ${r.status}: ${errText}`);
-      }
+// ── Place wumpus ──
+function placeWumpus() {
+  // Not in room 0 (lobby) and not adjacent to 0
+  const candidates = ROOMS.filter(r => r.id !== 0 && !ROOMS[0].adj.includes(r.id));
+  wumpusRoom = candidates[Math.floor(Math.random() * candidates.length)].id;
+  hintRooms = new Set(ROOMS[wumpusRoom].adj);
+}
 
-      const j = await r.json();
-      document.getElementById("status").innerText = `ACK from north. Count now: ${j.count}`;
-    } catch (e) {
-      document.getElementById("status").innerText = `Send failed: ${e.message}`;
-      console.error("Payload attempted:", JSON.stringify(payload, null, 2));
-      console.error(e);
+// ── Minimap ──
+function renderMinimap() {
+  minimapEl.innerHTML = "";
+  ROOMS.forEach((r, i) => {
+    const cell = document.createElement("div");
+    cell.className = "map-cell";
+    if (i === currentRoom) cell.classList.add("current");
+    else if (visited.has(i)) cell.classList.add("visited");
+    if (gameOver && i === wumpusRoom) cell.classList.add("wumpus-found");
+    cell.innerText = visited.has(i) || (gameOver && i === wumpusRoom) ? r.icon : "?";
+    minimapEl.appendChild(cell);
+  });
+}
+
+// ── Room rendering ──
+function renderRoom() {
+  const room = ROOMS[currentRoom];
+  roomIcon.innerText = room.icon;
+  roomIcon.style.transform = "scale(1.1)";
+  setTimeout(() => roomIcon.style.transform = "scale(1)", 200);
+  roomName.innerText = room.name;
+  roomDesc.innerText = room.desc;
+
+  // Hints
+  roomAlert.style.display = "none";
+  if (currentRoom === wumpusRoom) {
+    // Found the wumpus!
+    endGame(true);
+    return;
+  }
+  if (hintRooms.has(currentRoom)) {
+    roomAlert.style.display = "";
+    roomAlert.className = "room-alert warn";
+    roomAlert.innerText = "⚠️ Anomalous activity detected nearby";
+    sendEvent("alert.proximity", "alert", "motion-sensor-" + room.name.toLowerCase().replace(/ /g, "-"), {
+      action: "anomaly_nearby", severity: "warning"
+    });
+  }
+
+  // Room-specific auto sensors (generates passive events)
+  triggerRoomSensors(room);
+
+  // Render actions
+  renderActions(room);
+  renderMinimap();
+}
+
+function triggerRoomSensors(room) {
+  // Each room fires 1-2 automatic sensor events
+  setTimeout(() => {
+    if (gameOver) return;
+    sendEvent("sensor.environmental", "sensor", "env-" + room.name.toLowerCase().replace(/ /g, "-"), {
+      metric: "temperature",
+      value: (68 + Math.random() * 8).toFixed(1) + "°F",
+    });
+  }, 800 + Math.random() * 1200);
+
+  if (Math.random() > 0.5) {
+    setTimeout(() => {
+      if (gameOver) return;
+      const metrics = ["humidity", "air-quality", "noise-level", "light-level"];
+      const m = metrics[Math.floor(Math.random() * metrics.length)];
+      const vals = { humidity: Math.round(35 + Math.random() * 30) + "%", "air-quality": Math.round(80 + Math.random() * 20) + " AQI", "noise-level": Math.round(30 + Math.random() * 40) + " dB", "light-level": Math.round(200 + Math.random() * 600) + " lux" };
+      sendEvent("sensor.environmental", "sensor", "env-" + room.name.toLowerCase().replace(/ /g, "-"), {
+        metric: m, value: vals[m],
+      });
+    }, 2000 + Math.random() * 2000);
+  }
+}
+
+function renderActions(room) {
+  actionsEl.innerHTML = "";
+
+  // Movement buttons — adjacent rooms
+  room.adj.forEach(adjId => {
+    const adj = ROOMS[adjId];
+    const btn = document.createElement("button");
+    btn.className = "action-btn";
+    btn.innerHTML = '<span class="icon">' + (visited.has(adjId) ? adj.icon : "🚪") + '</span> ' + (visited.has(adjId) ? adj.name : "Door " + (adjId + 1));
+    btn.onclick = () => moveToRoom(adjId);
+    actionsEl.appendChild(btn);
+  });
+
+  // Inspect action
+  const inspect = document.createElement("button");
+  inspect.className = "action-btn";
+  inspect.innerHTML = '<span class="icon">🔍</span> Inspect Room';
+  inspect.onclick = () => inspectRoom();
+  actionsEl.appendChild(inspect);
+
+  // Listen action
+  const listen = document.createElement("button");
+  listen.className = "action-btn";
+  listen.innerHTML = '<span class="icon">👂</span> Listen';
+  listen.onclick = () => listenRoom();
+  actionsEl.appendChild(listen);
+}
+
+// ── Actions ──
+function moveToRoom(roomId) {
+  if (gameOver) return;
+  const wasVisited = visited.has(roomId);
+  visited.add(roomId);
+  currentRoom = roomId;
+
+  sendEvent("access.badge_tap", "tap", "badge-reader-" + ROOMS[roomId].name.toLowerCase().replace(/ /g, "-"), {
+    action: "access_granted",
+    roomId: roomId,
+    firstVisit: !wasVisited,
+  });
+
+  sendEvent("movement.room_enter", "status", "motion-sensor-" + ROOMS[roomId].name.toLowerCase().replace(/ /g, "-"), {
+    action: "room_enter",
+    roomId: roomId,
+  });
+
+  renderRoom();
+}
+
+function inspectRoom() {
+  if (gameOver) return;
+  const room = ROOMS[currentRoom];
+
+  sendEvent("action.inspect", "tap", "user-interaction", {
+    action: "inspect",
+    roomId: currentRoom,
+  });
+
+  roomAlert.style.display = "";
+  if (currentRoom === wumpusRoom) {
+    endGame(true);
+    return;
+  }
+
+  // Count how many adjacent rooms have the wumpus
+  const adjToWumpus = room.adj.filter(a => a === wumpusRoom).length > 0;
+  const adjToHint = room.adj.filter(a => hintRooms.has(a)).length;
+
+  if (adjToWumpus) {
+    roomAlert.className = "room-alert danger";
+    roomAlert.innerText = "🔴 Threat detected in adjacent zone!";
+    sendEvent("alert.threat_adjacent", "alert", "analysis-engine", { action: "threat_adjacent", severity: "critical" });
+  } else if (adjToHint > 0) {
+    roomAlert.className = "room-alert warn";
+    roomAlert.innerText = "🟡 Elevated readings " + adjToHint + " zone(s) away";
+  } else {
+    roomAlert.className = "room-alert safe";
+    roomAlert.innerText = "🟢 Zone clear — no anomalies";
+  }
+}
+
+function listenRoom() {
+  if (gameOver) return;
+  sendEvent("action.listen", "tap", "user-interaction", {
+    action: "listen", roomId: currentRoom,
+  });
+
+  roomAlert.style.display = "";
+  const dist = bfs(currentRoom, wumpusRoom);
+
+  if (dist <= 1) {
+    roomAlert.className = "room-alert danger";
+    roomAlert.innerText = "🔊 Heavy movement very close!";
+  } else if (dist <= 2) {
+    roomAlert.className = "room-alert warn";
+    roomAlert.innerText = "🔊 Faint sounds from " + dist + " rooms away";
+  } else {
+    roomAlert.className = "room-alert info";
+    roomAlert.innerText = "🔇 Quiet. Threat is far away.";
+  }
+}
+
+function bfs(from, to) {
+  const q = [[from, 0]];
+  const seen = new Set([from]);
+  while (q.length) {
+    const [node, d] = q.shift();
+    if (node === to) return d;
+    for (const adj of ROOMS[node].adj) {
+      if (!seen.has(adj)) { seen.add(adj); q.push([adj, d + 1]); }
     }
   }
-  </script>
+  return 99;
+}
+
+function endGame(won) {
+  gameOver = true;
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+
+  sendEvent("game.complete", "status", "game-engine", {
+    result: won ? "threat_neutralized" : "game_over",
+    roomsVisited: visited.size,
+    totalEvents: eventCount,
+    elapsedSeconds: elapsed,
+  });
+
+  gameArea.style.display = "none";
+  endScreen.classList.add("active");
+  endIcon.innerText = won ? "🏆" : "💀";
+  endTitle.innerText = won ? "Threat Neutralized!" : "Game Over";
+  endStats.innerHTML =
+    "Rooms explored: <strong>" + visited.size + " / " + ROOMS.length + "</strong><br>" +
+    "Events generated: <strong>" + eventCount + "</strong><br>" +
+    "Time: <strong>" + Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0") + "</strong><br><br>" +
+    "<span style='color:var(--muted);font-size:12px'>Every event flowed through<br>SAP Edge Integration Cell<br>on Red Hat OpenShift</span>";
+
+  renderMinimap();
+}
+
+// ── Start ──
+startBtn.onclick = () => {
+  splash.classList.add("gone");
+  startTime = Date.now();
+  placeWumpus();
+  captureDeviceTelemetry();
+
+  sendEvent("session.start", "status", "game-engine", {
+    action: "session_start",
+    totalRooms: ROOMS.length,
+    wumpusRoom: "hidden", // don't leak it
+  });
+
+  renderRoom();
+};
+</script>
 </body>
 </html>

@@ -1,99 +1,404 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>North Dashboard — OHC SAP Demo</title>
+  <title>OHC Stage — Live Events</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@200;400;700;900&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #06090F;
+      --surface: #0D1117;
+      --border: #1C2333;
+      --muted: #4E5D6C;
+      --text: #F0F4F8;
+      --green: #00D26A;
+      --green-glow: rgba(0, 210, 106, 0.15);
+      --blue: #0070F2;
+      --red: #EE0000;
+      --amber: #F59E0B;
+      --purple: #7C3AED;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0b0b0b;
-      color: #eaeaea;
-      margin: 0;
-      padding: 2rem;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
     }
-    h1 {
-      font-weight: 600;
-      letter-spacing: 0.02em;
+
+    /* ── Ambient background pulse ── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 600px;
+      height: 600px;
+      transform: translate(-50%, -60%);
+      background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 0;
     }
-    .total {
-      font-size: 4rem;
-      margin: 1rem 0;
+    body.flash::before {
+      opacity: 1;
     }
-    .sources {
-      margin-top: 2rem;
-      max-width: 600px;
+
+    /* ── Layout ── */
+    .shell {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 100vh;
+      padding: 32px 48px;
+      position: relative;
+      z-index: 1;
     }
-    .row {
+
+    /* ── Top bar ── */
+    .topbar {
       display: flex;
       justify-content: space-between;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #333;
+      align-items: center;
     }
-    .muted {
-      opacity: 0.6;
-      font-size: 0.9rem;
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 20px;
     }
-    button {
-      margin-top: 1rem;
-      background: #cc0000;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
+    .brand .rh {
+      color: var(--red);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .brand .sep { color: var(--muted); font-size: 16px; }
+    .brand .sap {
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .brand .title {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 400;
+      margin-left: 20px;
+      padding-left: 20px;
+      border-left: 1px solid var(--border);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 20px;
       cursor: pointer;
+      transition: all 0.2s;
     }
+    .pill:hover { border-color: var(--muted); color: var(--text); }
+    .pill.active { border-color: var(--green); color: var(--green); }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    .status-dot.disconnected { background: var(--red); animation: none; }
+
+    /* ── Hero counter ── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .counter-label {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .counter {
+      font-size: clamp(8rem, 20vw, 16rem);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      transition: transform 0.1s;
+      text-shadow: 0 0 80px var(--green-glow);
+    }
+    .counter.bump {
+      transform: scale(1.04);
+    }
+
+    .rate {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--green);
+      opacity: 0.7;
+    }
+
+    /* ── Bottom tiles ── */
+    .tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .tile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      border-radius: 12px 12px 0 0;
+    }
+    .tile.event::before { background: var(--green); }
+    .tile.transport::before { background: var(--blue); }
+    .tile.runtime::before { background: var(--red); }
+
+    .tile h3 {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .tile .value {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      opacity: 0.8;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 80px;
+      overflow: hidden;
+    }
+
+    .tile .meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .tile .meta strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ── Event feed flash ── */
+    .tile.event.flash {
+      border-color: var(--green);
+      box-shadow: 0 0 20px var(--green-glow);
+      transition: border-color 0.1s, box-shadow 0.1s;
+    }
+
+    /* ── Animations ── */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .shell > * {
+      animation: fadeUp 0.6s ease-out both;
+    }
+    .shell > *:nth-child(2) { animation-delay: 0.15s; }
+    .shell > *:nth-child(3) { animation-delay: 0.3s; }
   </style>
 </head>
 <body>
 
-  <h1>North Dashboard</h1>
-  <div class="muted">Live view of events reaching the IT side</div>
+<div class="shell">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="brand">
+      <span class="rh">Red Hat</span>
+      <span class="sep">×</span>
+      <span class="sap">SAP</span>
+      <span class="title">Edge Integration — Live Stage</span>
+    </div>
+    <div class="controls">
+      <div class="status-dot" id="statusDot"></div>
+      <span class="pill" id="sseLabel">SSE connected</span>
+      <span class="pill" id="muteBtn">🔊 Sound</span>
+    </div>
+  </div>
 
-  <div class="total" id="totalCount">—</div>
+  <!-- Hero counter -->
+  <div class="hero">
+    <div class="counter-label">Events Ingested</div>
+    <div class="counter" id="count">0</div>
+    <div class="rate" id="rate"></div>
+  </div>
 
-  <div class="sources" id="sources"></div>
+  <!-- Bottom tiles -->
+  <div class="tiles">
+    <div class="tile event" id="eventTile">
+      <h3>Last Event</h3>
+      <div class="value" id="last">Waiting for events…</div>
+      <div class="meta" id="lastTs"></div>
+    </div>
+    <div class="tile transport">
+      <h3>Transport</h3>
+      <div class="meta"><strong>Server-Sent Events</strong> (push)</div>
+      <div class="meta" style="margin-top:8px">Endpoint: <strong>/events</strong></div>
+      <div class="meta">Format: <strong>CloudEvents JSON</strong></div>
+      <div class="meta">Keepalive: <strong>15s</strong></div>
+    </div>
+    <div class="tile runtime">
+      <h3>Runtime</h3>
+      <div class="meta">Pod: <strong id="podName">—</strong></div>
+      <div class="meta">Platform: <strong>Red Hat OpenShift</strong></div>
+      <div class="meta">Namespace: <strong>qr-demo-qa</strong></div>
+      <div class="meta" style="margin-top:8px;color:var(--green)">● Live instance</div>
+    </div>
+  </div>
+</div>
 
-  <button id="muteToggle">Mute sound</button>
-
-  <audio id="chime">
-    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=" type="audio/wav">
-  </audio>
+<audio id="beep" src="/assets/Mario-coin-sound.mp3" preload="auto"></audio>
 
 <script>
-let muted = false;
-const chime = document.getElementById('chime');
+  const countEl   = document.getElementById("count");
+  const lastEl    = document.getElementById("last");
+  const lastTsEl  = document.getElementById("lastTs");
+  const eventTile = document.getElementById("eventTile");
+  const rateEl    = document.getElementById("rate");
+  const beep      = document.getElementById("beep");
+  const muteBtn   = document.getElementById("muteBtn");
+  const statusDot = document.getElementById("statusDot");
+  const sseLabel  = document.getElementById("sseLabel");
 
-document.getElementById('muteToggle').onclick = () => {
-  muted = !muted;
-  document.getElementById('muteToggle').innerText = muted ? 'Unmute sound' : 'Mute sound';
-};
+  let muted = localStorage.getItem("muted") === "true";
+  let audioUnlocked = false;
+  let eventTimes = [];
 
-async function poll() {
-  try {
-    const res = await fetch('/state');
-    const data = await res.json();
-
-    document.getElementById('totalCount').innerText = data.total ?? '—';
-
-    const container = document.getElementById('sources');
-    container.innerHTML = '';
-
-    Object.entries(data.by_source || {}).forEach(([source, count]) => {
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.innerHTML = `<div>${source}</div><div>${count}</div>`;
-      container.appendChild(row);
-    });
-
-    if (!muted) chime.play();
-  } catch (e) {
-    console.error('poll failed', e);
+  function updateMuteUI() {
+    muteBtn.innerText = muted ? "🔇 Muted" : "🔊 Sound";
+    muted ? muteBtn.classList.remove("active") : muteBtn.classList.add("active");
   }
-}
 
-setInterval(poll, 1000);
-poll();
+  muteBtn.onclick = async () => {
+    muted = !muted;
+    localStorage.setItem("muted", muted);
+    updateMuteUI();
+    if (!audioUnlocked && !muted) {
+      try {
+        await beep.play();
+        beep.pause();
+        beep.currentTime = 0;
+        audioUnlocked = true;
+      } catch (e) { console.warn("audio unlock failed", e); }
+    }
+  };
+  updateMuteUI();
+
+  // Rate calculation
+  function calcRate() {
+    const now = Date.now();
+    eventTimes = eventTimes.filter(t => now - t < 10000);
+    if (eventTimes.length < 2) {
+      rateEl.innerText = "";
+      return;
+    }
+    const rate = (eventTimes.length / 10).toFixed(1);
+    rateEl.innerText = rate + " events/sec";
+  }
+
+  // SSE connection
+  let es;
+  function connect() {
+    es = new EventSource("/events");
+    statusDot.classList.remove("disconnected");
+    sseLabel.innerText = "SSE connected";
+
+    es.onmessage = (e) => {
+      const d = JSON.parse(e.data);
+
+      // Counter bump
+      countEl.innerText = d.count;
+      countEl.classList.add("bump");
+      setTimeout(() => countEl.classList.remove("bump"), 100);
+
+      // Background flash
+      document.body.classList.add("flash");
+      setTimeout(() => document.body.classList.remove("flash"), 300);
+
+      // Event tile flash
+      eventTile.classList.add("flash");
+      setTimeout(() => eventTile.classList.remove("flash"), 400);
+
+      // Last event
+      const payload = d.payload || {};
+      const display = Object.keys(payload).length
+        ? JSON.stringify(payload, null, 2)
+        : JSON.stringify(d, null, 2);
+      lastEl.innerText = display;
+
+      // Timestamp
+      if (d.ts) {
+        const t = new Date(d.ts);
+        lastTsEl.innerText = t.toLocaleTimeString();
+      }
+
+      // Rate tracking
+      eventTimes.push(Date.now());
+      calcRate();
+
+      // Sound
+      if (!muted && audioUnlocked) {
+        const chime = beep.cloneNode();
+        chime.volume = 0.6;
+        chime.play().catch(() => {});
+      }
+    };
+
+    es.onerror = () => {
+      statusDot.classList.add("disconnected");
+      sseLabel.innerText = "Reconnecting…";
+      es.close();
+      setTimeout(connect, 3000);
+    };
+  }
+  connect();
+
+  // Rate refresh
+  setInterval(calcRate, 1000);
 </script>
 
 </body>
