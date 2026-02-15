@@ -89,6 +89,29 @@
   .action-btn:active { transform: scale(0.96); background: rgba(0,210,106,0.08); border-color: var(--green); }
   .action-btn .icon { font-size: 18px; }
   .action-btn.disabled { opacity: 0.3; pointer-events: none; }
+  .action-btn.task-btn { border-color: var(--amber); }
+  .action-btn.task-btn:active { border-color: var(--green); background: rgba(0,210,106,0.08); }
+
+  .task-bar {
+    display: flex; gap: 6px; align-items: center; padding: 8px 12px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .task-pip {
+    width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center; font-size: 11px;
+    transition: all 0.3s;
+  }
+  .task-pip.done { border-color: var(--green); background: rgba(0,210,106,0.15); color: var(--green); }
+  .task-label { font-size: 11px; color: var(--muted); margin-left: auto; }
+  .task-label strong { color: var(--green); }
+
+  .map-cell.has-task { border: 1px solid var(--amber); opacity: 0.5; }
+  .map-cell.task-done { border: 1px solid var(--green); }
+  .map-cell.locked-out { opacity: 0.3; background: rgba(238,0,0,0.1); border: 1px solid rgba(238,0,0,0.3); }
+
+  .room-alert.locked { background: rgba(238,0,0,0.1); color: var(--red); border: 1px solid rgba(238,0,0,0.25); }
+
+  @keyframes shake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-6px); } 75% { transform:translateX(6px); } }
 
   /* ── Event ticker ── */
   .ticker-toggle {
@@ -157,9 +180,9 @@
 <div class="splash" id="splash">
   <div style="font-size:64px">🏢</div>
   <h1>Secure the Building</h1>
-  <p>Navigate 12 rooms. Find the threat. Every action is a real event flowing through SAP Edge Integration Cell on Red Hat OpenShift.</p>
-  <button class="start-btn" id="startBtn">Enter the Building</button>
-  <p style="font-size:11px; margin-top:8px">~90 seconds · Your device becomes the edge</p>
+  <p>Badge through 12 zones. Find the threat. Every badge scan is a real Lenel OnGuard event flowing through SAP Edge Integration Cell on Red Hat OpenShift.</p>
+  <button class="start-btn" id="startBtn">Activate Badge</button>
+  <p style="font-size:11px; margin-top:8px">~90 seconds · Complete 3 tasks to prepare, then neutralize the threat</p>
 </div>
 
 <!-- Main game -->
@@ -169,6 +192,13 @@
 </div>
 
 <div class="game" id="gameArea">
+  <div class="task-bar" id="taskBar">
+    <div class="task-pip" id="pip0"></div>
+    <div class="task-pip" id="pip1"></div>
+    <div class="task-pip" id="pip2"></div>
+    <span class="task-label"><strong id="tasksDone">0</strong>/3 tasks — <span id="taskHint">complete tasks to engage threat</span></span>
+  </div>
+
   <div class="room-display" id="roomDisplay">
     <div class="room-icon" id="roomIcon">🏢</div>
     <div class="room-name" id="roomName">Lobby</div>
@@ -206,17 +236,62 @@
 // ── Config ──
 const INGEST_URL = "/ingest"; // north-side endpoint
 const ROOMS = [
-  { id: 0,  icon: "🏢", name: "Lobby",         desc: "Main entrance. Security desk ahead.", adj: [1, 4] },
-  { id: 1,  icon: "🛗", name: "Elevator Bay",   desc: "Three elevators. One is stuck on floor 3.", adj: [0, 2, 5] },
-  { id: 2,  icon: "☕", name: "Break Room",      desc: "Coffee machine humming. Badge reader on the door.", adj: [1, 3, 6] },
-  { id: 3,  icon: "📦", name: "Loading Dock",    desc: "External access. Camera feeds look grainy.", adj: [2, 7] },
-  { id: 4,  icon: "🖥️", name: "NOC",            desc: "Network Operations Center. Screens everywhere.", adj: [0, 5, 8] },
-  { id: 5,  icon: "🏛️", name: "Main Corridor",  desc: "Long hallway. Motion sensors active.", adj: [1, 4, 6, 9] },
-  { id: 6,  icon: "🔬", name: "Lab",             desc: "R&D floor. Biometric access required.", adj: [2, 5, 7, 10] },
-  { id: 7,  icon: "🚪", name: "Server Room",     desc: "Cold air. Racks blinking. Access logged.", adj: [3, 6, 11] },
-  { id: 8,  icon: "📡", name: "Comms Closet",    desc: "MDF. Fiber trunks. Power meter on the wall.", adj: [4, 9] },
-  { id: 9,  icon: "🪟", name: "Executive Suite", desc: "Corner office. Glass walls. Privacy film engaged.", adj: [5, 8, 10] },
-  { id: 10, icon: "🏥", name: "Wellness Room",   desc: "Quiet zone. Air quality sensor blinking green.", adj: [6, 9, 11] },
+  { id: 0,  icon: "🏢", name: "Lobby",         desc: "Main entrance. Visitor kiosk and security desk.", adj: [1, 4] },
+  { id: 1,  icon: "🛗", name: "Elevator Bay",   desc: "Three elevators. Floor indicator stuck on 3.", adj: [0, 2, 5],
+    task: { icon: "📋", label: "Check elevator log",
+      prompt: "Maintenance log shows elevator 2 serviced 47 days ago — overdue. Flag it?",
+      choices: ["🚩 Flag overdue", "✅ Looks fine"],
+      evType: "maintenance.elevator_check", evSrc: "elevator-ctrl-bay-1",
+      evData: { system: "OTIS-SeriesR", unit: "ELEV-02", lastService: "2025-12-30", intervalDays: 30, status: "OVERDUE" }}},
+  { id: 2,  icon: "☕", name: "Break Room",      desc: "Coffee machine humming. Badge reader on the inner door.", adj: [1, 3, 6],
+    task: { icon: "🔥", label: "Check fire extinguisher",
+      prompt: "Extinguisher gauge reads yellow zone. Pressure may be low.",
+      choices: ["🔴 Report to safety", "🟢 Gauge is fine"],
+      evType: "safety.fire_equipment", evSrc: "safety-inspector-breakroom",
+      evData: { equipment: "FE-BR-001", type: "ABC dry chemical", gauge: "yellow", lastInspection: "2025-08-15", status: "NEEDS_SERVICE" }}},
+  { id: 3,  icon: "📦", name: "Loading Dock",    desc: "External access. Camera feeds look grainy.", adj: [2, 7],
+    task: { icon: "📹", label: "Review camera feed",
+      prompt: "Camera 7 feed degraded — 40% packet loss. Tampering or hardware failure?",
+      choices: ["🚨 Escalate to SOC", "🔧 Reset camera"],
+      evType: "surveillance.camera_diag", evSrc: "vms-camera-dock-7",
+      evData: { cameraID: "CAM-DOCK-07", model: "Axis P3245-V", packetLoss: "40%", firmware: "10.12.114", status: "DEGRADED" }}},
+  { id: 4,  icon: "🖥️", name: "NOC",            desc: "Network Operations Center. Wall of screens.", adj: [0, 5, 8],
+    task: { icon: "🌡️", label: "Check HVAC alerts",
+      prompt: "Zone 4 reading 81°F — above 78°F threshold. Server inlet temps rising.",
+      choices: ["❄️ Force cooling override", "⏳ Wait and monitor"],
+      evType: "building.hvac_override", evSrc: "bms-hvac-zone-4",
+      evData: { zone: 4, currentTemp: 81.2, threshold: 78.0, setpoint: 72.0, mode: "COOLING", status: "THRESHOLD_EXCEEDED" }}},
+  { id: 5,  icon: "🏛️", name: "Main Corridor",  desc: "Long hallway. Motion sensors every 20 feet.", adj: [1, 4, 6, 9] },
+  { id: 6,  icon: "🔬", name: "Lab",             desc: "R&D floor. Biometric access required.", adj: [2, 5, 7, 10],
+    task: { icon: "🧬", label: "Biometric enrollment",
+      prompt: "Lab requires fingerprint verification. Enroll to proceed.",
+      choices: ["👆 Scan fingerprint", "⏭️ Skip — badge only"],
+      evType: "access.biometric_enroll", evSrc: "lenel-biometric-lab",
+      evData: { readerType: "HID iCLASS SE RB25F", method: "fingerprint", template: "ISO-19795-1", quality: 92, accessLevel: "LAB-SECURE" }}},
+  { id: 7,  icon: "🚪", name: "Server Room",     desc: "Cold air. Racks blinking. Man-trap entrance.", adj: [3, 6, 11],
+    task: { icon: "🌡️", label: "Log rack temperature",
+      prompt: "Rack B3 inlet: 74°F, outlet: 96°F. Delta 22°F — within spec but high.",
+      choices: ["📝 Log and flag", "✅ Within spec"],
+      evType: "telemetry.rack_temp", evSrc: "dcim-sensor-rack-B3",
+      evData: { rack: "B3", inlet: 74.1, outlet: 96.3, delta: 22.2, threshold: 25.0, pduLoad: "4.2kW", status: "NOMINAL_HIGH" }}},
+  { id: 8,  icon: "📡", name: "Comms Closet",    desc: "MDF. Fiber trunks. UPS battery indicator amber.", adj: [4, 9],
+    task: { icon: "🔋", label: "Check UPS battery",
+      prompt: "UPS: 34 min runtime, battery health 71%. Replace threshold 60%.",
+      choices: ["📋 Schedule replacement", "✅ Above threshold"],
+      evType: "telemetry.ups_diag", evSrc: "ups-apc-mdf-01",
+      evData: { model: "APC Smart-UPS 3000", runtime_min: 34, batteryHealth: 71, replaceThreshold: 60, loadPct: 62 }}},
+  { id: 9,  icon: "🪟", name: "Executive Suite", desc: "Corner office. Glass walls. Privacy film active.", adj: [5, 8, 10],
+    task: { icon: "🪟", label: "Toggle privacy film",
+      prompt: "Privacy film engaged. Override to inspect the room?",
+      choices: ["👁️ Disengage film", "🔒 Leave it on"],
+      evType: "building.privacy_film", evSrc: "bms-smartglass-exec",
+      evData: { zone: "EXEC-SUITE-A", filmState: "OPAQUE", overrideBy: "security-sweep", powerDraw: "12W" }}},
+  { id: 10, icon: "🏥", name: "Wellness Room",   desc: "Quiet zone. Air quality sensor blinking.", adj: [6, 9, 11],
+    task: { icon: "💨", label: "Read air quality",
+      prompt: "CO2: 1,150 ppm (threshold 1,000). VOCs elevated. Needs ventilation?",
+      choices: ["🌬️ Trigger vent flush", "📊 Log reading only"],
+      evType: "telemetry.air_quality", evSrc: "aq-sensor-wellness-01",
+      evData: { co2_ppm: 1150, voc_ppb: 380, pm25: 8.2, humidity: 58, temp_f: 73.4, status: "ELEVATED" }}},
   { id: 11, icon: "🔒", name: "Vault",           desc: "High-security storage. Multi-factor required.", adj: [7, 10] },
 ];
 
@@ -230,6 +305,24 @@ let startTime = 0;
 let deviceProfile = {};
 let tickerOpen = false;
 let hintRooms = new Set(); // rooms adjacent to wumpus
+let tasksCompleted = [];
+let completedRoomTasks = new Set();
+let lockedRooms = new Set();
+const TASKS_REQUIRED = 3;
+
+// Simulated Lenel OnGuard badge credential
+const badge = {
+  cardholderID: 100000 + Math.floor(Math.random() * 99999),
+  badgeID: 200000 + Math.floor(Math.random() * 50000),
+  facilityCode: 1042,
+  cardFormat: "HID H10301 26-bit",
+  firstName: "Attendee",
+  lastName: "#" + String(Math.floor(Math.random() * 9999)).padStart(4, "0"),
+  accessLevel: "CONF-GENERAL",
+  department: "Event Guest",
+  issueDate: new Date().toISOString().slice(0, 10),
+  expiryDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+};
 
 // ── DOM ──
 const splash = document.getElementById("splash");
@@ -250,6 +343,8 @@ const gameArea = document.getElementById("gameArea");
 const tickerEl = document.getElementById("ticker");
 const tickerInner = document.getElementById("tickerInner");
 const tickerBtn = document.getElementById("tickerBtn");
+const tasksDoneEl = document.getElementById("tasksDone");
+const taskHintEl = document.getElementById("taskHint");
 const dotEl = document.getElementById("dot");
 
 // ── Ticker toggle ──
@@ -341,6 +436,58 @@ async function captureDeviceTelemetry() {
   }
 }
 
+// ── Task system ──
+function updateTaskBar() {
+  for (let i = 0; i < 3; i++) {
+    const pip = document.getElementById("pip" + i);
+    if (i < tasksCompleted.length) {
+      pip.classList.add("done");
+      pip.innerText = "✓";
+    } else {
+      pip.classList.remove("done");
+      pip.innerText = "";
+    }
+  }
+  tasksDoneEl.innerText = tasksCompleted.length;
+  if (tasksCompleted.length >= TASKS_REQUIRED) {
+    taskHintEl.innerText = "READY — find and engage the threat!";
+    taskHintEl.style.color = "var(--green)";
+  }
+}
+
+function startTask(room) {
+  const task = room.task;
+  actionsEl.innerHTML = "";
+  roomAlert.style.display = "";
+  roomAlert.className = "room-alert info";
+  roomAlert.innerText = task.prompt;
+  task.choices.forEach((choice, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "action-btn task-btn";
+    btn.innerHTML = choice;
+    btn.onclick = () => completeTask(room, task, idx);
+    actionsEl.appendChild(btn);
+  });
+}
+
+function completeTask(room, task, choiceIdx) {
+  completedRoomTasks.add(currentRoom);
+  tasksCompleted.push({ room: room.name, task: task.evType, choice: choiceIdx });
+  sendEvent(task.evType, "status", task.evSrc, {
+    ...task.evData,
+    action: task.evType,
+    choiceIndex: choiceIdx,
+    choiceLabel: task.choices[choiceIdx],
+    badgeID: badge.badgeID,
+    cardholderID: badge.cardholderID,
+  });
+  roomAlert.style.display = "";
+  roomAlert.className = "room-alert safe";
+  roomAlert.innerText = "✅ Task complete — logged and escalated";
+  updateTaskBar();
+  setTimeout(() => renderActions(room), 1000);
+}
+
 // ── Place wumpus ──
 function placeWumpus() {
   // Not in room 0 (lobby) and not adjacent to 0
@@ -357,7 +504,10 @@ function renderMinimap() {
     cell.className = "map-cell";
     if (i === currentRoom) cell.classList.add("current");
     else if (visited.has(i)) cell.classList.add("visited");
+    if (r.task && !completedRoomTasks.has(i) && visited.has(i)) cell.classList.add("has-task");
+    if (completedRoomTasks.has(i)) cell.classList.add("task-done");
     if (gameOver && i === wumpusRoom) cell.classList.add("wumpus-found");
+    if (lockedRooms.has(i)) cell.classList.add("locked-out");
     cell.innerText = visited.has(i) || (gameOver && i === wumpusRoom) ? r.icon : "?";
     minimapEl.appendChild(cell);
   });
@@ -372,12 +522,34 @@ function renderRoom() {
   roomName.innerText = room.name;
   roomDesc.innerText = room.desc;
 
-  // Hints
   roomAlert.style.display = "none";
   if (currentRoom === wumpusRoom) {
-    // Found the wumpus!
-    endGame(true);
-    return;
+    if (tasksCompleted.length >= TASKS_REQUIRED) {
+      endGame(true);
+      return;
+    } else {
+      // Not prepared — kicked back!
+      roomAlert.style.display = "";
+      roomAlert.className = "room-alert locked";
+      roomAlert.innerText = "🔒 ACCESS DENIED — Threat detected but you lack clearance. Complete " + (TASKS_REQUIRED - tasksCompleted.length) + " more task(s)!";
+      roomDisplay.style.animation = "shake 0.4s";
+      setTimeout(() => roomDisplay.style.animation = "", 400);
+      sendEvent("access.onguard.badge_scan", "alert", "lenel-reader-" + room.name.toLowerCase().replace(/ /g, "-"), {
+        action: "ACCESS_DENIED", eventType: 5,
+        eventDescription: "Security sweep clearance requires " + TASKS_REQUIRED + " completed tasks",
+        cardholderID: badge.cardholderID, badgeID: badge.badgeID,
+        tasksCompleted: tasksCompleted.length, tasksRequired: TASKS_REQUIRED,
+      });
+      lockedRooms.add(currentRoom);
+      setTimeout(() => {
+        const retreat = room.adj.find(a => !lockedRooms.has(a)) || room.adj[0];
+        currentRoom = retreat;
+        renderRoom();
+      }, 2000);
+      renderMinimap();
+      renderActions(room);
+      return;
+    }
   }
   if (hintRooms.has(currentRoom)) {
     roomAlert.style.display = "";
@@ -422,24 +594,38 @@ function triggerRoomSensors(room) {
 function renderActions(room) {
   actionsEl.innerHTML = "";
 
-  // Movement buttons — adjacent rooms
+  // Movement buttons — skip locked rooms
   room.adj.forEach(adjId => {
+    if (lockedRooms.has(adjId)) return;
     const adj = ROOMS[adjId];
     const btn = document.createElement("button");
     btn.className = "action-btn";
-    btn.innerHTML = '<span class="icon">' + (visited.has(adjId) ? adj.icon : "🚪") + '</span> ' + (visited.has(adjId) ? adj.name : "Door " + (adjId + 1));
+    if (visited.has(adjId)) {
+      btn.innerHTML = '<span class="icon">' + adj.icon + '</span> ' + adj.name;
+    } else {
+      btn.innerHTML = '<span class="icon">🪪</span> Badge → Door ' + (adjId + 1);
+    }
     btn.onclick = () => moveToRoom(adjId);
     actionsEl.appendChild(btn);
   });
 
-  // Inspect action
+  // Room task button (if task exists and not done)
+  if (room.task && !completedRoomTasks.has(currentRoom)) {
+    const btn = document.createElement("button");
+    btn.className = "action-btn task-btn";
+    btn.innerHTML = '<span class="icon">' + room.task.icon + '</span> ' + room.task.label;
+    btn.onclick = () => startTask(room);
+    actionsEl.appendChild(btn);
+  }
+
+  // Inspect
   const inspect = document.createElement("button");
   inspect.className = "action-btn";
-  inspect.innerHTML = '<span class="icon">🔍</span> Inspect Room';
+  inspect.innerHTML = '<span class="icon">🔍</span> Inspect';
   inspect.onclick = () => inspectRoom();
   actionsEl.appendChild(inspect);
 
-  // Listen action
+  // Listen
   const listen = document.createElement("button");
   listen.className = "action-btn";
   listen.innerHTML = '<span class="icon">👂</span> Listen';
@@ -453,17 +639,73 @@ function moveToRoom(roomId) {
   const wasVisited = visited.has(roomId);
   visited.add(roomId);
   currentRoom = roomId;
+  const room = ROOMS[roomId];
+  const readerSlug = room.name.toLowerCase().replace(/ /g, "-");
 
-  sendEvent("access.badge_tap", "tap", "badge-reader-" + ROOMS[roomId].name.toLowerCase().replace(/ /g, "-"), {
-    action: "access_granted",
-    roomId: roomId,
-    firstVisit: !wasVisited,
+  // ── Lenel OnGuard badge scan event ──
+  // This mirrors the real OnGuard event structure
+  const clearanceFail = (roomId === wumpusRoom && Math.random() > 0.6);
+  const granted = !clearanceFail;
+
+  sendEvent("access.onguard.badge_scan", "tap",
+    "lenel-reader-" + readerSlug, {
+    action: granted ? "ACCESS_GRANTED" : "ACCESS_DENIED",
+    // OnGuard panel / reader
+    panelID: 10 + Math.floor(roomId / 4),
+    readerID: (roomId % 4) + 1,
+    readerName: "RDR-" + room.name.toUpperCase().replace(/ /g, "-"),
+    inputPoint: "Door-" + (roomId + 1),
+    // Cardholder
+    cardholderID: badge.cardholderID,
+    badgeID: badge.badgeID,
+    facilityCode: badge.facilityCode,
+    cardFormat: badge.cardFormat,
+    accessLevel: badge.accessLevel,
+    cardholderName: badge.firstName + " " + badge.lastName,
+    department: badge.department,
+    // Event classification
+    eventType: granted ? 1 : 5,
+    eventClass: granted ? "GRANT" : "DENY",
+    eventDescription: granted
+      ? "Access granted"
+      : clearanceFail ? "Access denied - clearance level insufficient" : "Access denied",
+    // Timestamps
+    deviceTimestamp: new Date().toISOString(),
+    panelTimestamp: new Date(Date.now() - Math.floor(Math.random() * 150)).toISOString(),
+    serverTimestamp: new Date(Date.now() + Math.floor(Math.random() * 50)).toISOString(),
+    // Physical door state
+    doorForced: false,
+    doorHeldOpen: false,
+    antiPassback: false,
+    firstCardUnlock: !wasVisited && roomId !== 0,
+    duress: false,
   });
 
-  sendEvent("movement.room_enter", "status", "motion-sensor-" + ROOMS[roomId].name.toLowerCase().replace(/ /g, "-"), {
-    action: "room_enter",
-    roomId: roomId,
+  // ── Door state change: opened ──
+  sendEvent("access.onguard.door_state", "status",
+    "lenel-panel-" + (10 + Math.floor(roomId / 4)), {
+    action: "DOOR_OPENED",
+    inputPoint: "Door-" + (roomId + 1),
+    readerName: "RDR-" + room.name.toUpperCase().replace(/ /g, "-"),
+    doorContactState: "open",
+    rexActive: false,
+    lockRelayState: "unlocked",
+    relockTimerSec: 5,
+    doorType: room.id === 7 || room.id === 11 ? "high-security" : "standard",
   });
+
+  // ── Door re-lock after realistic delay ──
+  setTimeout(() => {
+    if (gameOver) return;
+    sendEvent("access.onguard.door_state", "status",
+      "lenel-panel-" + (10 + Math.floor(roomId / 4)), {
+      action: "DOOR_CLOSED",
+      inputPoint: "Door-" + (roomId + 1),
+      readerName: "RDR-" + room.name.toUpperCase().replace(/ /g, "-"),
+      doorContactState: "closed",
+      lockRelayState: "locked",
+    });
+  }, 2000 + Math.random() * 1500);
 
   renderRoom();
 }
@@ -551,9 +793,10 @@ function endGame(won) {
   endTitle.innerText = won ? "Threat Neutralized!" : "Game Over";
   endStats.innerHTML =
     "Rooms explored: <strong>" + visited.size + " / " + ROOMS.length + "</strong><br>" +
+    "Tasks completed: <strong>" + tasksCompleted.length + "</strong><br>" +
     "Events generated: <strong>" + eventCount + "</strong><br>" +
     "Time: <strong>" + Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0") + "</strong><br><br>" +
-    "<span style='color:var(--muted);font-size:12px'>Every event flowed through<br>SAP Edge Integration Cell<br>on Red Hat OpenShift</span>";
+    "<span style='color:var(--muted);font-size:12px'>Every badge scan, task, and sensor reading<br>flowed as a real Lenel OnGuard event through<br>SAP Edge Integration Cell on Red Hat OpenShift</span>";
 
   renderMinimap();
 }
@@ -571,6 +814,23 @@ startBtn.onclick = () => {
     wumpusRoom: "hidden", // don't leak it
   });
 
+  // ── Lenel OnGuard: badge activation / visitor enrollment ──
+  sendEvent("access.onguard.badge_activate", "tap", "lenel-enrollment-station", {
+    action: "BADGE_ACTIVATED",
+    cardholderID: badge.cardholderID,
+    badgeID: badge.badgeID,
+    facilityCode: badge.facilityCode,
+    cardFormat: badge.cardFormat,
+    cardholderName: badge.firstName + " " + badge.lastName,
+    accessLevel: badge.accessLevel,
+    department: badge.department,
+    activationType: "VISITOR_TEMP",
+    issueDate: badge.issueDate,
+    expiryDate: badge.expiryDate,
+    enrollmentStation: "KIOSK-LOBBY-1",
+  });
+
+  updateTaskBar();
   renderRoom();
 };
 </script>
