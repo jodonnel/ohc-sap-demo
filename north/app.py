@@ -159,6 +159,10 @@ def qr():
 def present():
     return send_from_directory("/stage", "present.html")
 
+@app.get("/qr-present")
+def qr_present():
+    return send_from_directory("/stage", "qr-present.html")
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
 
