@@ -155,6 +155,10 @@ def play():
 def qr():
     return send_from_directory("/stage", "qr.html")
 
+@app.get("/present")
+def present():
+    return send_from_directory("/stage", "present.html")
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
 
