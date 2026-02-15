@@ -2,6 +2,12 @@
 
 Live interactive demo: physical security events flowing from edge devices through Red Hat OpenShift and SAP Edge Integration Cell to SAP BTP.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/img/wumpus-game.png" alt="Wumpus mobile game" width="220">
+</p>
+
 ## Architecture
 
 ```
