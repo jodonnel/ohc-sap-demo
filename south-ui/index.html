@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>OHC Edge Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #06090F; --surface: #0D1117; --border: #1C2333;
@@ -15,7 +16,7 @@
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body {
     background: var(--bg); color: var(--text);
-    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Red Hat Display', sans-serif;
     min-height: 100dvh; overflow-x: hidden;
     display: flex; flex-direction: column;
   }
@@ -130,7 +131,7 @@
   .ticker.open { max-height: 200px; }
   .ticker-inner {
     padding: 8px 12px; max-height: 180px; overflow-y: auto;
-    font-family: 'Courier New', monospace; font-size: 10px; color: var(--muted);
+    font-family: 'Red Hat Mono', monospace; font-size: 10px; color: var(--muted);
     line-height: 1.6;
   }
   .ticker-inner .evt { animation: fadeIn 0.2s; }

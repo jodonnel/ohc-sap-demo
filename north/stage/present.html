@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OHC Presentation — Red Hat × SAP</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@200;300;400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #06090F; --surface: #0D1117; --border: #1C2333; --muted: #4E5D6C; --text: #F0F4F8;
@@ -12,7 +12,7 @@
   --amber: #F59E0B; --teal: #14B8A6;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; }
+html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Red Hat Display',sans-serif; }
 
 .deck { position:relative; width:100vw; height:100vh; }
 .slide {
@@ -31,7 +31,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 }
 .live-pip.visible { opacity:1; }
 .live-pip .dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
-.live-pip .count { font-family:'DM Mono',monospace; font-size:16px; font-weight:700; color:var(--green); font-variant-numeric:tabular-nums; }
+.live-pip .count { font-family:'Red Hat Mono',monospace; font-size:16px; font-weight:700; color:var(--green); font-variant-numeric:tabular-nums; }
 .live-pip .label { font-size:11px; color:var(--muted); }
 
 /* Persistent QR corner — visible from slide 6 onward */
@@ -47,14 +47,14 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 
 /* Progress bar */
 .progress { position:fixed; top:0; left:0; height:3px; z-index:200; background:linear-gradient(90deg,var(--red),var(--blue)); transition:width 0.3s; }
-.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); }
+.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted); }
 
 /* Typography */
 .mega { font-size:clamp(3rem,8vw,6rem); font-weight:900; line-height:1.05; }
 .big { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; line-height:1.15; }
-.medium { font-size:clamp(1.2rem,3vw,1.8rem); font-weight:300; line-height:1.4; }
-.small { font-size:14px; color:var(--muted); }
-.mono { font-family:'DM Mono',monospace; }
+.medium { font-size:clamp(1.2rem,3vw,1.8rem); font-weight:300; line-height:1.4; font-family:'Red Hat Text',sans-serif; }
+.small { font-size:14px; color:var(--muted); font-family:'Red Hat Text',sans-serif; }
+.mono { font-family:'Red Hat Mono',monospace; }
 .green { color:var(--green); } .red { color:var(--red); } .blue { color:var(--blue); }
 .amber { color:var(--amber); } .muted { color:var(--muted); } .center { text-align:center; }
 
@@ -68,7 +68,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 /* Stat boxes */
 .stat-row { display:flex; gap:40px; margin-top:32px; flex-wrap:wrap; justify-content:center; }
 .stat { text-align:center; }
-.stat-val { font-family:'DM Mono',monospace; font-size:32px; font-weight:700; }
+.stat-val { font-family:'Red Hat Mono',monospace; font-size:32px; font-weight:700; }
 .stat-label { font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
 
 /* Dashboard embed */
@@ -90,7 +90,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 .dash-tile.t-telem::before { background:var(--teal); }
 .dash-tile.t-devices::before { background:var(--blue); }
 .dash-tile h4 { font-size:9px; font-weight:700; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
-.dash-tile .val { font-family:'DM Mono',monospace; font-size:13px; color:var(--text); }
+.dash-tile .val { font-family:'Red Hat Mono',monospace; font-size:13px; color:var(--text); }
 
 /* QR section */
 .qr-layout { display:flex; align-items:center; gap:60px; }

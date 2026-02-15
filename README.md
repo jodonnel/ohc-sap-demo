@@ -19,6 +19,21 @@ Once this boundary works, everything north of it becomes a **design choice**, no
 - **Reproducible** across clusters via kustomize overlays
 - No messaging fabric in the base demo (Kafka/AMQ come later, when the audience understands *why*)
 
+## URL map
+
+| Endpoint | Description |
+|----------|-------------|
+| `/present` | Live presentation (keyboard-driven, 10 slides, SSE-connected) |
+| `/stage` | Stage dashboard (event counter, telemetry, SSE) |
+| `/play` | Mobile wumpus game (Lenel OnGuard badge events) |
+| `/qr` | QR code page for projector |
+| `/qr-present` | QR code page for presentation URL |
+| `/ingest` | POST endpoint for CloudEvents |
+| `/events` | SSE stream |
+| `/state` | Current event count + last event |
+| `/telemetry` | Aggregated device telemetry |
+| `/log` | Event history (last 200) |
+
 ## Quick start
 
 **Run north locally:**
@@ -46,7 +61,7 @@ oc kustomize deploy/overlays/qa/ | oc apply -f -
 ├── north/                 # IT-side Flask service + stage dashboard
 │   ├── app.py             # Event ingestion, SSE, /stage UI
 │   └── Containerfile      # UBI9/python-311 container build
-├── south-ui/              # Edge-facing UI (5 event-type buttons)
+├── south-ui/              # Edge-facing mobile wumpus game
 │   └── index.html         # Served via ConfigMap + httpd
 ├── deploy/                # GitOps-ready kustomize manifests
 │   ├── base/              # Cluster-agnostic resources
