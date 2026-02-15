@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>OHC Edge Demo</title>
+<title>Confront the Wumpus — OHC Edge Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -16,7 +16,7 @@
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body {
     background: var(--bg); color: var(--text);
-    font-family: 'Red Hat Display', sans-serif;
+    font-family: 'Red Hat Display', -apple-system, sans-serif;
     min-height: 100dvh; overflow-x: hidden;
     display: flex; flex-direction: column;
   }
@@ -38,10 +38,10 @@
   .game { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; }
 
   .room-display {
-    flex: 1; background: var(--surface); border: 1px solid var(--border);
+    background: var(--surface); border: 1px solid var(--border);
     border-radius: 16px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 24px;
-    position: relative; overflow: hidden; min-height: 280px;
+    align-items: center; justify-content: center; padding: 16px 24px;
+    position: relative; overflow: hidden;
   }
   .room-display::before {
     content: ''; position: absolute; inset: 0;
@@ -49,9 +49,9 @@
     pointer-events: none;
   }
 
-  .room-icon { font-size: 64px; margin-bottom: 12px; transition: transform 0.2s; }
-  .room-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .room-desc { font-size: 13px; color: var(--muted); text-align: center; max-width: 280px; line-height: 1.4; }
+  .room-icon { font-size: 48px; margin-bottom: 6px; transition: transform 0.2s; }
+  .room-name { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+  .room-desc { font-size: 12px; color: var(--muted); text-align: center; max-width: 280px; line-height: 1.4; }
   .room-alert {
     margin-top: 12px; font-size: 12px; font-weight: 600; padding: 6px 14px;
     border-radius: 20px; animation: fadeIn 0.3s;
@@ -70,7 +70,7 @@
   .map-cell {
     aspect-ratio: 1; border-radius: 6px; background: var(--border);
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; opacity: 0.3; transition: all 0.2s;
+    font-size: 32px; opacity: 0.3; transition: all 0.2s;
   }
   .map-cell.visited { opacity: 0.6; background: rgba(0,210,106,0.1); border: 1px solid rgba(0,210,106,0.2); }
   .map-cell.current { opacity: 1; background: rgba(0,210,106,0.2); border: 1px solid var(--green); box-shadow: 0 0 12px rgba(0,210,106,0.2); }
@@ -88,7 +88,7 @@
     transition: all 0.15s; -webkit-user-select: none; user-select: none;
   }
   .action-btn:active { transform: scale(0.96); background: rgba(0,210,106,0.08); border-color: var(--green); }
-  .action-btn .icon { font-size: 18px; }
+  .action-btn .icon { font-size: 22px; }
   .action-btn.disabled { opacity: 0.3; pointer-events: none; }
   .action-btn.task-btn { border-color: var(--amber); }
   .action-btn.task-btn:active { border-color: var(--green); background: rgba(0,210,106,0.08); }
@@ -131,7 +131,7 @@
   .ticker.open { max-height: 200px; }
   .ticker-inner {
     padding: 8px 12px; max-height: 180px; overflow-y: auto;
-    font-family: 'Red Hat Mono', monospace; font-size: 10px; color: var(--muted);
+    font-family: 'Courier New', monospace; font-size: 10px; color: var(--muted);
     line-height: 1.6;
   }
   .ticker-inner .evt { animation: fadeIn 0.2s; }
@@ -180,10 +180,10 @@
 <!-- Splash / entry -->
 <div class="splash" id="splash">
   <div style="font-size:64px">🏢</div>
-  <h1>Secure the Building</h1>
-  <p>Badge through 12 zones. Find the threat. Every badge scan is a real Lenel OnGuard event flowing through SAP Edge Integration Cell on Red Hat OpenShift.</p>
+  <h1>Confront the Wumpus</h1>
+  <p>Badge through 12 zones. Complete tasks. Find the threat. Every action is a real Lenel OnGuard event flowing through SAP Edge Integration Cell on Red Hat OpenShift.</p>
   <button class="start-btn" id="startBtn">Activate Badge</button>
-  <p style="font-size:11px; margin-top:8px">~90 seconds · Complete 3 tasks to prepare, then neutralize the threat</p>
+  <p style="font-size:11px; margin-top:8px">~90 seconds · Complete 3 tasks to prepare, then confront the wumpus</p>
 </div>
 
 <!-- Main game -->
@@ -197,7 +197,7 @@
     <div class="task-pip" id="pip0"></div>
     <div class="task-pip" id="pip1"></div>
     <div class="task-pip" id="pip2"></div>
-    <span class="task-label"><strong id="tasksDone">0</strong>/3 tasks — <span id="taskHint">complete tasks to engage threat</span></span>
+    <span class="task-label"><strong id="tasksDone">0</strong>/3 tasks — <span id="taskHint">complete tasks to confront the wumpus</span></span>
   </div>
 
   <div class="room-display" id="roomDisplay">
@@ -235,7 +235,7 @@
 // ═══════════════════════════════════════════════════
 
 // ── Config ──
-const INGEST_URL = "https://north-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com/ingest";
+const INGEST_URL = "/ingest"; // north-side endpoint
 const ROOMS = [
   { id: 0,  icon: "🏢", name: "Lobby",         desc: "Main entrance. Visitor kiosk and security desk.", adj: [1, 4] },
   { id: 1,  icon: "🛗", name: "Elevator Bay",   desc: "Three elevators. Floor indicator stuck on 3.", adj: [0, 2, 5],
@@ -451,8 +451,11 @@ function updateTaskBar() {
   }
   tasksDoneEl.innerText = tasksCompleted.length;
   if (tasksCompleted.length >= TASKS_REQUIRED) {
-    taskHintEl.innerText = "READY — find and engage the threat!";
+    taskHintEl.innerText = "READY — confront the wumpus!";
     taskHintEl.style.color = "var(--green)";
+    // Unlock all previously denied rooms
+    lockedRooms.clear();
+    renderMinimap();
   }
 }
 
@@ -529,7 +532,7 @@ function renderRoom() {
       endGame(true);
       return;
     } else {
-      // Not prepared — kicked back!
+      // Not prepared — access denied, bounce back
       roomAlert.style.display = "";
       roomAlert.className = "room-alert locked";
       roomAlert.innerText = "🔒 ACCESS DENIED — Threat detected but you lack clearance. Complete " + (TASKS_REQUIRED - tasksCompleted.length) + " more task(s)!";
@@ -541,9 +544,8 @@ function renderRoom() {
         cardholderID: badge.cardholderID, badgeID: badge.badgeID,
         tasksCompleted: tasksCompleted.length, tasksRequired: TASKS_REQUIRED,
       });
-      lockedRooms.add(currentRoom);
       setTimeout(() => {
-        const retreat = room.adj.find(a => !lockedRooms.has(a)) || room.adj[0];
+        const retreat = room.adj.find(a => a !== wumpusRoom) || room.adj[0];
         currentRoom = retreat;
         renderRoom();
       }, 2000);
@@ -791,7 +793,7 @@ function endGame(won) {
   gameArea.style.display = "none";
   endScreen.classList.add("active");
   endIcon.innerText = won ? "🏆" : "💀";
-  endTitle.innerText = won ? "Threat Neutralized!" : "Game Over";
+  endTitle.innerText = won ? "Wumpus Confronted!" : "Game Over";
   endStats.innerHTML =
     "Rooms explored: <strong>" + visited.size + " / " + ROOMS.length + "</strong><br>" +
     "Tasks completed: <strong>" + tasksCompleted.length + "</strong><br>" +
