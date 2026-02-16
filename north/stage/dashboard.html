@@ -144,6 +144,16 @@ html, body { height:100%; background:var(--bg); color:var(--text); font-family:'
 .device-stats .ds-label { font-size:10px; color:var(--muted); }
 .device-stats .ds-val { font-size:10px; font-family:'Red Hat Mono',monospace; color:var(--dim); }
 
+/* Network & Locale breakdown panels */
+.breakdown { margin-top:8px; }
+.breakdown-title { font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-weight:700; margin-bottom:4px; }
+.bd-row { display:flex; align-items:center; gap:6px; padding:2px 0; }
+.bd-icon { font-size:12px; flex-shrink:0; width:16px; text-align:center; }
+.bd-label { font-size:10px; color:var(--dim); font-family:'Red Hat Text',sans-serif; flex:1; }
+.bd-count { font-size:10px; font-family:'Red Hat Mono',monospace; color:var(--text); min-width:20px; text-align:right; }
+.bd-bar { width:48px; height:4px; background:var(--border); border-radius:2px; overflow:hidden; flex-shrink:0; }
+.bd-bar-fill { height:100%; border-radius:2px; transition:width 0.4s ease; }
+
 /* Status panel */
 .status-panel {
   background:var(--surface); border:1px solid var(--border); border-radius:12px;
@@ -228,8 +238,8 @@ html, body { height:100%; background:var(--bg); color:var(--text); font-family:'
       <div class="device-mosaic" id="deviceMosaic"></div>
       <div class="device-stats">
         <div class="ds-row"><span class="ds-label">Avg Battery</span><span class="ds-val" id="dsBattery">—</span></div>
-        <div class="ds-row"><span class="ds-label">Networks</span><span class="ds-val" id="dsNetworks">—</span></div>
-        <div class="ds-row"><span class="ds-label">Locales</span><span class="ds-val" id="dsLocales">—</span></div>
+        <div class="breakdown" id="bdNetworks"></div>
+        <div class="breakdown" id="bdLocales"></div>
       </div>
     </div>
     <div class="status-panel">
@@ -593,14 +603,37 @@ function hydrateFeed() {
   }).catch(() => {});
 }
 
+// Breakdown renderer for sidebar panels
+const LOCALE_FLAGS = {
+  'en-US':'🇺🇸','en-GB':'🇬🇧','en':'🇺🇸','de':'🇩🇪','fr':'🇫🇷','es':'🇪🇸',
+  'ja':'🇯🇵','ko':'🇰🇷','zh':'🇨🇳','pt':'🇧🇷','it':'🇮🇹','nl':'🇳🇱','ar':'🇸🇦',
+};
+function renderBreakdown(elId, title, data, iconMap, barColor) {
+  const el = document.getElementById(elId);
+  const entries = Object.entries(data).sort((a,b) => b[1] - a[1]);
+  if (!entries.length) { el.innerHTML = ''; return; }
+  const max = Math.max(...entries.map(e => e[1]));
+  let html = '<div class="breakdown-title">' + title + '</div>';
+  for (const [key, count] of entries) {
+    const icon = iconMap[key.toLowerCase()] || (title === 'Locales' ? (LOCALE_FLAGS[key] || '🌐') : '🌐');
+    const pct = Math.round((count / max) * 100);
+    html += '<div class="bd-row">'
+      + '<span class="bd-icon">' + icon + '</span>'
+      + '<span class="bd-label">' + key + '</span>'
+      + '<span class="bd-count">' + count + '</span>'
+      + '<span class="bd-bar"><span class="bd-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></span></span>'
+      + '</div>';
+  }
+  el.innerHTML = html;
+}
+
 // Telemetry polling
 function pollTelemetry() {
   fetch('/telemetry').then(r => r.json()).then(d => {
     if (d.devices) { deviceCount = d.devices; devCountEl.innerText = d.devices; hDevicesEl.innerText = d.devices; }
     document.getElementById('dsBattery').innerText = d.avgBattery ? d.avgBattery + '%' : '—';
-    const nets = d.networks || {};
-    document.getElementById('dsNetworks').innerText = Object.entries(nets).map(([k,v])=>k+':'+v).join(' · ') || '—';
-    document.getElementById('dsLocales').innerText = Object.keys(d.locales || {}).length + ' locales' || '—';
+    renderBreakdown('bdNetworks', 'Networks', d.networks || {}, {wifi:'📶','4g':'📱','3g':'📱',wired:'🔌',ethernet:'🔌'}, 'var(--blue)');
+    renderBreakdown('bdLocales', 'Locales', d.locales || {}, {}, 'var(--green)');
   }).catch(() => {});
 }
 setInterval(pollTelemetry, 5000);
