@@ -737,25 +737,25 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
     <div class="brand fade-up"><span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span></div>
     <div class="mega center fade-up delay-1">Open. Hybrid. Cloud.</div>
     <div class="spacer"></div>
-    <div class="medium center muted fade-up delay-2">Edge Integration for SAP — Your Next OHC Deal</div>
+    <div class="medium center muted fade-up delay-2">Physical GRC for Critical Infrastructure</div>
     <div class="spacer-lg"></div>
     <div class="small fade-up delay-3">Jim O'Donnell · Solutions Architect · Red Hat</div>
   </div>
 
   <!-- 2: Problem -->
   <div class="slide" data-slide="2">
-    <div class="big center fade-up">Every SAP customer has buildings</div>
+    <div class="big center fade-up">Substations. Control rooms. Generation sites.</div>
     <div class="spacer"></div>
-    <div class="medium center muted fade-up delay-1">Badge readers. Door sensors. HVAC. Cameras. Fire panels.</div>
+    <div class="medium center muted fade-up delay-1">Thousands of badge readers, cameras, sensors — none reporting to SAP</div>
     <div class="spacer-lg"></div>
-    <div class="big center fade-up delay-2">None of it runs on OpenShift. <span class="red">Yet.</span></div>
+    <div class="big center fade-up delay-2">After Metcalf, <span class="red">that's not acceptable.</span></div>
     <div class="spacer"></div>
-    <div class="medium center muted fade-up delay-3">SAP Edge Integration Cell changes that — and it requires OpenShift.</div>
+    <div class="medium center muted fade-up delay-3">NERC CIP requires it. Your SOC expects it. SAP can finally receive it.</div>
   </div>
 
   <!-- 3: What if -->
   <div class="slide glow-bg" data-slide="3">
-    <div class="big center fade-up">What if every badge tap,<br>every door sensor,<br>every camera alert…</div>
+    <div class="big center fade-up">What if every substation badge tap,<br>every perimeter sensor,<br>every cabinet intrusion alert…</div>
     <div class="spacer-lg"></div>
     <div class="mega center red fade-up delay-2">…became a business event?</div>
   </div>
@@ -793,7 +793,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
         <div class="spacer"></div>
         <div class="big fade-up delay-1">An edge device</div>
         <div class="spacer-lg"></div>
-        <div class="medium muted fade-up delay-2">Scan the code. Badge through a building.<br>Every tap is a real Lenel OnGuard event.</div>
+        <div class="medium muted fade-up delay-2">Scan the code. Badge through a utility facility.<br>Every tap is a real Lenel OnGuard event — the same system protecting your substations.</div>
         <div class="spacer-lg"></div>
         <div class="small mono fade-up delay-3">Badge scans · Door sensors · HVAC · Fire safety · Biometrics · Air quality</div>
       </div>
@@ -1403,23 +1403,28 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
     <div class="spacer"></div>
     <div class="medium center muted fade-up delay-2">real Lenel OnGuard access control events</div>
     <div class="spacer-lg"></div>
-    <div class="big center fade-up delay-3">Each one flowed through<br><span class="red">Red Hat OpenShift</span> → <span class="blue">SAP EIC</span> → <span class="blue">BTP</span></div>
+    <div class="big center fade-up delay-3">Each one flowed from the edge<br>through <span class="red">Red Hat OpenShift</span> → <span class="blue">SAP EIC</span> → <span class="blue">BTP</span></div>
+    <div class="spacer"></div>
+    <div class="medium center muted fade-up delay-4">Front door to digital core. NERC CIP audit trail included.</div>
   </div>
 
   <!-- 9: BTP -->
   <div class="slide glow-bg" data-slide="9">
+    <div class="big center fade-up">From front door to digital core</div>
     <div class="spacer-lg"></div>
-    <div class="mega center fade-up">Every SAP Edge deal<br>is an <span class="red">OHC deal.</span></div>
-    <div class="spacer-lg"></div>
-    <div class="mega center fade-up delay-2">Every SAP Edge deal<br>is a <span class="red">Partner deal.</span></div>
-    <div class="spacer-lg"></div>
-    <div class="medium center muted fade-up delay-3">You get pushed on OHC. You get comped on Partners.<br>This is both.</div>
+    <ul class="points fade-up delay-1">
+      <li><span class="icon">🔐</span> Physical GRC — badge, camera, sensor events in SAP for the first time</li>
+      <li><span class="icon">📋</span> NERC CIP compliance — continuous audit trail, not quarterly snapshots</li>
+      <li><span class="icon">🔧</span> Predictive maintenance — vibration, thermal, UPS data before failures happen</li>
+      <li><span class="icon">🚨</span> AlertEnterprise integration — identity-aware physical security in SAP</li>
+      <li><span class="icon">⚡</span> Scales to thousands of sites — edge processing, cloud aggregation</li>
+    </ul>
   </div>
 
   <!-- 10: Close -->
   <div class="slide glow-bg" data-slide="10">
     <div class="brand fade-up"><span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span></div>
-    <div class="mega center fade-up delay-1">Let's build this<br>for your customer.</div>
+    <div class="mega center fade-up delay-1">Let's secure your<br>critical infrastructure.</div>
     <div class="spacer-lg"></div>
     <div class="medium center muted fade-up delay-2">Jim O'Donnell · jodonnel@redhat.com</div>
     <div class="spacer"></div>
@@ -1453,9 +1458,10 @@ function goTo(n) {
   qrCorner.classList.toggle('visible', current >= 6);
   document.getElementById('payoffCount').innerText = eventCount.toLocaleString();
 
+  // Send a presentation event so the counter stays alive
   fetch('/ingest', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({specversion:'1.0', type:'presenter.slide_change', source:'present-rh',
+    body: JSON.stringify({specversion:'1.0', type:'presenter.slide_change', source:'present',
       data:{slide:current+1, total:totalSlides, title:slides[current].dataset.slide}})
   }).catch(()=>{});
 }
@@ -1580,7 +1586,7 @@ function fetchState() {
   }).catch(()=>{});
 }
 fetchState();
-setInterval(fetchState, 10000);
+setInterval(fetchState, 10000); // refresh every 10s as backstop
 
 connectSSE(); pollTelemetry(); goTo(0);
 </script>

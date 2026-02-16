@@ -208,6 +208,10 @@ def present():
 def present_rh():
     return send_from_directory("/stage", "present-rh.html")
 
+@app.get("/present-util")
+def present_util():
+    return send_from_directory("/stage", "present-util.html")
+
 @app.get("/qr-present")
 def qr_present():
     return send_from_directory("/stage", "qr-present.html")
