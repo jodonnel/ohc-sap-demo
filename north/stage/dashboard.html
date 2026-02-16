@@ -1,443 +1,596 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>OHC Stage — Live Events</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #06090F;
-      --surface: #0D1117;
-      --border: #1C2333;
-      --muted: #4E5D6C;
-      --text: #F0F4F8;
-      --green: #00D26A;
-      --green-glow: rgba(0, 210, 106, 0.15);
-      --blue: #0070F2;
-      --red: #EE0000;
-      --amber: #F59E0B;
-      --purple: #7C3AED;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OHC — Stage Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090F; --surface: #0D1117; --surface2: #161B22; --border: #1C2333;
+  --muted: #4E5D6C; --text: #F0F4F8; --dim: #8B949E;
+  --red: #EE0000; --red-glow: rgba(238,0,0,0.12);
+  --blue: #0070F2; --green: #00D26A; --amber: #F59E0B;
+  --teal: #14B8A6; --orange: #F97316; --purple: #A855F7;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; background:var(--bg); color:var(--text); font-family:'Red Hat Display',sans-serif; overflow:hidden; }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── Layout: 3 columns ── */
+.dashboard {
+  display:grid; height:100vh; padding:12px; gap:12px;
+  grid-template-columns: 1fr 320px 300px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "header header header"
+    "main   feed   sidebar";
+}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Red Hat Display', sans-serif;
-      min-height: 100vh;
-      overflow: hidden;
-    }
+/* ── Header ── */
+.dash-header {
+  grid-area:header; display:flex; align-items:center; justify-content:space-between;
+  padding:8px 16px; background:var(--surface); border:1px solid var(--border);
+  border-radius:10px;
+}
+.dash-header .brand { display:flex; align-items:center; gap:12px; }
+.dash-header .rh { color:var(--red); font-size:11px; font-weight:700; letter-spacing:2px; }
+.dash-header .sep { color:var(--muted); }
+.dash-header .sap { color:var(--blue); font-size:11px; font-weight:700; letter-spacing:2px; }
+.dash-header .title { font-size:13px; font-weight:700; color:var(--dim); margin-left:16px; letter-spacing:0.5px; }
+.dash-header .live-badge { display:flex; align-items:center; gap:8px; }
+.dash-header .live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+.dash-header .live-label { font-family:'Red Hat Mono',monospace; font-size:11px; color:var(--green); }
 
-    /* ── Ambient background pulse ── */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 600px;
-      height: 600px;
-      transform: translate(-50%, -60%);
-      background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-      z-index: 0;
-    }
-    body.flash::before {
-      opacity: 1;
-    }
+/* ── Main area (counter + class bars + timeline) ── */
+.main { grid-area:main; display:flex; flex-direction:column; gap:12px; overflow:hidden; }
 
-    /* ── Layout ── */
-    .shell {
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      height: 100vh;
-      padding: 32px 48px;
-      position: relative;
-      z-index: 1;
-    }
+/* Hero counter */
+.hero {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:20px; text-align:center; position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 60%, var(--red-glow) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-count {
+  font-family:'Red Hat Mono',monospace; font-size:6rem; font-weight:900;
+  line-height:1; font-variant-numeric:tabular-nums;
+  text-shadow:0 0 40px var(--red-glow); transition:transform 0.08s;
+  position:relative;
+}
+.hero-count.bump { transform:scale(1.02); }
+.hero-label { font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-top:4px; position:relative; }
+.hero-stats {
+  display:flex; justify-content:center; gap:32px; margin-top:12px; position:relative;
+}
+.hero-stat { text-align:center; }
+.hero-stat .val { font-family:'Red Hat Mono',monospace; font-size:18px; font-weight:700; }
+.hero-stat .lbl { font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
 
-    /* ── Top bar ── */
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+/* Event class bars */
+.class-panel {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:16px; flex:1; overflow:hidden; display:flex; flex-direction:column;
+}
+.class-panel h3 { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px; }
+.class-bars { flex:1; display:flex; flex-direction:column; gap:6px; justify-content:center; }
+.class-row { display:flex; align-items:center; gap:8px; }
+.class-icon { font-size:16px; width:24px; text-align:center; }
+.class-label { font-size:11px; color:var(--dim); width:80px; font-family:'Red Hat Text',sans-serif; }
+.class-bar-bg { flex:1; height:18px; background:var(--surface2); border-radius:4px; overflow:hidden; position:relative; }
+.class-bar-fill { height:100%; border-radius:4px; transition:width 0.4s ease; min-width:2px; }
+.class-count { font-family:'Red Hat Mono',monospace; font-size:11px; color:var(--dim); width:32px; text-align:right; }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    .brand .rh {
-      color: var(--red);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    .brand .sep { color: var(--muted); font-size: 16px; }
-    .brand .sap {
-      color: var(--blue);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    .brand .title {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 400;
-      margin-left: 20px;
-      padding-left: 20px;
-      border-left: 1px solid var(--border);
-    }
+/* Last event card */
+.last-event {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:16px; min-height:100px;
+}
+.last-event h3 { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; }
+.evt-card { display:flex; gap:12px; align-items:flex-start; }
+.evt-class-badge {
+  font-size:24px; width:44px; height:44px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.evt-card-body { flex:1; }
+.evt-card-type { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+.evt-card-summary { font-size:14px; font-weight:300; color:var(--text); margin-top:4px; line-height:1.4; font-family:'Red Hat Text',sans-serif; }
+.evt-card-meta { font-size:10px; color:var(--muted); margin-top:6px; font-family:'Red Hat Mono',monospace; }
 
-    .controls {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    .pill {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: 'Red Hat Mono', monospace;
-      font-size: 11px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .pill:hover { border-color: var(--muted); color: var(--text); }
-    .pill.active { border-color: var(--green); color: var(--green); }
+/* ── Activity feed (right column) ── */
+.feed-panel {
+  grid-area:feed; background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; display:flex; flex-direction:column; overflow:hidden;
+}
+.feed-panel h3 {
+  font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.5px;
+  text-transform:uppercase; padding:14px 16px 10px; flex-shrink:0;
+}
+.feed-list { flex:1; overflow-y:auto; padding:0 12px 12px; }
+.feed-list::-webkit-scrollbar { width:4px; }
+.feed-list::-webkit-scrollbar-track { background:transparent; }
+.feed-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 2s infinite;
-    }
-    .status-dot.disconnected { background: var(--red); animation: none; }
+.feed-item {
+  display:flex; gap:8px; align-items:flex-start; padding:8px 6px;
+  border-bottom:1px solid var(--border); animation:slideIn 0.3s ease;
+}
+.feed-item .fi-icon { font-size:14px; flex-shrink:0; margin-top:2px; }
+.feed-item .fi-body { flex:1; }
+.feed-item .fi-text { font-size:12px; color:var(--text); font-family:'Red Hat Text',sans-serif; line-height:1.3; }
+.feed-item .fi-time { font-size:9px; color:var(--muted); font-family:'Red Hat Mono',monospace; margin-top:2px; }
+.feed-item .fi-class { font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; }
 
-    /* ── Hero counter ── */
-    .hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
+/* ── Sidebar (devices + status) ── */
+.sidebar { grid-area:sidebar; display:flex; flex-direction:column; gap:12px; overflow:hidden; }
 
-    .counter-label {
-      font-size: 13px;
-      font-weight: 400;
-      color: var(--muted);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
+.device-panel {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:16px; flex:1; display:flex; flex-direction:column;
+}
+.device-panel h3 { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; }
+.device-count { font-family:'Red Hat Mono',monospace; font-size:36px; font-weight:900; color:var(--blue); }
+.device-count-label { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; }
+.device-mosaic { display:flex; flex-wrap:wrap; gap:4px; flex:1; align-content:flex-start; }
+.device-dot {
+  width:28px; height:28px; border-radius:6px; background:var(--surface2);
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+  animation:popIn 0.3s ease; border:1px solid var(--border);
+}
+.device-stats { margin-top:auto; padding-top:10px; border-top:1px solid var(--border); }
+.device-stats .ds-row { display:flex; justify-content:space-between; padding:2px 0; }
+.device-stats .ds-label { font-size:10px; color:var(--muted); }
+.device-stats .ds-val { font-size:10px; font-family:'Red Hat Mono',monospace; color:var(--dim); }
 
-    .counter {
-      font-size: clamp(8rem, 20vw, 16rem);
-      font-weight: 900;
-      line-height: 1;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-      transition: transform 0.1s;
-      text-shadow: 0 0 80px var(--green-glow);
-    }
-    .counter.bump {
-      transform: scale(1.04);
-    }
+/* Status panel */
+.status-panel {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:14px 16px;
+}
+.status-panel h3 { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; }
+.status-row { display:flex; justify-content:space-between; padding:3px 0; }
+.status-row .sl { font-size:11px; color:var(--dim); font-family:'Red Hat Text',sans-serif; }
+.status-row .sv { font-size:11px; font-family:'Red Hat Mono',monospace; color:var(--text); }
 
-    .rate {
-      font-family: 'Red Hat Mono', monospace;
-      font-size: 14px;
-      color: var(--green);
-      opacity: 0.7;
-    }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn { from{opacity:0;transform:scale(0.5)} to{opacity:1;transform:scale(1)} }
+@keyframes flashBorder { 0%{border-color:var(--flash-color)} 100%{border-color:var(--border)} }
 
-    /* ── Bottom tiles ── */
-    .tiles {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 16px;
-    }
-
-    .tile {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .tile::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      border-radius: 12px 12px 0 0;
-    }
-    .tile.event::before { background: var(--green); }
-    .tile.transport::before { background: var(--blue); }
-    .tile.runtime::before { background: var(--red); }
-    .tile.telemetry::before { background: var(--purple); }
-
-    .tile h3 {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .tile .value {
-      font-family: 'Red Hat Mono', monospace;
-      font-size: 12px;
-      color: var(--text);
-      opacity: 0.8;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 80px;
-      overflow: hidden;
-    }
-
-    .tile .meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .tile .meta strong {
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    /* ── Event feed flash ── */
-    .tile.event.flash {
-      border-color: var(--green);
-      box-shadow: 0 0 20px var(--green-glow);
-      transition: border-color 0.1s, box-shadow 0.1s;
-    }
-
-    /* ── Animations ── */
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.3); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .shell > * {
-      animation: fadeUp 0.6s ease-out both;
-    }
-    .shell > *:nth-child(2) { animation-delay: 0.15s; }
-    .shell > *:nth-child(3) { animation-delay: 0.3s; }
-  </style>
+/* Mobile */
+@media (max-width:1024px) {
+  .dashboard { grid-template-columns:1fr 1fr; grid-template-rows:auto 1fr 1fr; grid-template-areas:"header header" "main feed" "sidebar sidebar"; }
+}
+@media (max-width:768px) {
+  .dashboard { grid-template-columns:1fr; grid-template-rows:auto auto 1fr auto; grid-template-areas:"header" "main" "feed" "sidebar"; overflow-y:auto; }
+  .hero-count { font-size:4rem; }
+}
+</style>
 </head>
 <body>
 
-<div class="shell">
-  <!-- Top bar -->
-  <div class="topbar">
-    <div class="brand">
-      <span class="rh">Red Hat</span>
-      <span class="sep">×</span>
-      <span class="sap">SAP</span>
-      <span class="title">Edge Integration — Live Stage</span>
+<div class="dashboard">
+
+  <!-- Header -->
+  <div class="dash-header">
+    <div style="display:flex;align-items:center">
+      <div class="brand"><span class="rh">RED HAT</span><span class="sep"> × </span><span class="sap">SAP</span></div>
+      <span class="title">EDGE OPERATIONS CENTER</span>
     </div>
-    <div class="controls">
-      <div class="status-dot" id="statusDot"></div>
-      <span class="pill" id="sseLabel">SSE connected</span>
-      <span class="pill" id="muteBtn">🔊 Sound</span>
-    </div>
+    <div class="live-badge"><div class="live-dot"></div><span class="live-label" id="sseStatus">CONNECTING</span></div>
   </div>
 
-  <!-- Hero counter -->
-  <div class="hero">
-    <div class="counter-label">Events Ingested</div>
-    <div class="counter" id="count">0</div>
-    <div class="rate" id="rate"></div>
-  </div>
-
-  <!-- Bottom tiles -->
-  <div class="tiles">
-    <div class="tile event" id="eventTile">
-      <h3>Last Event</h3>
-      <div class="value" id="last">Waiting for events…</div>
-      <div class="meta" id="lastTs"></div>
+  <!-- Main: counter + bars + last event -->
+  <div class="main">
+    <div class="hero">
+      <div class="hero-count" id="heroCount">0</div>
+      <div class="hero-label">Events Ingested</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="val" id="hRate" style="color:var(--red)">0</div><div class="lbl">per sec</div></div>
+        <div class="hero-stat"><div class="val" id="hPeak" style="color:var(--amber)">0</div><div class="lbl">peak/s</div></div>
+        <div class="hero-stat"><div class="val" id="hDevices" style="color:var(--blue)">0</div><div class="lbl">devices</div></div>
+      </div>
     </div>
-    <div class="tile transport">
+
+    <div class="class-panel">
       <h3>Event Classes</h3>
-      <div class="meta" id="evClasses" style="line-height:1.8">Waiting for events…</div>
+      <div class="class-bars" id="classBars"></div>
     </div>
-    <div class="tile runtime">
-      <h3>Runtime</h3>
-      <div class="meta">Pod: <strong id="podName">—</strong></div>
-      <div class="meta">Platform: <strong>Red Hat OpenShift</strong></div>
-      <div class="meta">Namespace: <strong>qr-demo-qa</strong></div>
-      <div class="meta" style="margin-top:8px;color:var(--green)">● Live instance</div>
-    </div>
-    <div class="tile telemetry">
-      <h3>Audience Devices</h3>
-      <div class="meta">Devices: <strong id="tDevices">—</strong></div>
-      <div class="meta">Classes: <strong id="tClasses">—</strong></div>
-      <div class="meta">OS: <strong id="tOS">—</strong></div>
-      <div class="meta">GPU: <strong id="tGPU">—</strong></div>
-      <div class="meta">Network: <strong id="tNetworks">—</strong></div>
-      <div class="meta">Battery: <strong id="tBattery">—</strong></div>
+
+    <div class="last-event">
+      <h3>Latest Event</h3>
+      <div id="lastEventCard">
+        <div class="evt-card">
+          <div class="evt-class-badge" style="background:var(--surface2)">⏳</div>
+          <div class="evt-card-body">
+            <div class="evt-card-type" style="color:var(--muted)">Waiting</div>
+            <div class="evt-card-summary" style="color:var(--muted)">No events received yet</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Activity feed -->
+  <div class="feed-panel">
+    <h3>Activity Feed</h3>
+    <div class="feed-list" id="feedList"></div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="device-panel">
+      <h3>Audience Devices</h3>
+      <div class="device-count" id="devCount">0</div>
+      <div class="device-count-label">Connected</div>
+      <div class="device-mosaic" id="deviceMosaic"></div>
+      <div class="device-stats">
+        <div class="ds-row"><span class="ds-label">Avg Battery</span><span class="ds-val" id="dsBattery">—</span></div>
+        <div class="ds-row"><span class="ds-label">Networks</span><span class="ds-val" id="dsNetworks">—</span></div>
+        <div class="ds-row"><span class="ds-label">Locales</span><span class="ds-val" id="dsLocales">—</span></div>
+      </div>
+    </div>
+    <div class="status-panel">
+      <h3>System</h3>
+      <div class="status-row"><span class="sl">Platform</span><span class="sv">OpenShift 4.x</span></div>
+      <div class="status-row"><span class="sl">Namespace</span><span class="sv">qr-demo-qa</span></div>
+      <div class="status-row"><span class="sl">Uptime</span><span class="sv" id="uptime">—</span></div>
+      <div class="status-row"><span class="sl">SSE</span><span class="sv" id="sseState" style="color:var(--green)">●</span></div>
+    </div>
+  </div>
+
 </div>
 
-<audio id="beep" src="/assets/Mario-coin-sound.mp3" preload="auto"></audio>
-
 <script>
-  const countEl   = document.getElementById("count");
-  const lastEl    = document.getElementById("last");
-  const lastTsEl  = document.getElementById("lastTs");
-  const eventTile = document.getElementById("eventTile");
-  const rateEl    = document.getElementById("rate");
-  const beep      = document.getElementById("beep");
-  const muteBtn   = document.getElementById("muteBtn");
-  const statusDot = document.getElementById("statusDot");
-  const sseLabel  = document.getElementById("sseLabel");
+// ═══════════════════════════════════════════
+// EVENT CLASS REGISTRY
+// ═══════════════════════════════════════════
+const CLASSES = {
+  access:      { icon:'🔐', color:'var(--green)',  label:'Access' },
+  incident:    { icon:'🚨', color:'var(--red)',    label:'Incident' },
+  compliance:  { icon:'📋', color:'var(--amber)',  label:'Compliance' },
+  network:     { icon:'🌐', color:'var(--blue)',   label:'Network' },
+  surveillance:{ icon:'📹', color:'var(--teal)',   label:'Surveillance' },
+  building:    { icon:'🏢', color:'var(--orange)', label:'Building' },
+  physical:    { icon:'👣', color:'var(--purple)', label:'Physical' },
+  sensor:      { icon:'🌡️', color:'var(--muted)',  label:'Sensor' },
+  alert:       { icon:'⚠️', color:'var(--amber)',  label:'Alert' },
+  telem:       { icon:'📡', color:'var(--purple)', label:'Telemetry' },
+  presenter:   { icon:'🎤', color:'var(--dim)',    label:'Presenter' },
+  unknown:     { icon:'📦', color:'var(--muted)',  label:'Other' },
+};
 
-  let muted = localStorage.getItem("muted") === "true";
-  let audioUnlocked = false;
-  let eventTimes = [];
+// Event type → human description
+const DESCRIPTIONS = {
+  'access.onguard.badge_scan': d => `Badge ${d.badgeId||'scan'} at ${d.readerName||d.source||'reader'}`,
+  'access.onguard.door_opened': d => `Door opened — ${d.doorName||'access granted'}`,
+  'access.onguard.door_closed': d => `Door closed — ${d.doorName||'secure'}`,
+  'access.onguard.door_forced': d => `⚠ Door forced open — ${d.doorName||'breach detected'}`,
+  'access.onguard.door_held': d => `Door held open — ${d.doorName||'timeout warning'}`,
+  'access.biometric_enroll': d => `Biometric enrollment — quality ${d.quality||'—'}%`,
+  'incident.credential_anomaly': d => `Lost badge #${d.badgeId||'?'} used — reported lost`,
+  'incident.camera_tamper': d => `Camera tamper detected — ${d.cameraId||'feed interrupted'}`,
+  'incident.brute_force_ssh': d => `SSH brute force — ${d.attempts||'multiple'} attempts from ${d.sourceIp||'unknown'}`,
+  'incident.rogue_device': d => `Rogue device on network — MAC ${d.mac||'unknown'}`,
+  'incident.vault_breach': d => `Vault breach — ${d.method||'unauthorized access'}`,
+  'compliance.fire_equipment': d => `Fire extinguisher check — ${d.status||'inspected'}`,
+  'compliance.air_quality': d => `Air quality — CO₂ ${d.co2||'—'}ppm`,
+  'network.ssh_brute_force': d => `SSH brute force — ${d.attempts||'?'} attempts`,
+  'network.rogue_device': d => `Rogue device — ${d.mac||'unknown MAC'}`,
+  'surveillance.camera_diag': d => `Camera diagnostic — ${d.status||'checked'}`,
+  'building.hvac_override': d => `HVAC override — zone temp ${d.temp||'—'}°F`,
+  'building.privacy_film': d => `Privacy film toggled — ${d.state||'changed'}`,
+  'telemetry.rack_temp': d => `Rack temp — delta ${d.delta||'—'}°F`,
+  'telemetry.ups_diag': d => `UPS check — ${d.runtime||'—'}min runtime, ${d.health||'—'}% health`,
+  'telemetry.air_quality': d => `Air quality — CO₂ ${d.co2||'—'}ppm, VOCs ${d.vocs||'—'}`,
+  'telemetry.battery': d => `Device battery: ${d.level||'—'}%`,
+  'telemetry.locale': d => `Locale detected: ${d.value||'—'}`,
+  'telemetry.network': d => `Network: ${d.type||'—'}`,
+  'maintenance.elevator_check': d => `Elevator maintenance — ${d.status||'checked'}`,
+  'safety.fire_equipment': d => `Fire equipment — gauge ${d.gauge||'checked'}`,
+  'alert.threat_adjacent': d => `Threat detected in adjacent zone`,
+  'presenter.slide_change': d => `Slide ${d.slide||'?'}/${d.total||'?'}`,
+  'access.onguard.badge_scan_denied': d => `ACCESS DENIED — badge at ${d.readerName||'reader'}`,
+};
 
-  function updateMuteUI() {
-    muteBtn.innerText = muted ? "🔇 Muted" : "🔊 Sound";
-    muted ? muteBtn.classList.remove("active") : muteBtn.classList.add("active");
+function describeEvent(type, data) {
+  const fn = DESCRIPTIONS[type];
+  if (fn) try { return fn(data || {}); } catch(e) {}
+  const short = (type || 'event').split('.').pop().replace(/_/g, ' ');
+  return short.charAt(0).toUpperCase() + short.slice(1);
+}
+
+function classifyEvent(type) {
+  if (!type) return 'unknown';
+  for (const cls of Object.keys(CLASSES)) {
+    if (cls !== 'unknown' && type.includes(cls)) return cls;
   }
+  if (type.includes('maintenance') || type.includes('safety')) return 'compliance';
+  return 'unknown';
+}
 
-  muteBtn.onclick = async () => {
-    muted = !muted;
-    localStorage.setItem("muted", muted);
-    updateMuteUI();
-    if (!audioUnlocked && !muted) {
-      try {
-        await beep.play();
-        beep.pause();
-        beep.currentTime = 0;
-        audioUnlocked = true;
-      } catch (e) { console.warn("audio unlock failed", e); }
-    }
-  };
-  updateMuteUI();
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let eventCount = 0;
+let peakRate = 0;
+let eventTimes = [];
+let classCounts = {};
+let feedItems = [];
+let deviceCount = 0;
+let deviceIcons = [];
+const startTime = Date.now();
 
-  // Rate calculation
-  function calcRate() {
-    const now = Date.now();
-    eventTimes = eventTimes.filter(t => now - t < 10000);
-    if (eventTimes.length < 2) {
-      rateEl.innerText = "";
-      return;
-    }
-    const rate = (eventTimes.length / 10).toFixed(1);
-    rateEl.innerText = rate + " events/sec";
+// ═══════════════════════════════════════════
+// DOM REFS
+// ═══════════════════════════════════════════
+const heroCountEl = document.getElementById('heroCount');
+const hRateEl = document.getElementById('hRate');
+const hPeakEl = document.getElementById('hPeak');
+const hDevicesEl = document.getElementById('hDevices');
+const classBarsEl = document.getElementById('classBars');
+const lastEventCardEl = document.getElementById('lastEventCard');
+const feedListEl = document.getElementById('feedList');
+const deviceMosaicEl = document.getElementById('deviceMosaic');
+const devCountEl = document.getElementById('devCount');
+
+// ═══════════════════════════════════════════
+// RENDER CLASS BARS
+// ═══════════════════════════════════════════
+function renderClassBars() {
+  const entries = Object.entries(classCounts).sort((a,b) => b[1] - a[1]);
+  const max = entries.length > 0 ? entries[0][1] : 1;
+  classBarsEl.innerHTML = '';
+  for (const [cls, count] of entries) {
+    const info = CLASSES[cls] || CLASSES.unknown;
+    const pct = (count / max * 100).toFixed(0);
+    const row = document.createElement('div');
+    row.className = 'class-row';
+    row.innerHTML = `
+      <span class="class-icon">${info.icon}</span>
+      <span class="class-label">${info.label}</span>
+      <div class="class-bar-bg"><div class="class-bar-fill" style="width:${pct}%;background:${info.color}"></div></div>
+      <span class="class-count">${count}</span>
+    `;
+    classBarsEl.appendChild(row);
   }
+}
 
-  // SSE connection
-  let es;
-  function connect() {
-    es = new EventSource("/events");
-    statusDot.classList.remove("disconnected");
-    sseLabel.innerText = "SSE connected";
+// ═══════════════════════════════════════════
+// RENDER LAST EVENT CARD
+// ═══════════════════════════════════════════
+function renderLastEvent(type, data, ts) {
+  const cls = classifyEvent(type);
+  const info = CLASSES[cls] || CLASSES.unknown;
+  const desc = describeEvent(type, data);
+  const time = ts ? new Date(ts).toLocaleTimeString() : new Date().toLocaleTimeString();
+  const shortType = cls.toUpperCase();
+  lastEventCardEl.innerHTML = `
+    <div class="evt-card">
+      <div class="evt-class-badge" style="background:${info.color}20;border:1px solid ${info.color}40">${info.icon}</div>
+      <div class="evt-card-body">
+        <div class="evt-card-type" style="color:${info.color}">${shortType}</div>
+        <div class="evt-card-summary">${desc}</div>
+        <div class="evt-card-meta">${time} · ${type||'—'}</div>
+      </div>
+    </div>
+  `;
+}
 
+// ═══════════════════════════════════════════
+// RENDER FEED ITEM
+// ═══════════════════════════════════════════
+function addFeedItem(type, data, ts) {
+  const cls = classifyEvent(type);
+  const info = CLASSES[cls] || CLASSES.unknown;
+  const desc = describeEvent(type, data);
+  const time = ts ? new Date(ts).toLocaleTimeString() : new Date().toLocaleTimeString();
+
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = `
+    <span class="fi-icon">${info.icon}</span>
+    <div class="fi-body">
+      <div class="fi-text">${desc}</div>
+      <div class="fi-time"><span class="fi-class" style="color:${info.color}">${info.label}</span> · ${time}</div>
+    </div>
+  `;
+  feedListEl.insertBefore(item, feedListEl.firstChild);
+
+  // Keep max 50 items
+  while (feedListEl.children.length > 50) feedListEl.removeChild(feedListEl.lastChild);
+}
+
+// ═══════════════════════════════════════════
+// DEVICE MOSAIC
+// ═══════════════════════════════════════════
+function addDevice(data) {
+  const cls = data?.deviceClass || data?.class || 'phone';
+  const icon = cls === 'laptop' ? '💻' : cls === 'tablet' ? '📱' : '📱';
+  if (deviceIcons.length < 60) {
+    const dot = document.createElement('div');
+    dot.className = 'device-dot';
+    dot.innerText = icon;
+    dot.title = `${data?.os||'—'} · ${data?.browser||'—'}`;
+    deviceMosaicEl.appendChild(dot);
+    deviceIcons.push(dot);
+  }
+}
+
+// ═══════════════════════════════════════════
+// UPDATE COUNTERS
+// ═══════════════════════════════════════════
+function updateCounters() {
+  heroCountEl.innerText = eventCount.toLocaleString();
+  heroCountEl.classList.add('bump');
+  setTimeout(() => heroCountEl.classList.remove('bump'), 80);
+
+  const now = Date.now();
+  eventTimes = eventTimes.filter(t => now - t < 5000);
+  const rate = eventTimes.length > 0 ? (eventTimes.length / 5).toFixed(1) : '0';
+  hRateEl.innerText = rate;
+  if (parseFloat(rate) > peakRate) {
+    peakRate = parseFloat(rate);
+    hPeakEl.innerText = peakRate.toFixed(0);
+  }
+}
+
+// Rate ticker
+setInterval(() => {
+  const now = Date.now();
+  eventTimes = eventTimes.filter(t => now - t < 5000);
+  hRateEl.innerText = eventTimes.length > 0 ? (eventTimes.length / 5).toFixed(1) : '0';
+
+  // Uptime
+  const up = Math.floor((Date.now() - startTime) / 1000);
+  const m = Math.floor(up / 60); const s = up % 60;
+  document.getElementById('uptime').innerText = `${m}m ${s}s`;
+}, 1000);
+
+// ═══════════════════════════════════════════
+// PROCESS EVENT
+// ═══════════════════════════════════════════
+function processEvent(d) {
+  eventCount = d.count || (eventCount + 1);
+  eventTimes.push(Date.now());
+  updateCounters();
+
+  const payload = d.payload || d.data || d;
+  const type = d.type || payload.type || payload.action || '';
+  const data = payload.data || payload;
+  const cls = classifyEvent(type);
+
+  // Update class counts
+  classCounts[cls] = (classCounts[cls] || 0) + 1;
+  renderClassBars();
+
+  // Last event card
+  renderLastEvent(type, data, d.ts || d.timestamp);
+
+  // Feed
+  addFeedItem(type, data, d.ts || d.timestamp);
+
+  // Device tracking
+  if (type.includes('telemetry.device') || type.includes('telemetry.battery') || d.deviceClass) {
+    deviceCount++;
+    devCountEl.innerText = deviceCount;
+    hDevicesEl.innerText = deviceCount;
+    addDevice(data);
+  }
+}
+
+// ═══════════════════════════════════════════
+// SSE CONNECTION
+// ═══════════════════════════════════════════
+function connectSSE() {
+  const statusEl = document.getElementById('sseStatus');
+  const stateEl = document.getElementById('sseState');
+  try {
+    const es = new EventSource('/events');
+    es.onopen = () => {
+      statusEl.innerText = 'LIVE';
+      stateEl.innerText = '●'; stateEl.style.color = 'var(--green)';
+    };
     es.onmessage = (e) => {
       const d = JSON.parse(e.data);
-
-      // Counter bump
-      countEl.innerText = d.count;
-      countEl.classList.add("bump");
-      setTimeout(() => countEl.classList.remove("bump"), 100);
-
-      // Background flash
-      document.body.classList.add("flash");
-      setTimeout(() => document.body.classList.remove("flash"), 300);
-
-      // Event tile flash
-      eventTile.classList.add("flash");
-      setTimeout(() => eventTile.classList.remove("flash"), 400);
-
-      // Last event
-      const payload = d.payload || {};
-      const display = Object.keys(payload).length
-        ? JSON.stringify(payload, null, 2)
-        : JSON.stringify(d, null, 2);
-      lastEl.innerText = display;
-
-      // Timestamp
-      if (d.ts) {
-        const t = new Date(d.ts);
-        lastTsEl.innerText = t.toLocaleTimeString();
-      }
-
-      // Rate tracking
-      eventTimes.push(Date.now());
-      calcRate();
-
-      // Sound
-      if (!muted && audioUnlocked) {
-        const chime = beep.cloneNode();
-        chime.volume = 0.6;
-        chime.play().catch(() => {});
-      }
+      processEvent(d);
     };
-
     es.onerror = () => {
-      statusDot.classList.add("disconnected");
-      sseLabel.innerText = "Reconnecting…";
+      statusEl.innerText = 'RECONNECTING';
+      stateEl.innerText = '●'; stateEl.style.color = 'var(--amber)';
       es.close();
-      setTimeout(connect, 3000);
+      setTimeout(connectSSE, 3000);
     };
+  } catch(e) {
+    statusEl.innerText = 'OFFLINE';
+    stateEl.innerText = '●'; stateEl.style.color = 'var(--red)';
+    startSimulator();
   }
-  connect();
+}
 
-  // Hydrate from current state
-  fetch("/state").then(r=>r.json()).then(d=>{
-    if (d.count) countEl.innerText = d.count;
-    if (d.last && d.last.ts) lastTsEl.innerText = new Date(d.last.ts).toLocaleTimeString();
-    if (d.last && d.last.payload) lastEl.innerText = JSON.stringify(d.last.payload, null, 2);
-  }).catch(()=>{});
+// ═══════════════════════════════════════════
+// FETCH INITIAL STATE
+// ═══════════════════════════════════════════
+function fetchState() {
+  fetch('/state').then(r => r.json()).then(d => {
+    if (d.count && d.count > eventCount) {
+      eventCount = d.count;
+      updateCounters();
+    }
+  }).catch(() => {});
+}
 
-  // Pod name
-  fetch("/pod-name").then(r=>r.json()).then(d=>{document.getElementById("podName").innerText=d.pod}).catch(()=>{});
+// Hydrate feed from /log
+function hydrateFeed() {
+  fetch('/log').then(r => r.json()).then(events => {
+    // events is an array, oldest first
+    for (const d of events) {
+      const payload = d.payload || d.data || d;
+      const type = d.type || payload.type || payload.action || '';
+      const data = payload.data || payload;
+      const cls = classifyEvent(type);
+      classCounts[cls] = (classCounts[cls] || 0) + 1;
+      addFeedItem(type, data, d.ts || d.timestamp);
+    }
+    renderClassBars();
+  }).catch(() => {});
+}
 
-  // Rate refresh
-  setInterval(calcRate, 1000);
+// Telemetry polling
+function pollTelemetry() {
+  fetch('/telemetry').then(r => r.json()).then(d => {
+    if (d.devices) { deviceCount = d.devices; devCountEl.innerText = d.devices; hDevicesEl.innerText = d.devices; }
+    document.getElementById('dsBattery').innerText = d.avgBattery ? d.avgBattery + '%' : '—';
+    const nets = d.networks || {};
+    document.getElementById('dsNetworks').innerText = Object.entries(nets).map(([k,v])=>k+':'+v).join(' · ') || '—';
+    document.getElementById('dsLocales').innerText = Object.keys(d.locales || {}).length + ' locales' || '—';
+  }).catch(() => {});
+}
+setInterval(pollTelemetry, 5000);
 
-  // Telemetry polling
-  const fmt = obj => Object.entries(obj||{}).map(([k,v])=>k+":"+v).join(" · ") || "—";
-  setInterval(() => {
-    fetch("/telemetry").then(r=>r.json()).then(d=>{
-      document.getElementById("tDevices").innerText = d.devices;
-      document.getElementById("tClasses").innerText = fmt(d.deviceClasses);
-      document.getElementById("tOS").innerText = fmt(d.osFamilies);
-      document.getElementById("tGPU").innerText = fmt(d.gpus);
-      document.getElementById("tNetworks").innerText = fmt(d.networks);
-      document.getElementById("tBattery").innerText = d.batteryCount ? d.avgBattery + "% avg (" + d.batteryCount + ")" : "—";
-      // Event classes
-      const classIcons = {access:"🔐",incident:"🚨",compliance:"📋",network:"🌐",surveillance:"📹",building:"🏢",physical:"👣",telemetry:"📊",sensor:"🌡️",alert:"⚠️",telem:"📡",tap:"🪪",status:"✅",game:"🎮"};
-      const ec = d.eventClasses || {};
-      const classHtml = Object.entries(ec).sort((a,b)=>b[1]-a[1]).map(([k,v])=> {
-        const icon = classIcons[k] || "•";
-        return "<strong>" + icon + " " + k + "</strong>: " + v;
-      }).join("<br>") || "Waiting for events…";
-      document.getElementById("evClasses").innerHTML = classHtml;
-    }).catch(()=>{});
-  }, 5000);
+// ═══════════════════════════════════════════
+// SIMULATOR (local/offline)
+// ═══════════════════════════════════════════
+function startSimulator() {
+  const simEvents = [
+    {type:'access.onguard.badge_scan', data:{badgeId:'4471', readerName:'Main Lobby'}},
+    {type:'access.onguard.door_opened', data:{doorName:'East Wing'}},
+    {type:'surveillance.camera_diag', data:{cameraId:'CAM-7', status:'degraded'}},
+    {type:'incident.credential_anomaly', data:{badgeId:'4471', source:'Elevator Bay'}},
+    {type:'compliance.fire_equipment', data:{status:'gauge yellow'}},
+    {type:'building.hvac_override', data:{temp:'81', zone:'4'}},
+    {type:'network.ssh_brute_force', data:{attempts:'47', sourceIp:'10.0.88.3'}},
+    {type:'telemetry.rack_temp', data:{delta:'22'}},
+    {type:'incident.camera_tamper', data:{cameraId:'CAM-3', feed:'interrupted'}},
+    {type:'access.biometric_enroll', data:{quality:'92'}},
+    {type:'network.rogue_device', data:{mac:'DE:AD:BE:EF:CA:FE'}},
+    {type:'incident.vault_breach', data:{method:'tailgating'}},
+    {type:'telemetry.ups_diag', data:{runtime:'34', health:'71'}},
+    {type:'compliance.air_quality', data:{co2:'1150', vocs:'elevated'}},
+  ];
+  let delay = 2000;
+  let idx = 0;
+  let simDevices = 0;
+  function sim() {
+    const evt = simEvents[idx % simEvents.length];
+    idx++;
+    processEvent({count: idx, type: evt.type, data: evt.data, ts: new Date().toISOString()});
+    if (idx % 3 === 0) { simDevices++; deviceCount = simDevices; devCountEl.innerText = simDevices; hDevicesEl.innerText = simDevices; addDevice({deviceClass:'phone',os:'iOS'}); }
+    if (delay > 400) delay *= 0.94;
+    setTimeout(sim, delay * (0.5 + Math.random()));
+  }
+  setTimeout(sim, 1000);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+fetchState();
+hydrateFeed();
+pollTelemetry();
+connectSSE();
 </script>
-
 </body>
 </html>
