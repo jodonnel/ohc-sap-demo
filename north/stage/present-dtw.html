@@ -123,12 +123,18 @@
     position: absolute;
     width: 2px;
     background: linear-gradient(180deg, transparent, var(--rh-red), transparent);
-    opacity: 0.15;
-    animation: nerve-pulse 3s ease-in-out infinite;
+    opacity: 0.08;
+    animation: nerve-pulse 12s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    will-change: opacity;
   }
   @keyframes nerve-pulse {
-    0%, 100% { opacity: 0.05; }
-    50% { opacity: 0.2; }
+    0%, 100% { opacity: 0.04; }
+    50% { opacity: 0.10; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nerve-line { animation: none; opacity: 0.06; }
   }
 
   /* ═══ LIVE STATS GRID ═══ */
