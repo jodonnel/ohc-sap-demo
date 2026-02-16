@@ -243,8 +243,8 @@ const ROOMS = [
     task: { icon: "📋", label: "Check elevator log",
       prompt: "Maintenance log shows elevator 2 serviced 47 days ago — overdue. Flag it?",
       choices: ["🚩 Flag overdue", "✅ Looks fine"],
-      evType: "maintenance.elevator_check", evSrc: "elevator-ctrl-bay-1",
-      evData: { system: "OTIS-SeriesR", unit: "ELEV-02", lastService: "2025-12-30", intervalDays: 30, status: "OVERDUE" }}},
+      evType: "maintenance.elevator_check", evSrc: "jci-openblue-elev-bay-1",
+      evData: { system: "JCI OpenBlue", controller: "Metasys NAE55", unit: "ELEV-02", lastService: "2025-12-30", intervalDays: 30, status: "OVERDUE" }}},
   { id: 2,  icon: "☕", name: "Break Room",      desc: "Coffee machine humming. Badge reader on the inner door.", adj: [1, 3, 6],
     task: { icon: "🔥", label: "Check fire extinguisher",
       prompt: "Extinguisher gauge reads yellow zone. Pressure may be low.",
@@ -367,6 +367,7 @@ function sendEvent(type, cls, source, data) {
     source: "south/" + source,
     id: crypto.randomUUID ? crypto.randomUUID() : "evt-" + eventCount,
     time: new Date().toISOString(),
+    eventclass: cls,
     data: {
       ...data,
       room: ROOMS[currentRoom].name,
@@ -478,7 +479,8 @@ function startTask(room) {
 function completeTask(room, task, choiceIdx) {
   completedRoomTasks.add(currentRoom);
   tasksCompleted.push({ room: room.name, task: task.evType, choice: choiceIdx });
-  sendEvent(task.evType, "status", task.evSrc, {
+  const taskClass = task.evType.split('.')[0].replace('maintenance','compliance').replace('safety','compliance').replace('telemetry','telem');
+  sendEvent(task.evType, taskClass, task.evSrc, {
     ...task.evData,
     action: task.evType,
     choiceIndex: choiceIdx,
@@ -539,7 +541,7 @@ function renderRoom() {
       roomAlert.innerText = "🔒 ACCESS DENIED — Threat detected but you lack clearance. Complete " + (TASKS_REQUIRED - tasksCompleted.length) + " more task(s)!";
       roomDisplay.style.animation = "shake 0.4s";
       setTimeout(() => roomDisplay.style.animation = "", 400);
-      sendEvent("access.onguard.badge_scan", "alert", "lenel-reader-" + room.name.toLowerCase().replace(/ /g, "-"), {
+      sendEvent("access.onguard.badge_scan", "access", "lenel-reader-" + room.name.toLowerCase().replace(/ /g, "-"), {
         action: "ACCESS_DENIED", eventType: 5,
         eventDescription: "Security sweep clearance requires " + TASKS_REQUIRED + " completed tasks",
         cardholderID: badge.cardholderID, badgeID: badge.badgeID,
@@ -651,7 +653,7 @@ function moveToRoom(roomId) {
   const clearanceFail = (roomId === wumpusRoom && Math.random() > 0.6);
   const granted = !clearanceFail;
 
-  sendEvent("access.onguard.badge_scan", "tap",
+  sendEvent("access.onguard.badge_scan", "access",
     "lenel-reader-" + readerSlug, {
     action: granted ? "ACCESS_GRANTED" : "ACCESS_DENIED",
     // OnGuard panel / reader
@@ -718,7 +720,7 @@ function inspectRoom() {
   if (gameOver) return;
   const room = ROOMS[currentRoom];
 
-  sendEvent("action.inspect", "tap", "user-interaction", {
+  sendEvent("action.inspect", "status", "user-interaction", {
     action: "inspect",
     roomId: currentRoom,
   });
@@ -748,7 +750,7 @@ function inspectRoom() {
 
 function listenRoom() {
   if (gameOver) return;
-  sendEvent("action.listen", "tap", "user-interaction", {
+  sendEvent("action.listen", "status", "user-interaction", {
     action: "listen", roomId: currentRoom,
   });
 
@@ -800,7 +802,7 @@ function endGame(won) {
     "Tasks completed: <strong>" + tasksCompleted.length + "</strong><br>" +
     "Events generated: <strong>" + eventCount + "</strong><br>" +
     "Time: <strong>" + Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0") + "</strong><br><br>" +
-    "<span style='color:var(--muted);font-size:12px'>Every badge scan, task, and sensor reading<br>flowed as a real physical security event through<br>SAP Edge Integration Cell on Red Hat OpenShift</span>";
+    "<span style='color:var(--muted);font-size:12px'>Every badge scan, task, and sensor reading<br>flowed as a CloudEvent through<br>Red Hat OpenShift to the operations dashboard</span>";
 
   renderMinimap();
 }
@@ -819,7 +821,7 @@ startBtn.onclick = () => {
   });
 
   // ── Lenel OnGuard: badge activation / visitor enrollment ──
-  sendEvent("access.onguard.badge_activate", "tap", "lenel-enrollment-station", {
+  sendEvent("access.onguard.badge_activate", "access", "lenel-enrollment-station", {
     action: "BADGE_ACTIVATED",
     cardholderID: badge.cardholderID,
     badgeID: badge.badgeID,
