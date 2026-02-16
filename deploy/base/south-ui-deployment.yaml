@@ -7,7 +7,7 @@ metadata:
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
-  revisionHistoryLimit: 10
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: south-ui
@@ -18,6 +18,8 @@ spec:
     type: RollingUpdate
   template:
     metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: '2026-02-15T23:15:12-05:00'
       labels:
         app: south-ui
     spec:
@@ -32,6 +34,8 @@ spec:
         imagePullPolicy: Always
         name: httpd-24
         resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /var/www/html
           name: html
@@ -45,4 +49,3 @@ spec:
           defaultMode: 420
           name: south-ui-html
         name: html
-

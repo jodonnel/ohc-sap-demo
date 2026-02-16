@@ -8,6 +8,7 @@ resources:
   - north-app-configmap.yaml
   - north-assets-configmap.yaml
   - north-stage-dashboard-configmap.yaml
+  - north-state-pvc.yaml
   # south-ui (edge device simulator)
   - south-ui-deployment.yaml
   - south-ui-service.yaml

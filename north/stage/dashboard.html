@@ -634,6 +634,14 @@ function pollTelemetry() {
     document.getElementById('dsBattery').innerText = d.avgBattery ? d.avgBattery + '%' : '—';
     renderBreakdown('bdNetworks', 'Networks', d.networks || {}, {wifi:'📶','4g':'📱','3g':'📱',wired:'🔌',ethernet:'🔌'}, 'var(--blue)');
     renderBreakdown('bdLocales', 'Locales', d.locales || {}, {}, 'var(--green)');
+    // #37: seed classCounts from server-side eventClasses (authoritative from eventclass field)
+    const ec = d.eventClasses || {};
+    if (Object.keys(ec).length) {
+      for (const [cls, cnt] of Object.entries(ec)) {
+        if (cnt > (classCounts[cls] || 0)) classCounts[cls] = cnt;
+      }
+      renderClassBars();
+    }
   }).catch(() => {});
 }
 setInterval(pollTelemetry, 5000);

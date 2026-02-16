@@ -1,10 +1,13 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
+  annotations:
+    openshift.io/host.generated: 'true'
   labels:
     app: south-ui
   name: south-ui
 spec:
+  host: south-ui-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com
   port:
     targetPort: 8080
   tls:

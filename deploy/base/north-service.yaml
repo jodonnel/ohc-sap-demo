@@ -3,6 +3,9 @@ kind: Service
 metadata:
   name: north
 spec:
+  clusterIP: 172.30.154.188
+  clusterIPs:
+  - 172.30.154.188
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
@@ -16,4 +19,3 @@ spec:
     app: north
   sessionAffinity: None
   type: ClusterIP
-

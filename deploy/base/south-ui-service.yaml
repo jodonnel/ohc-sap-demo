@@ -5,6 +5,9 @@ metadata:
     app: south-ui
   name: south-ui
 spec:
+  clusterIP: 172.30.238.131
+  clusterIPs:
+  - 172.30.238.131
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

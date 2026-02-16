@@ -6,8 +6,10 @@ metadata:
     haproxy.router.openshift.io/disable_cookies: 'true'
     haproxy.router.openshift.io/set-forwarded-headers: append
     haproxy.router.openshift.io/timeout: 3600s
+    openshift.io/host.generated: 'true'
   name: north
 spec:
+  host: north-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com
   port:
     targetPort: 8080
   tls:
@@ -17,4 +19,3 @@ spec:
     name: north
     weight: 100
   wildcardPolicy: None
-
