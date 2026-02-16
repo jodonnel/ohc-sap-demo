@@ -174,15 +174,17 @@
     margin-top: 12px; transition: transform 0.15s;
   }
   .splash .start-btn:active { transform: scale(0.96); }
+  .splash .chloe-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+  .end-screen .chloe-banner { max-width: 300px; width: 100%; border-radius: 12px; margin-top: 8px; }
 </style>
 </head>
 <body>
 
 <!-- Splash / entry -->
 <div class="splash" id="splash">
-  <div style="font-size:64px">🏢</div>
+  <img class="chloe-img" src="https://jodonnel.github.io/ohc-sap-demo/assets/chloe/splash.webp" alt="Chloe">
   <h1>Confront the Wumpus</h1>
-  <p>Badge through 12 zones. Complete tasks. Find the threat. Every action is a real physical security event flowing through SAP Edge Integration Cell on Red Hat OpenShift.</p>
+  <p>Badge through 12 zones. Complete tasks. Find the threat. Every action generates a CloudEvent — flowing live through Red Hat OpenShift.</p>
   <button class="start-btn" id="startBtn">Activate Badge</button>
   <p style="font-size:11px; margin-top:8px">~90 seconds · Complete 3 tasks to prepare, then confront the wumpus</p>
 </div>
@@ -217,6 +219,7 @@
   <div class="end-icon" id="endIcon">🏆</div>
   <div class="end-title" id="endTitle">Building Secured</div>
   <div class="end-stats" id="endStats"></div>
+  <img class="chloe-banner" src="https://jodonnel.github.io/ohc-sap-demo/assets/chloe/endscreen.webp" alt="Chloe — decisions happen north, reality shows up south">
 </div>
 
 <div class="ticker-toggle">
