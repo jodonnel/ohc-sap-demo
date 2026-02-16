@@ -212,6 +212,10 @@ def present_rh():
 def present_util():
     return send_from_directory("/stage", "present-util.html")
 
+@app.get("/present-rail")
+def present_rail():
+    return send_from_directory("/stage", "present-rail.html")
+
 @app.get("/qr-present")
 def qr_present():
     return send_from_directory("/stage", "qr-present.html")

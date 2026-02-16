@@ -737,25 +737,25 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
     <div class="brand fade-up"><span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span></div>
     <div class="mega center fade-up delay-1">Open. Hybrid. Cloud.</div>
     <div class="spacer"></div>
-    <div class="medium center muted fade-up delay-2">Edge Integration for SAP — Your Next OHC Deal</div>
+    <div class="medium center muted fade-up delay-2">Physical Security & Predictive Maintenance for Rail</div>
     <div class="spacer-lg"></div>
     <div class="small fade-up delay-3">Jim O'Donnell · Solutions Architect · Red Hat</div>
   </div>
 
   <!-- 2: Problem -->
   <div class="slide" data-slide="2">
-    <div class="big center fade-up">Every SAP customer has buildings</div>
+    <div class="big center fade-up">Stations. Depots. Yards. Signal houses. ROW infrastructure.</div>
     <div class="spacer"></div>
-    <div class="medium center muted fade-up delay-1">Badge readers. Door sensors. HVAC. Cameras. Fire panels.</div>
+    <div class="medium center muted fade-up delay-1">Thousands of access points, cameras, and sensors across networks that are consolidating fast</div>
     <div class="spacer-lg"></div>
-    <div class="big center fade-up delay-2">None of it runs on OpenShift. <span class="red">Yet.</span></div>
+    <div class="big center fade-up delay-2">Three legacy systems. <span class="red">One OpenShift.</span></div>
     <div class="spacer"></div>
-    <div class="medium center muted fade-up delay-3">SAP Edge Integration Cell changes that — and it requires OpenShift.</div>
+    <div class="medium center muted fade-up delay-3">You already run OpenShift. Now make it the edge integration layer SAP expects.</div>
   </div>
 
   <!-- 3: What if -->
   <div class="slide glow-bg" data-slide="3">
-    <div class="big center fade-up">What if every badge tap,<br>every door sensor,<br>every camera alert…</div>
+    <div class="big center fade-up">What if every depot badge tap,<br>every trackside sensor,<br>every yard intrusion alert…</div>
     <div class="spacer-lg"></div>
     <div class="mega center red fade-up delay-2">…became a business event?</div>
   </div>
@@ -793,7 +793,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
         <div class="spacer"></div>
         <div class="big fade-up delay-1">An edge device</div>
         <div class="spacer-lg"></div>
-        <div class="medium muted fade-up delay-2">Scan the code. Badge through a building.<br>Every tap is a real access control event.</div>
+        <div class="medium muted fade-up delay-2">Scan the code. Badge through a rail facility.<br>Every tap is a real access control event — the same kind running in your depots today.</div>
         <div class="spacer-lg"></div>
         <div class="small mono fade-up delay-3">Badge scans · Door sensors · HVAC · Fire safety · Biometrics · Air quality</div>
       </div>
@@ -1404,22 +1404,27 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
     <div class="medium center muted fade-up delay-2">real physical security events</div>
     <div class="spacer-lg"></div>
     <div class="big center fade-up delay-3">Each one flowed through<br><span class="red">Red Hat OpenShift</span> → <span class="blue">SAP EIC</span> → <span class="blue">BTP</span></div>
+    <div class="spacer"></div>
+    <div class="medium center muted fade-up delay-4">One platform. Every acquired network. Every legacy system consolidated.</div>
   </div>
 
   <!-- 9: BTP -->
   <div class="slide glow-bg" data-slide="9">
+    <div class="big center fade-up">Consolidation has an integration layer</div>
     <div class="spacer-lg"></div>
-    <div class="mega center fade-up">Every SAP Edge deal<br>is an <span class="red">OHC deal.</span></div>
-    <div class="spacer-lg"></div>
-    <div class="mega center fade-up delay-2">Every SAP Edge deal<br>is a <span class="red">Partner deal.</span></div>
-    <div class="spacer-lg"></div>
-    <div class="medium center muted fade-up delay-3">You get pushed on OHC. You get comped on Partners.<br>This is both.</div>
+    <ul class="points fade-up delay-1">
+      <li><span class="icon">🔐</span> Physical security — depot, yard, and station access in SAP for the first time</li>
+      <li><span class="icon">🔧</span> Predictive maintenance — trackside vibration, signal house thermals, switch diagnostics</li>
+      <li><span class="icon">🚨</span> Incident qualification — escalate real threats, suppress noise, before it reaches the SOC</li>
+      <li><span class="icon">📋</span> Consolidation-ready — one integration pattern across every acquired network</li>
+      <li><span class="icon">⚡</span> You already have OpenShift — this is the workload that justifies the investment</li>
+    </ul>
   </div>
 
   <!-- 10: Close -->
   <div class="slide glow-bg" data-slide="10">
     <div class="brand fade-up"><span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span></div>
-    <div class="mega center fade-up delay-1">Let's build this<br>for your customer.</div>
+    <div class="mega center fade-up delay-1">Let's build this<br>on the OpenShift you already run.</div>
     <div class="spacer-lg"></div>
     <div class="medium center muted fade-up delay-2">Jim O'Donnell · jodonnel@redhat.com</div>
     <div class="spacer"></div>
@@ -1453,9 +1458,10 @@ function goTo(n) {
   qrCorner.classList.toggle('visible', current >= 6);
   document.getElementById('payoffCount').innerText = eventCount.toLocaleString();
 
+  // Send a presentation event so the counter stays alive
   fetch('/ingest', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({specversion:'1.0', type:'presenter.slide_change', source:'present-rh',
+    body: JSON.stringify({specversion:'1.0', type:'presenter.slide_change', source:'present',
       data:{slide:current+1, total:totalSlides, title:slides[current].dataset.slide}})
   }).catch(()=>{});
 }
@@ -1580,7 +1586,7 @@ function fetchState() {
   }).catch(()=>{});
 }
 fetchState();
-setInterval(fetchState, 10000);
+setInterval(fetchState, 10000); // refresh every 10s as backstop
 
 connectSSE(); pollTelemetry(); goTo(0);
 </script>
