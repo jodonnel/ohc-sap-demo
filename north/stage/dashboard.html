@@ -246,6 +246,7 @@ html, body { height:100%; background:var(--bg); color:var(--text); font-family:'
 <script>
 // ═══════════════════════════════════════════
 // EVENT CLASS REGISTRY
+// Fixes: #31 — added 'status' class for game/session/action events
 // ═══════════════════════════════════════════
 const CLASSES = {
   access:      { icon:'🔐', color:'var(--green)',  label:'Access' },
@@ -259,55 +260,109 @@ const CLASSES = {
   alert:       { icon:'⚠️', color:'var(--amber)',  label:'Alert' },
   telem:       { icon:'📡', color:'var(--purple)', label:'Telemetry' },
   presenter:   { icon:'🎤', color:'var(--dim)',    label:'Presenter' },
+  status:      { icon:'🎮', color:'var(--dim)',    label:'Status' },
   unknown:     { icon:'📦', color:'var(--muted)',  label:'Other' },
 };
 
-// Event type → human description
+// ═══════════════════════════════════════════
+// EVENT DESCRIPTIONS
+// Fixes: #32 — 13+ new entries for live game event types
+//        #34 — callers now strip ohc.demo. prefix before lookup
+//        Also fixed field name mismatches (badgeId→badgeID, etc.)
+// ═══════════════════════════════════════════
 const DESCRIPTIONS = {
-  'access.onguard.badge_scan': d => `Badge ${d.badgeId||'scan'} at ${d.readerName||d.source||'reader'}`,
-  'access.onguard.door_opened': d => `Door opened — ${d.doorName||'access granted'}`,
-  'access.onguard.door_closed': d => `Door closed — ${d.doorName||'secure'}`,
-  'access.onguard.door_forced': d => `⚠ Door forced open — ${d.doorName||'breach detected'}`,
-  'access.onguard.door_held': d => `Door held open — ${d.doorName||'timeout warning'}`,
-  'access.biometric_enroll': d => `Biometric enrollment — quality ${d.quality||'—'}%`,
-  'incident.credential_anomaly': d => `Lost badge #${d.badgeId||'?'} used — reported lost`,
-  'incident.camera_tamper': d => `Camera tamper detected — ${d.cameraId||'feed interrupted'}`,
-  'incident.brute_force_ssh': d => `SSH brute force — ${d.attempts||'multiple'} attempts from ${d.sourceIp||'unknown'}`,
-  'incident.rogue_device': d => `Rogue device on network — MAC ${d.mac||'unknown'}`,
-  'incident.vault_breach': d => `Vault breach — ${d.method||'unauthorized access'}`,
-  'compliance.fire_equipment': d => `Fire extinguisher check — ${d.status||'inspected'}`,
-  'compliance.air_quality': d => `Air quality — CO₂ ${d.co2||'—'}ppm`,
-  'network.ssh_brute_force': d => `SSH brute force — ${d.attempts||'?'} attempts`,
-  'network.rogue_device': d => `Rogue device — ${d.mac||'unknown MAC'}`,
-  'surveillance.camera_diag': d => `Camera diagnostic — ${d.status||'checked'}`,
-  'building.hvac_override': d => `HVAC override — zone temp ${d.temp||'—'}°F`,
-  'building.privacy_film': d => `Privacy film toggled — ${d.state||'changed'}`,
-  'telemetry.rack_temp': d => `Rack temp — delta ${d.delta||'—'}°F`,
-  'telemetry.ups_diag': d => `UPS check — ${d.runtime||'—'}min runtime, ${d.health||'—'}% health`,
-  'telemetry.air_quality': d => `Air quality — CO₂ ${d.co2||'—'}ppm, VOCs ${d.vocs||'—'}`,
-  'telemetry.battery': d => `Device battery: ${d.level||'—'}%`,
-  'telemetry.locale': d => `Locale detected: ${d.value||'—'}`,
-  'telemetry.network': d => `Network: ${d.type||'—'}`,
-  'maintenance.elevator_check': d => `Elevator maintenance — ${d.status||'checked'}`,
-  'safety.fire_equipment': d => `Fire equipment — gauge ${d.gauge||'checked'}`,
-  'alert.threat_adjacent': d => `Threat detected in adjacent zone`,
-  'presenter.slide_change': d => `Slide ${d.slide||'?'}/${d.total||'?'}`,
-  'access.onguard.badge_scan_denied': d => `ACCESS DENIED — badge at ${d.readerName||'reader'}`,
+  // ── Access / OnGuard ──
+  'access.onguard.badge_scan': d => {
+    const action = d.action || 'scan';
+    const who = d.cardholderName || ('Badge ' + (d.badgeID || d.badgeId || '?'));
+    const where = d.readerName || d.inputPoint || 'reader';
+    if (action === 'ACCESS_DENIED') return '🚫 DENIED — ' + who + ' at ' + where;
+    return who + ' → ' + where;
+  },
+  'access.onguard.door_state': d => {
+    const action = (d.action || '').replace('DOOR_', '').toLowerCase();
+    const where = d.readerName || d.inputPoint || 'panel';
+    return 'Door ' + action + ' — ' + where;
+  },
+  'access.onguard.door_opened': d => 'Door opened — ' + (d.doorName || 'access granted'),
+  'access.onguard.door_closed': d => 'Door closed — ' + (d.doorName || 'secure'),
+  'access.onguard.door_forced': d => '⚠ Door forced open — ' + (d.doorName || 'breach detected'),
+  'access.onguard.door_held': d => 'Door held open — ' + (d.doorName || 'timeout warning'),
+  'access.onguard.badge_scan_denied': d => 'ACCESS DENIED — badge at ' + (d.readerName || 'reader'),
+  'access.biometric_enroll': d => 'Biometric ' + (d.method || 'scan') + ' — quality ' + (d.quality || '—') + '%',
+
+  // ── Incidents ──
+  'incident.credential_anomaly': d => 'Lost badge #' + (d.badgeId || '?') + ' used — reported lost',
+  'incident.camera_tamper': d => 'Camera tamper — ' + (d.cameraId || 'feed interrupted'),
+  'incident.brute_force_ssh': d => 'SSH brute force — ' + (d.attempts || 'many') + ' attempts from ' + (d.sourceIp || 'unknown'),
+  'incident.rogue_device': d => 'Rogue device — MAC ' + (d.mac || 'unknown'),
+  'incident.vault_breach': d => 'Vault breach — ' + (d.method || 'unauthorized'),
+
+  // ── Compliance / Safety ──
+  'compliance.fire_equipment': d => 'Fire extinguisher — ' + (d.status || 'inspected'),
+  'compliance.air_quality': d => 'Air quality — CO₂ ' + (d.co2 || '—') + 'ppm',
+  'safety.fire_equipment': d => 'Fire equipment — gauge ' + (d.gauge || d.status || 'checked'),
+  'maintenance.elevator_check': d => 'JCI OpenBlue — elevator ' + (d.unit || '?') + ' ' + (d.status || 'checked'),
+
+  // ── Network ──
+  'network.ssh_brute_force': d => 'SSH brute force — ' + (d.attempts || '?') + ' attempts',
+  'network.rogue_device': d => 'Rogue device — ' + (d.mac || 'unknown MAC'),
+
+  // ── Surveillance ──
+  'surveillance.camera_diag': d => 'Camera ' + (d.cameraID || d.cameraId || '?') + ' — ' + (d.status || 'checked') + (d.packetLoss ? ' (loss: ' + d.packetLoss + ')' : ''),
+
+  // ── Building ──
+  'building.hvac_override': d => 'HVAC zone ' + (d.zone || '?') + ' — ' + (d.currentTemp || d.temp || '?') + '°F' + (d.threshold ? ' (threshold ' + d.threshold + '°F)' : ''),
+  'building.privacy_film': d => 'Privacy film ' + (d.filmState || d.state || 'toggled') + ' — ' + (d.zone || 'zone'),
+
+  // ── Sensor ──
+  'sensor.environmental': d => (d.metric || 'Sensor') + ': ' + (d.value || '—') + ' in ' + (d.room || 'zone'),
+
+  // ── Telemetry ──
+  'telemetry.rack_temp': d => 'Rack ' + (d.rack || '?') + ' — Δ' + (d.delta || '?') + '°F (' + (d.status || 'nominal') + ')',
+  'telemetry.ups_diag': d => 'UPS ' + (d.model || '?') + ' — ' + (d.runtime_min || d.runtime || '?') + 'min, ' + (d.batteryHealth || d.health || '?') + '% health',
+  'telemetry.air_quality': d => 'Air quality — CO₂ ' + (d.co2_ppm || d.co2 || '?') + 'ppm, VOCs ' + (d.voc_ppb || d.vocs || '?') + 'ppb',
+  'telemetry.battery': d => 'Battery: ' + (d.level || '—'),
+  'telemetry.locale': d => 'Locale: ' + (d.value || '—'),
+  'telemetry.network': d => 'Network: ' + (d.type || '—'),
+
+  // ── Alerts ──
+  'alert.proximity': d => 'Motion anomaly — ' + (d.room || 'nearby') + ' (' + (d.severity || 'warning') + ')',
+  'alert.threat_adjacent': d => 'Threat detected in adjacent zone',
+
+  // ── Game / Session / Actions ──
+  'game.complete': d => 'Game ' + (d.result === 'threat_neutralized' ? 'won 🏆' : 'over') + ' — ' + (d.totalEvents || '?') + ' events in ' + (d.elapsedSeconds || '?') + 's',
+  'session.start': d => 'Session started — badge ' + (d.badgeID || 'activated'),
+  'action.inspect': d => 'Inspected ' + (d.room || 'zone'),
+  'action.listen': d => 'Listening in ' + (d.room || 'zone'),
+
+  // ── Presenter ──
+  'presenter.slide_change': d => 'Slide ' + (d.slide || '?') + '/' + (d.total || '?'),
 };
 
+// ═══════════════════════════════════════════
+// FIX #34: Strip ohc.demo. prefix before DESCRIPTIONS lookup
+// ═══════════════════════════════════════════
 function describeEvent(type, data) {
-  const fn = DESCRIPTIONS[type];
+  const t = (type || '').replace(/^ohc\.demo\./, '');
+  const fn = DESCRIPTIONS[t];
   if (fn) try { return fn(data || {}); } catch(e) {}
-  const short = (type || 'event').split('.').pop().replace(/_/g, ' ');
+  const short = (t || 'event').split('.').pop().replace(/_/g, ' ');
   return short.charAt(0).toUpperCase() + short.slice(1);
 }
 
+// ═══════════════════════════════════════════
+// FIX #34: Strip ohc.demo. prefix before class matching
+// FIX #31: Handle game/session/action → 'status' class
+// ═══════════════════════════════════════════
 function classifyEvent(type) {
   if (!type) return 'unknown';
+  const t = type.replace(/^ohc\.demo\./, '');
   for (const cls of Object.keys(CLASSES)) {
-    if (cls !== 'unknown' && type.includes(cls)) return cls;
+    if (cls !== 'unknown' && cls !== 'status' && t.includes(cls)) return cls;
   }
-  if (type.includes('maintenance') || type.includes('safety')) return 'compliance';
+  if (t.includes('game') || t.includes('session') || t.includes('action')) return 'status';
+  if (t.includes('maintenance') || t.includes('safety')) return 'compliance';
   return 'unknown';
 }
 
