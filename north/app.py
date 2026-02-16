@@ -83,18 +83,18 @@ def ingest():
     if evt_class:
         telemetry["event_classes"][evt_class] = telemetry["event_classes"].get(evt_class, 0) + 1
 
-    if "telemetry.power_state" in evt_type:
+    if "telemetry.battery" in evt_type or "telemetry.power_state" in evt_type:
         try:
-            level = int(payload.get("batteryPct", 0))
+            level = int(payload.get("batteryPct", payload.get("level", 0)))
             telemetry["batteries"].append(level)
         except Exception:
             pass
 
-    if "telemetry.network_env" in evt_type:
-        net_type = payload.get("effectiveType", "unknown")
+    if "telemetry.network" in evt_type or "telemetry.network_env" in evt_type:
+        net_type = payload.get("effectiveType", payload.get("type", "unknown"))
         telemetry["networks"][net_type] = telemetry["networks"].get(net_type, 0) + 1
 
-    if "telemetry.device_identity" in evt_type:
+    if "telemetry.device" in evt_type or "telemetry.device_identity" in evt_type:
         telemetry["devices"] += 1
         # Aggregate by class, tier, OS, browser, GPU, timezone
         for key, field in [
