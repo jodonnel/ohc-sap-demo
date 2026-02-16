@@ -3,9 +3,14 @@ from datetime import datetime, timezone
 import json
 import queue
 import threading
+import signal
+import atexit
 import os
 
 app = Flask(__name__)
+
+STATE_FILE = os.environ.get("STATE_FILE", "/data/state.json")
+FLUSH_INTERVAL = int(os.environ.get("FLUSH_INTERVAL", "10"))
 
 count = 0
 last = {}
@@ -19,15 +24,74 @@ telemetry = {
     "networks": {},
     "locales": {},
     "devices": 0,
-    "device_classes": {},   # phone/tablet/laptop → count
-    "tiers": {},            # high/mid/low → count
-    "os_families": {},      # iOS 18/Android 15/macOS → count
-    "browsers": {},         # Chrome 121/Safari 18 → count
-    "gpus": {},             # Apple GPU/Adreno 730 → count
-    "timezones": {},        # America/New_York → count
-    "profiles": [],         # full device profiles (last 50)
-    "event_classes": {},    # incident/compliance/network/access/... → count
+    "device_classes": {},
+    "tiers": {},
+    "os_families": {},
+    "browsers": {},
+    "gpus": {},
+    "timezones": {},
+    "profiles": [],
+    "event_classes": {},
 }
+
+# ── State persistence ──
+def _snapshot():
+    return {
+        "count": count, "last": last, "event_log": event_log,
+        "telemetry": telemetry,
+    }
+
+def _restore(snap):
+    global count, last, event_log, telemetry
+    count = snap.get("count", 0)
+    last = snap.get("last", {})
+    event_log[:] = snap.get("event_log", [])
+    saved_telem = snap.get("telemetry", {})
+    for k in telemetry:
+        if k in saved_telem:
+            if isinstance(telemetry[k], list):
+                telemetry[k][:] = saved_telem[k]
+            elif isinstance(telemetry[k], dict):
+                telemetry[k].clear()
+                telemetry[k].update(saved_telem[k])
+            else:
+                telemetry[k] = saved_telem[k]
+
+def load_state():
+    try:
+        with open(STATE_FILE, "r") as f:
+            _restore(json.load(f))
+        app.logger.info("Restored state from %s (count=%d)", STATE_FILE, count)
+    except FileNotFoundError:
+        app.logger.info("No state file at %s — starting fresh", STATE_FILE)
+    except Exception as e:
+        app.logger.warning("Failed to load state: %s — starting fresh", e)
+
+def flush_state():
+    try:
+        os.makedirs(os.path.dirname(STATE_FILE) or ".", exist_ok=True)
+        tmp = STATE_FILE + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(_snapshot(), f)
+        os.replace(tmp, STATE_FILE)
+    except Exception as e:
+        app.logger.warning("Failed to flush state: %s", e)
+
+def _flush_loop():
+    while True:
+        threading.Event().wait(FLUSH_INTERVAL)
+        with lock:
+            flush_state()
+
+_flush_thread = threading.Thread(target=_flush_loop, daemon=True)
+
+def _shutdown_flush(*_):
+    with lock:
+        flush_state()
+    app.logger.info("State flushed on shutdown")
+
+atexit.register(_shutdown_flush)
+signal.signal(signal.SIGTERM, lambda *_: (_shutdown_flush(), exit(0)))
 
 def add_cors(resp):
     resp.headers["Access-Control-Allow-Origin"] = "*"
@@ -227,6 +291,29 @@ def present_index():
 @app.get("/qr-present")
 def qr_present():
     return send_from_directory("/stage", "qr-present.html")
+
+@app.post("/reset")
+def reset_state():
+    global count, last
+    with lock:
+        count = 0
+        last = {}
+        event_log.clear()
+        for k in telemetry:
+            if isinstance(telemetry[k], list):
+                telemetry[k].clear()
+            elif isinstance(telemetry[k], dict):
+                telemetry[k].clear()
+            else:
+                telemetry[k] = 0
+        try:
+            os.remove(STATE_FILE)
+        except FileNotFoundError:
+            pass
+    return add_cors(Response(json.dumps({"ok": True, "reset": True}), mimetype="application/json"))
+
+load_state()
+_flush_thread.start()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
