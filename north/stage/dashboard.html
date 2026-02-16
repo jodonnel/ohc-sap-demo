@@ -368,11 +368,16 @@ function describeEvent(type, data) {
 function classifyEvent(type) {
   if (!type) return 'unknown';
   const t = type.replace(/^ohc\.demo\./, '');
+  const prefix = t.split('.')[0];
+  // Prefix-based classification — telemetry.network → telem, not network
+  if (prefix === 'telemetry') return 'telem';
+  if (prefix === 'maintenance' || prefix === 'safety') return 'compliance';
+  if (prefix === 'game' || prefix === 'session' || prefix === 'action') return 'status';
+  if (CLASSES[prefix] && prefix !== 'unknown') return prefix;
+  // Fallback to substring for compound types like access.onguard.badge_scan
   for (const cls of Object.keys(CLASSES)) {
-    if (cls !== 'unknown' && cls !== 'status' && t.includes(cls)) return cls;
+    if (cls !== 'unknown' && cls !== 'status' && cls !== 'telem' && t.includes(cls)) return cls;
   }
-  if (t.includes('game') || t.includes('session') || t.includes('action')) return 'status';
-  if (t.includes('maintenance') || t.includes('safety')) return 'compliance';
   return 'unknown';
 }
 
@@ -579,7 +584,7 @@ function connectSSE() {
 // FETCH INITIAL STATE
 // ═══════════════════════════════════════════
 function fetchState() {
-  fetch('/state').then(r => r.json()).then(d => {
+  return fetch('/state').then(r => r.json()).then(d => {
     if (d.count && d.count > eventCount) {
       eventCount = d.count;
       updateCounters();
@@ -589,7 +594,7 @@ function fetchState() {
 
 // Hydrate feed from /log
 function hydrateFeed() {
-  fetch('/log').then(r => r.json()).then(events => {
+  return fetch('/log').then(r => r.json()).then(events => {
     // events is an array, oldest first
     for (const d of events) {
       const payload = d.payload || d.data || d;
@@ -683,8 +688,8 @@ function startSimulator() {
 // ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
-fetchState();
-hydrateFeed();
+// hydrateFeed first (populates feed + classCounts), then fetchState (authoritative count)
+hydrateFeed().then(() => fetchState());
 pollTelemetry();
 connectSSE();
 </script>

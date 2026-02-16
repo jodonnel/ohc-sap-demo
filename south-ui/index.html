@@ -185,6 +185,7 @@
   <img class="chloe-img" src="https://jodonnel.github.io/ohc-sap-demo/assets/chloe/splash.webp" alt="Chloe">
   <h1>Confront the Wumpus</h1>
   <p>Badge through 12 zones. Complete tasks. Find the threat. Every action generates a CloudEvent — flowing live through Red Hat OpenShift.</p>
+  <p id="chloeTip" style="font-size:12px; color:#60A5FA; font-style:italic; min-height:1.4em"></p>
   <button class="start-btn" id="startBtn">Activate Badge</button>
   <p style="font-size:11px; margin-top:8px">~90 seconds · Complete 3 tasks to prepare, then confront the wumpus</p>
 </div>
@@ -493,7 +494,7 @@ function completeTask(room, task, choiceIdx) {
   });
   roomAlert.style.display = "";
   roomAlert.className = "room-alert safe";
-  roomAlert.innerText = "✅ Task complete — logged and escalated";
+  roomAlert.innerText = "✅ " + CHLOE_QUIPS[Math.floor(Math.random() * CHLOE_QUIPS.length)];
   updateTaskBar();
   setTimeout(() => renderActions(room), 1000);
 }
@@ -809,6 +810,28 @@ function endGame(won) {
 
   renderMinimap();
 }
+
+// ── Chloe tips (splash rotation + task quips) ──
+const CHLOE_TIPS = [
+  "Hi! I'm Chloe. I run live demos on Red Hat OpenShift.",
+  "Every badge tap generates a real CloudEvent.",
+  "The wumpus won't find itself. Get in there.",
+  "Your phone is about to become an edge device.",
+  "Lenel OnGuard protocols. On your phone. Wild, right?",
+  "3 tasks to prepare. Then confront the threat.",
+];
+const CHLOE_QUIPS = [
+  "Nice work. That event just hit the dashboard.",
+  "One down. The ops team thanks you.",
+  "Clean. Now go find that wumpus.",
+  "Chloe approves. Keep moving.",
+  "Logged and shipped. Next room.",
+];
+const tipEl = document.getElementById('chloeTip');
+let tipIdx = 0;
+function rotateTip() { tipEl.textContent = '💬 ' + CHLOE_TIPS[tipIdx++ % CHLOE_TIPS.length]; }
+rotateTip();
+setInterval(rotateTip, 4000);
 
 // ── Start ──
 startBtn.onclick = () => {
