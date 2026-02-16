@@ -1,12 +1,14 @@
 # Component Interaction
 
-## The metaphor
+## The architecture
 
-**North is decision support. South is execution.**
+**North is decision support. South is execution. Both are permanent.**
 
-South is execution — badge taps, sensor readings, HVAC overrides, camera diagnostics. Physical-world actions that generate CloudEvents.
+- **North** — the enterprise integration surface. EIC, BTP, Analytics Cloud, AI Core. Everything that consumes events and turns them into business meaning. Decision support lives here. This boundary is permanent.
+- **South** — device I/O. Badge readers, sensors, cameras, HVAC controllers. Everything that generates or acts on physical-world signals. Execution lives here. This boundary is permanent.
+- **Middle** — the plumbing. Currently Flask on OpenShift. Could be Kafka, Event Mesh, a message bus, or something that doesn't exist yet. It normalizes and routes events between south and north. The middle is replaceable — north and south are not.
 
-North is decision support — it ingests those events, aggregates telemetry, broadcasts via SSE, and surfaces signal through dashboards and presentations so humans (or eventually BTP) can act on it.
+In the demo today, Flask plays the middle role: it ingests CloudEvents from south, aggregates telemetry, broadcasts via SSE, and surfaces signal through dashboards and presentations. When EIC arrives, it slots into north and the middle simplifies.
 
 ## Event flow
 
