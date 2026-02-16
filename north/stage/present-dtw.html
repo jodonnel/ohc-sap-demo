@@ -318,8 +318,8 @@
     Edge → <span class="emphasis">Red Hat OpenShift</span> → <span class="emphasis-gold">SAP Edge Integration Cell</span> → BTP
   </div>
   <div class="hero-sub">
-    This is running right now, on a live Red Hat OpenShift cluster.<br>
-    Not slides. Not a mockup. <strong>A live nervous system.</strong>
+    The OpenShift cluster is running right now — live, not a mockup.<br>
+    Next stop: <strong>SAP Edge Integration Cell</strong> wires it to BTP.
   </div>
   <div class="stats-grid" style="margin-top: 32px;">
     <div class="stat-card">
@@ -557,13 +557,15 @@
       // Network mix
       const nets = Object.entries(t.networks || {});
       if (nets.length) {
-        safeSet('liveNetworks', nets.map(([k,v]) => `${k}:${v}`).join(' · '));
+        const netIcons = {wifi:'📶','4g':'📱','5g':'📱',wired:'🔌'};
+        safeSet('liveNetworks', nets.map(([k,v]) => `${netIcons[k.toLowerCase()]||'🌐'} ${k} ${v}`).join('  '));
       }
 
       // Locales
       const locs = Object.entries(t.locales || {});
       if (locs.length) {
-        safeSet('liveLocales', locs.map(([k,v]) => `${k}:${v}`).join(' · '));
+        const flags = {'en-US':'🇺🇸','en-GB':'🇬🇧',en:'🇺🇸',de:'🇩🇪',fr:'🇫🇷',es:'🇪🇸',ja:'🇯🇵',ko:'🇰🇷',zh:'🇨🇳',pt:'🇧🇷',it:'🇮🇹'};
+        safeSet('liveLocales', locs.map(([k,v]) => `${flags[k]||'🌐'} ${k} ${v}`).join('  '));
       }
     } catch (_) {}
   }
