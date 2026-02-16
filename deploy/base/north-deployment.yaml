@@ -32,7 +32,7 @@ spec:
         name: north
         env:
         - name: GIT_COMMIT
-          value: PLACEHOLDER
+          value: "10fbdd5"
         - name: BUILD_VERSION
           value: "1.0"
         ports:
