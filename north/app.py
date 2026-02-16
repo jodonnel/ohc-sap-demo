@@ -288,6 +288,10 @@ def present_ad():
 def present_index():
     return send_from_directory("/stage", "present-index.html")
 
+@app.get("/present-dtw")
+def present_dtw():
+    return send_from_directory("/stage", "present-dtw.html")
+
 @app.get("/qr-present")
 def qr_present():
     return send_from_directory("/stage", "qr-present.html")
