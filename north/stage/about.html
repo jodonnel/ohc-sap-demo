@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OHC — System Evidence</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rh-red: #EE0000;
+    --rh-black: #151515;
+    --rh-white: #FFFFFF;
+    --rh-gray-100: #F5F5F5;
+    --rh-gray-200: #D2D2D2;
+    --rh-gray-600: #6A6E73;
+    --pulse: #00FF88;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Red Hat Text', sans-serif;
+    background: var(--rh-black);
+    color: var(--rh-white);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+  .panel {
+    max-width: 520px;
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 40px 36px;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--pulse);
+    box-shadow: 0 0 8px rgba(0,255,136,0.4);
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .panel-title {
+    font-family: 'Red Hat Display', sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+  }
+  .panel-title span { color: var(--rh-red); }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .row:last-child { border-bottom: none; }
+  .row-label {
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--rh-gray-600);
+  }
+  .row-value {
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+  }
+  .row-value.green { color: var(--pulse); }
+  .row-value.dim { color: var(--rh-gray-200); }
+  .footer {
+    margin-top: 28px;
+    text-align: center;
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 10px;
+    color: var(--rh-gray-600);
+    letter-spacing: 1px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="panel">
+  <div class="panel-header">
+    <div class="dot"></div>
+    <div class="panel-title"><span>OHC</span> System Evidence</div>
+  </div>
+
+  <div class="row">
+    <div class="row-label">Status</div>
+    <div class="row-value green" id="status">loading...</div>
+  </div>
+  <div class="row">
+    <div class="row-label">Events processed</div>
+    <div class="row-value green" id="events">—</div>
+  </div>
+  <div class="row">
+    <div class="row-label">Last event</div>
+    <div class="row-value dim" id="lastEvent">—</div>
+  </div>
+  <div class="row">
+    <div class="row-label">SSE clients</div>
+    <div class="row-value dim" id="sseClients">—</div>
+  </div>
+  <div class="row">
+    <div class="row-label">Uptime</div>
+    <div class="row-value dim" id="uptime">—</div>
+  </div>
+  <div class="row">
+    <div class="row-label">Pod</div>
+    <div class="row-value dim" id="pod">—</div>
+  </div>
+  <div class="row">
+    <div class="row-label">Build</div>
+    <div class="row-value dim" id="build">—</div>
+  </div>
+  <div class="row">
+    <div class="row-label">Commit</div>
+    <div class="row-value dim" id="commit">—</div>
+  </div>
+
+  <div class="footer">RED HAT OPENSHIFT &middot; LIVE</div>
+</div>
+
+<script>
+(function() {
+  const $ = id => document.getElementById(id);
+
+  async function refresh() {
+    try {
+      const r = await fetch('/about');
+      const d = await r.json();
+      $('status').textContent = 'LIVE';
+      $('events').textContent = d.eventsProcessed.toLocaleString();
+      $('lastEvent').textContent = d.lastEventTime
+        ? new Date(d.lastEventTime).toLocaleTimeString() : 'none yet';
+      $('sseClients').textContent = d.sseClients;
+      $('uptime').textContent = d.uptime;
+      $('pod').textContent = d.pod;
+      $('build').textContent = d.version;
+      $('commit').textContent = d.commit.substring(0, 8);
+    } catch (e) {
+      $('status').textContent = 'UNREACHABLE';
+      $('status').style.color = '#EE0000';
+    }
+  }
+
+  refresh();
+  setInterval(refresh, 5000);
+})();
+</script>
+</body>
+</html>

@@ -30,7 +30,10 @@
     overflow: hidden;
     height: 100vh;
     width: 100vw;
+    opacity: 0;
+    transition: opacity 0.4s ease;
   }
+  body.hydrated { opacity: 1; }
 
   /* ═══ NAV BAR ═══ */
   .nav {
@@ -271,8 +274,9 @@
     <div class="nav-slide" id="slideNum">1 / 10</div>
   </div>
   <div class="nav-right">
-    <div class="nav-counter" id="navCount">0</div>
+    <div class="nav-counter" id="navCount">—</div>
     <div class="nav-counter-label">events</div>
+    <a href="/about-panel" target="_blank" style="color:var(--rh-gray-600);text-decoration:none;font-size:14px;opacity:0.5;margin-left:8px;" title="System evidence">&#9881;</a>
   </div>
 </div>
 
@@ -329,15 +333,15 @@
   </div>
   <div class="stats-grid" style="margin-top: 32px;">
     <div class="stat-card">
-      <div class="stat-value" id="archCount">0</div>
+      <div class="stat-value" id="archCount">—</div>
       <div class="stat-label">Events Ingested</div>
     </div>
     <div class="stat-card">
-      <div class="stat-value" id="archRate">0</div>
+      <div class="stat-value" id="archRate">—</div>
       <div class="stat-label">/sec</div>
     </div>
     <div class="stat-card">
-      <div class="stat-value" id="archDevices">0</div>
+      <div class="stat-value" id="archDevices">—</div>
       <div class="stat-label">Devices</div>
     </div>
   </div>
@@ -364,19 +368,19 @@
 <div class="slide" data-slide="6">
   <div class="section-label">Live — right now</div>
   <div class="hero-text" style="font-size: clamp(48px, 8vw, 96px);">
-    <span id="bigCount" class="emphasis" style="font-family: 'Red Hat Mono', monospace;">0</span>
+    <span id="bigCount" class="emphasis" style="font-family: 'Red Hat Mono', monospace;">—</span>
   </div>
   <div class="stats-wide">
     <div class="stat-wide">
-      <div class="stat-value" id="liveRate">0</div>
+      <div class="stat-value" id="liveRate">—</div>
       <div class="stat-label">events/sec</div>
     </div>
     <div class="stat-wide">
-      <div class="stat-value" id="liveDevices">0</div>
+      <div class="stat-value" id="liveDevices">—</div>
       <div class="stat-label">devices</div>
     </div>
     <div class="stat-wide">
-      <div class="stat-value" id="livePeak">0</div>
+      <div class="stat-value" id="livePeak">—</div>
       <div class="stat-label">peak/sec</div>
     </div>
     <div class="stat-wide">
@@ -399,7 +403,7 @@
   <div class="section-label">Tell — the payoff</div>
   <div class="hero-text">
     You just wired<br>
-    <span id="resultCount" class="emphasis" style="font-family: 'Red Hat Mono';">0</span>
+    <span id="resultCount" class="emphasis" style="font-family: 'Red Hat Mono';">—</span>
     nerve impulses<br>
     to the brain.
   </div>
@@ -585,6 +589,9 @@
       updateCounters();
     } catch (_) {}
 
+    // Reveal — state is hydrated, no more "0" flash
+    document.body.classList.add('hydrated');
+
     // QR code
     try {
       new QRious({
@@ -602,6 +609,8 @@
     setInterval(pollTelemetry, 5000);
   }
 
+  // Failsafe: reveal after 2s even if fetch fails
+  setTimeout(() => document.body.classList.add('hydrated'), 2000);
   init();
 })();
 </script>

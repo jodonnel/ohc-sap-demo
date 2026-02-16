@@ -6,14 +6,22 @@ import threading
 import signal
 import atexit
 import os
+import time
+import subprocess
 
 app = Flask(__name__)
+
+# ── Build metadata ──
+_start_time = time.time()
+_git_commit = os.environ.get("GIT_COMMIT", "dev")
+_build_version = os.environ.get("BUILD_VERSION", "local")
 
 STATE_FILE = os.environ.get("STATE_FILE", "/data/state.json")
 FLUSH_INTERVAL = int(os.environ.get("FLUSH_INTERVAL", "10"))
 
 count = 0
 last = {}
+last_event_time = None
 subscribers = []
 event_log = []
 lock = threading.Lock()
@@ -38,13 +46,14 @@ telemetry = {
 def _snapshot():
     return {
         "count": count, "last": last, "event_log": event_log,
-        "telemetry": telemetry,
+        "telemetry": telemetry, "last_event_time": last_event_time,
     }
 
 def _restore(snap):
-    global count, last, event_log, telemetry
+    global count, last, last_event_time, event_log, telemetry
     count = snap.get("count", 0)
     last = snap.get("last", {})
+    last_event_time = snap.get("last_event_time")
     event_log[:] = snap.get("event_log", [])
     saved_telem = snap.get("telemetry", {})
     for k in telemetry:
@@ -122,12 +131,13 @@ def state():
 
 @app.route("/ingest", methods=["POST","OPTIONS"])
 def ingest():
-    global count, last
+    global count, last, last_event_time
     if request.method == "OPTIONS":
         return add_cors(Response(status=204))
 
     data = request.get_json(silent=True) or {}
     count += 1
+    last_event_time = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     last = {
         "ts": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "payload": data,
@@ -295,6 +305,40 @@ def present_dtw():
 @app.get("/qr-present")
 def qr_present():
     return send_from_directory("/stage", "qr-present.html")
+
+@app.get("/about")
+def about():
+    uptime_s = int(time.time() - _start_time)
+    h, rem = divmod(uptime_s, 3600)
+    m, s = divmod(rem, 60)
+    with lock:
+        sse_clients = len(subscribers)
+    return add_cors(Response(json.dumps({
+        "version": _build_version,
+        "commit": _git_commit,
+        "pod": POD_NAME,
+        "uptime": f"{h}h {m}m {s}s",
+        "uptimeSeconds": uptime_s,
+        "eventsProcessed": count,
+        "lastEventTime": last_event_time,
+        "sseClients": sse_clients,
+        "stateFile": STATE_FILE,
+    }), mimetype="application/json"))
+
+@app.get("/about-panel")
+def about_panel():
+    return send_from_directory("/stage", "about.html")
+
+@app.get("/healthz")
+def healthz():
+    return Response("ok", mimetype="text/plain")
+
+@app.get("/readyz")
+def readyz():
+    ready = count >= 0  # always ready once loaded
+    return Response("ready" if ready else "not ready",
+                    status=200 if ready else 503,
+                    mimetype="text/plain")
 
 @app.post("/reset")
 def reset_state():

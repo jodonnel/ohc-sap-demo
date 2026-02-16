@@ -30,6 +30,11 @@ spec:
         image: registry.access.redhat.com/ubi9/python-311:latest
         imagePullPolicy: Always
         name: north
+        env:
+        - name: GIT_COMMIT
+          value: PLACEHOLDER
+        - name: BUILD_VERSION
+          value: "1.0"
         ports:
         - containerPort: 8080
           protocol: TCP
