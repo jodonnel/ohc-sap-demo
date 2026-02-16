@@ -290,11 +290,13 @@
       <div class="meta" style="margin-top:8px;color:var(--green)">● Live instance</div>
     </div>
     <div class="tile telemetry">
-      <h3>Audience Telemetry</h3>
+      <h3>Audience Devices</h3>
       <div class="meta">Devices: <strong id="tDevices">—</strong></div>
-      <div class="meta">Avg Battery: <strong id="tBattery">—</strong></div>
-      <div class="meta">Networks: <strong id="tNetworks">—</strong></div>
-      <div class="meta">Locales: <strong id="tLocales">—</strong></div>
+      <div class="meta">Classes: <strong id="tClasses">—</strong></div>
+      <div class="meta">OS: <strong id="tOS">—</strong></div>
+      <div class="meta">GPU: <strong id="tGPU">—</strong></div>
+      <div class="meta">Network: <strong id="tNetworks">—</strong></div>
+      <div class="meta">Battery: <strong id="tBattery">—</strong></div>
     </div>
   </div>
 </div>
@@ -419,12 +421,15 @@
   setInterval(calcRate, 1000);
 
   // Telemetry polling
+  const fmt = obj => Object.entries(obj||{}).map(([k,v])=>k+":"+v).join(" · ") || "—";
   setInterval(() => {
     fetch("/telemetry").then(r=>r.json()).then(d=>{
       document.getElementById("tDevices").innerText = d.devices;
-      document.getElementById("tBattery").innerText = d.avgBattery + "%";
-      document.getElementById("tNetworks").innerText = Object.entries(d.networks).map(([k,v])=>k+":"+v).join(" \u00b7 ") || "\u2014";
-      document.getElementById("tLocales").innerText = Object.keys(d.locales).length + " locales";
+      document.getElementById("tClasses").innerText = fmt(d.deviceClasses);
+      document.getElementById("tOS").innerText = fmt(d.osFamilies);
+      document.getElementById("tGPU").innerText = fmt(d.gpus);
+      document.getElementById("tNetworks").innerText = fmt(d.networks);
+      document.getElementById("tBattery").innerText = d.batteryCount ? d.avgBattery + "% avg (" + d.batteryCount + ")" : "—";
     }).catch(()=>{});
   }, 5000);
 </script>

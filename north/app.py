@@ -18,7 +18,14 @@ telemetry = {
     "batteries": [],
     "networks": {},
     "locales": {},
-    "devices": 0
+    "devices": 0,
+    "device_classes": {},   # phone/tablet/laptop → count
+    "tiers": {},            # high/mid/low → count
+    "os_families": {},      # iOS 18/Android 15/macOS → count
+    "browsers": {},         # Chrome 121/Safari 18 → count
+    "gpus": {},             # Apple GPU/Adreno 730 → count
+    "timezones": {},        # America/New_York → count
+    "profiles": [],         # full device profiles (last 50)
 }
 
 def add_cors(resp):
@@ -72,23 +79,49 @@ def ingest():
     payload = data.get("data", data.get("payload", data))
     evt_type = data.get("type", "")
 
-    if "telemetry.battery" in evt_type:
+    if "telemetry.power_state" in evt_type:
         try:
-            level = int(str(payload.get("level", "0")).replace("%", ""))
+            level = int(payload.get("batteryPct", 0))
             telemetry["batteries"].append(level)
         except Exception:
             pass
 
-    if "telemetry.network" in evt_type:
-        net_type = payload.get("type", "unknown")
+    if "telemetry.network_env" in evt_type:
+        net_type = payload.get("effectiveType", "unknown")
         telemetry["networks"][net_type] = telemetry["networks"].get(net_type, 0) + 1
 
-    if "telemetry.locale" in evt_type:
-        locale = payload.get("value", "unknown")
-        telemetry["locales"][locale] = telemetry["locales"].get(locale, 0) + 1
-
-    if "telemetry.device" in evt_type:
+    if "telemetry.device_identity" in evt_type:
         telemetry["devices"] += 1
+        # Aggregate by class, tier, OS, browser, GPU, timezone
+        for key, field in [
+            ("device_classes", "deviceClass"),
+            ("tiers", "tier"),
+            ("os_families", "os"),
+            ("browsers", "browser"),
+            ("gpus", "gpuRenderer"),
+            ("timezones", "timezone"),
+        ]:
+            val = payload.get(field, "unknown")
+            if val and val != "unknown" and val != "unavailable":
+                telemetry[key][val] = telemetry[key].get(val, 0) + 1
+        # Also capture languages as locale
+        langs = payload.get("languages", "")
+        if langs:
+            primary = langs.split(",")[0].strip()
+            telemetry["locales"][primary] = telemetry["locales"].get(primary, 0) + 1
+        # Store full profile (cap at 50)
+        telemetry["profiles"].append({
+            "deviceClass": payload.get("deviceClass"),
+            "os": payload.get("os"),
+            "browser": payload.get("browser"),
+            "tier": payload.get("tier"),
+            "gpu": payload.get("gpuRenderer"),
+            "cores": payload.get("cores"),
+            "memory": payload.get("memoryGB"),
+            "timezone": payload.get("timezone"),
+        })
+        if len(telemetry["profiles"]) > 50:
+            telemetry["profiles"].pop(0)
 
     return add_cors(Response(
         json.dumps({"ok": True, "count": count}),
@@ -133,6 +166,13 @@ def get_telemetry():
         "networks": telemetry["networks"],
         "locales": telemetry["locales"],
         "devices": telemetry["devices"],
+        "deviceClasses": telemetry["device_classes"],
+        "tiers": telemetry["tiers"],
+        "osFamilies": telemetry["os_families"],
+        "browsers": telemetry["browsers"],
+        "gpus": telemetry["gpus"],
+        "timezones": telemetry["timezones"],
+        "profiles": telemetry["profiles"][-10:],
     }), mimetype="application/json"))
 
 @app.get("/log")

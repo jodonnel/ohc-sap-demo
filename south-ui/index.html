@@ -389,52 +389,177 @@ function sendEvent(type, cls, source, data) {
   if (tickerInner.children.length > 50) tickerInner.lastChild.remove();
 }
 
-// ── Device telemetry (passive, no prompts) ──
+// ── Device fingerprint + classification (passive, no prompts) ──
+function classifyDevice() {
+  const ua = navigator.userAgent;
+  const touch = navigator.maxTouchPoints > 0;
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  const noHover = window.matchMedia("(hover: none)").matches;
+  const w = screen.width;
+  const h = screen.height;
+  const short = Math.min(w, h);
+
+  // iPad reports "Macintosh" in UA but has touch
+  const isIPad = /Macintosh/.test(ua) && touch && short >= 768;
+  const isTablet = isIPad || (/iPad|Android/.test(ua) && short >= 600);
+  const isPhone = !isTablet && (coarse && noHover && touch && short < 600);
+
+  if (isTablet) return "tablet";
+  if (isPhone) return "phone";
+  if (touch && coarse) return "phone"; // fallback for touch + coarse
+  return "laptop";
+}
+
+function getGPU() {
+  try {
+    const c = document.createElement("canvas");
+    const gl = c.getContext("webgl") || c.getContext("experimental-webgl");
+    if (!gl) return { vendor: "unknown", renderer: "unknown" };
+    const ext = gl.getExtension("WEBGL_debug_renderer_info");
+    if (!ext) return { vendor: "unknown", renderer: "unknown" };
+    return {
+      vendor: gl.getParameter(ext.UNMASKED_VENDOR_WEBGL),
+      renderer: gl.getParameter(ext.UNMASKED_RENDERER_WEBGL),
+    };
+  } catch (e) { return { vendor: "unknown", renderer: "unknown" }; }
+}
+
+function getDeviceTier(cores, memGB, gpu) {
+  // Classify into performance tiers based on what we can see
+  let score = 0;
+  if (cores >= 8) score += 3; else if (cores >= 6) score += 2; else if (cores >= 4) score += 1;
+  if (memGB >= 8) score += 3; else if (memGB >= 4) score += 2; else if (memGB >= 2) score += 1;
+  if (/Apple GPU|Adreno (7|6)|Mali-G7[89]|GeForce|Radeon/.test(gpu)) score += 2;
+  if (score >= 6) return "high";
+  if (score >= 3) return "mid";
+  return "low";
+}
+
 async function captureDeviceTelemetry() {
-  // Locale
-  const locale = navigator.language || "unknown";
-  sendEvent("telemetry.locale", "telem", "device-profile", {
-    metric: "locale",
-    value: locale,
-    languages: navigator.languages ? navigator.languages.join(",") : locale,
-  });
+  const deviceClass = classifyDevice();
+  const gpu = getGPU();
+  const cores = navigator.hardwareConcurrency || 0;
+  const memGB = navigator.deviceMemory || 0; // Chrome only, 0 if unavailable
+  const tier = getDeviceTier(cores, memGB, gpu.renderer);
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const ua = navigator.userAgent;
 
-  // Screen + device
-  sendEvent("telemetry.device", "telem", "device-profile", {
-    metric: "device",
-    screenW: screen.width,
-    screenH: screen.height,
-    viewportW: window.innerWidth,
-    viewportH: window.innerHeight,
+  // Parse OS from UA
+  let os = "unknown";
+  if (/iPhone|iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 0)) {
+    const m = ua.match(/OS (\d+[_\.]\d+)/); os = "iOS " + (m ? m[1].replace("_", ".") : "?");
+  } else if (/Android/.test(ua)) {
+    const m = ua.match(/Android ([\d.]+)/); os = "Android " + (m ? m[1] : "?");
+  } else if (/Mac OS X/.test(ua)) {
+    const m = ua.match(/Mac OS X ([\d_]+)/); os = "macOS " + (m ? m[1].replace(/_/g, ".") : "?");
+  } else if (/Windows/.test(ua)) {
+    os = "Windows";
+  } else if (/Linux/.test(ua)) {
+    os = "Linux";
+  }
+
+  // Parse browser
+  let browser = "unknown";
+  if (/CriOS/.test(ua)) browser = "Chrome iOS";
+  else if (/Chrome\/(\d+)/.test(ua)) browser = "Chrome " + RegExp.$1;
+  else if (/Safari/.test(ua) && !/Chrome/.test(ua)) {
+    const m = ua.match(/Version\/(\d+)/); browser = "Safari " + (m ? m[1] : "?");
+  } else if (/Firefox\/(\d+)/.test(ua)) browser = "Firefox " + RegExp.$1;
+
+  // ── Single comprehensive device identity event ──
+  sendEvent("telemetry.device_identity", "telem", "device-profile", {
+    metric: "device_identity",
+    deviceClass,
+    os,
+    browser,
+    tier,
+    gpuVendor: gpu.vendor,
+    gpuRenderer: gpu.renderer,
+    cores: cores || "unknown",
+    memoryGB: memGB || "unavailable",
+    platform: navigator.platform,
+    vendor: navigator.vendor,
+    touchPoints: navigator.maxTouchPoints,
+    languages: navigator.languages ? navigator.languages.join(", ") : navigator.language,
+    timezone: tz,
+    utcOffset: new Date().getTimezoneOffset(),
+    online: navigator.onLine,
+    cookiesEnabled: navigator.cookieEnabled,
+    p3Display: window.matchMedia("(color-gamut: p3)").matches,
+    hdr: window.matchMedia("(dynamic-range: high)").matches,
+    darkMode: window.matchMedia("(prefers-color-scheme: dark)").matches,
+    reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     dpr: window.devicePixelRatio,
-    cores: navigator.hardwareConcurrency || "unknown",
-    darkMode: window.matchMedia("(prefers-color-scheme:dark)").matches,
-    touch: "ontouchstart" in window,
   });
 
-  // Network
+  // ── Network environment (opportunistic — Chrome Android) ──
   if (navigator.connection) {
     const c = navigator.connection;
-    sendEvent("telemetry.network", "telem", "device-profile", {
-      metric: "network",
-      type: c.effectiveType || "unknown",
-      downlink: c.downlink || "unknown",
-      rtt: c.rtt || "unknown",
+    sendEvent("telemetry.network_env", "telem", "device-profile", {
+      metric: "network_environment",
+      effectiveType: c.effectiveType || "unknown",
+      downlinkMbps: c.downlink || "unavailable",
+      rttMs: c.rtt || "unavailable",
       saveData: c.saveData || false,
     });
   }
 
-  // Battery
+  // ── Power state (opportunistic — Chrome) ──
   if (navigator.getBattery) {
     try {
       const b = await navigator.getBattery();
-      sendEvent("telemetry.battery", "telem", "device-profile", {
-        metric: "battery",
-        level: Math.round(b.level * 100) + "%",
+      sendEvent("telemetry.power_state", "telem", "device-profile", {
+        metric: "power_state",
+        batteryPct: Math.round(b.level * 100),
         charging: b.charging,
+        chargingTime: b.chargingTime === Infinity ? "not charging" : b.chargingTime + "s",
+        dischargeTime: b.dischargingTime === Infinity ? "unknown" : Math.round(b.dischargingTime / 60) + " min",
       });
     } catch (e) {}
   }
+
+  // ── Page load performance (cross-platform) ──
+  try {
+    const nav = performance.getEntriesByType("navigation")[0];
+    if (nav) {
+      sendEvent("telemetry.page_perf", "telem", "device-profile", {
+        metric: "page_load",
+        dnsMs: Math.round(nav.domainLookupEnd - nav.domainLookupStart),
+        tcpMs: Math.round(nav.connectEnd - nav.connectStart),
+        tlsMs: Math.round(nav.secureConnectionStart > 0 ? nav.connectEnd - nav.secureConnectionStart : 0),
+        ttfbMs: Math.round(nav.responseStart - nav.requestStart),
+        loadMs: Math.round(nav.loadEventEnd - nav.startTime),
+        transferBytes: nav.transferSize || 0,
+        protocol: nav.nextHopProtocol || "unknown",
+      });
+    }
+  } catch (e) {}
+
+  // ── Storage estimate (cross-platform) ──
+  if (navigator.storage && navigator.storage.estimate) {
+    try {
+      const est = await navigator.storage.estimate();
+      sendEvent("telemetry.storage", "telem", "device-profile", {
+        metric: "storage",
+        quotaGB: (est.quota / (1024**3)).toFixed(1),
+        usedMB: (est.usage / (1024**2)).toFixed(1),
+      });
+    } catch (e) {}
+  }
+
+  // ── Audio hardware fingerprint (cross-platform) ──
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    sendEvent("telemetry.audio_hw", "telem", "device-profile", {
+      metric: "audio_hardware",
+      sampleRate: ac.sampleRate,
+      maxChannels: ac.destination.maxChannelCount,
+      state: ac.state,
+    });
+    ac.close();
+  } catch (e) {}
+
+  console.log(`[telemetry] ${deviceClass} | ${os} | ${browser} | tier:${tier} | gpu:${gpu.renderer}`);
 }
 
 // ── Task system ──
