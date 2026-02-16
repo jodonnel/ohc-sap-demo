@@ -13,27 +13,22 @@ In the demo today, Flask plays the middle role: it ingests CloudEvents from sout
 ## Event flow
 
 ```
-┌─────────────────┐      POST /ingest       ┌─────────────────────────────┐
-│   South (edge)  │ ──────────────────────→  │        North (brain)        │
-│                 │                          │                             │
-│  south-ui/      │   CloudEvent v1.0        │  app.py                     │
-│  index.html     │   {specversion, type,    │  ├─ count, telemetry, log   │
-│                 │    source, id, time,     │  ├─ SSE broadcast           │
-│  Badge taps     │    eventclass, data}     │  ├─ /data/state.json (PVC)  │
-│  Sensor reads   │                          │  └─ all routes              │
-│  Task actions   │                          │                             │
-└─────────────────┘                          │  Consumers:                 │
-                                             │  ├─ stage/dashboard.html    │
-                                             │  ├─ stage/present*.html     │
-                                             │  └─ stage/about.html        │
-                                             └─────────────────────────────┘
+South (execution)              Middle (plumbing)              North (decision support)
+─────────────────              ─────────────────              ───────────────────────
+
+south-ui/index.html            app.py                         stage/dashboard.html
+                                                              stage/present*.html
+Badge taps          ──→        POST /ingest          ──→      stage/about.html
+Sensor reads         CloudEvent  ├─ count, telemetry   SSE
+Task actions         v1.0        ├─ /data/state.json          ↓ (future)
+Device telemetry                 └─ SSE broadcast             SAP EIC → BTP
 ```
 
 ## Components
 
-### south-ui/index.html — "Confront the Wumpus"
+### south-ui/index.html — "Confront the Wumpus" (South)
 
-The edge client. A mobile-first game where players badge through a 12-room building, complete compliance tasks, and confront a threat. Every action fires a CloudEvent to `POST /ingest`.
+The execution layer. A mobile-first game where players badge through a 12-room building, complete compliance tasks, and confront a threat. Every action fires a CloudEvent to `POST /ingest`.
 
 **Generates:**
 - `access.onguard.badge_scan` — Lenel OnGuard badge events (grant/deny)
@@ -45,28 +40,30 @@ The edge client. A mobile-first game where players badge through a 12-room build
 
 **Chloe layer:** Room-entry intel, task debriefs, proximity commentary, rotating tips.
 
-### north/app.py — Flask event aggregator
+### north/app.py — Flask event aggregator (Middle)
 
-The brain. Single Python process handling:
+The plumbing. Single Python process handling:
 
 - **Ingestion** (`/ingest`) — accepts CloudEvents, increments counters, aggregates telemetry
-- **SSE** (`/events`) — broadcasts events to all connected dashboard/presentation clients
+- **SSE** (`/events`) — broadcasts events to all connected north-side consumers
 - **State** (`/state`, `/telemetry`, `/log`) — JSON APIs for current state
 - **Persistence** — flushes to `/data/state.json` every 10s, restores on startup
 - **Evidence** (`/about`, `/about-panel`) — system metadata for credibility
 - **Health** (`/healthz`, `/readyz`) — standard probes
 - **Short URLs** (`/go/<alias>`) — redirect aliases for sharing
 
-### stage/dashboard.html — Operations dashboard
+This is the replaceable layer. When EIC and Kafka arrive, app.py simplifies — it stops being the event bus and becomes a thin adapter.
 
-North-side consumer. Connects to `/events` (SSE) and `/telemetry` (polling). Shows:
+### stage/dashboard.html — Operations dashboard (North)
+
+Decision support consumer. Connects to `/events` (SSE) and `/telemetry` (polling). Shows:
 
 - Live event counter (hero number)
 - Event feed (last N events, color-coded by class)
 - Telemetry breakdowns (networks, locales, device classes)
 - Event class distribution
 
-### stage/present*.html — Presentations
+### stage/present*.html — Presentations (North)
 
 Six audience-specific slide decks + a selector page. Each connects to SSE for a live event counter in the nav bar. The counter is the proof — "this number is going up because people in this room are generating events right now."
 
@@ -79,26 +76,26 @@ Six audience-specific slide decks + a selector page. Each connects to SSE for a 
 | `present-rail.html` | Rail / transport vertical |
 | `present-ad.html` | Active Directory / identity vertical |
 
-### stage/about.html — Evidence panel
+### stage/about.html — Evidence panel (North)
 
 Credibility anchor. Live-refreshing display of: version, commit, pod name, uptime, events processed, last event time, SSE client count. Linked from the gear icon in present-dtw nav bar.
 
 ## Deployment
 
-Everything runs in one pod on OpenShift. HTML files are mounted via ConfigMaps:
+Today, middle and north are colocated in one pod on OpenShift. HTML files are mounted via ConfigMaps:
 
-| ConfigMap | Mount | Source |
-|-----------|-------|--------|
-| `north-app` | `/opt/app` | `north/app.py` |
-| `north-stage-dashboard` | `/stage` | `north/stage/*` |
-| `south-ui-html` | `/south-ui` | `south-ui/index.html` |
-| `north-assets` | `/assets` | `north/assets/*` |
+| ConfigMap | Mount | Layer | Source |
+|-----------|-------|-------|--------|
+| `south-ui-html` | `/south-ui` | South | `south-ui/index.html` |
+| `north-app` | `/opt/app` | Middle | `north/app.py` |
+| `north-stage-dashboard` | `/stage` | North | `north/stage/*` |
+| `north-assets` | `/assets` | — | `north/assets/*` |
 
 State persists on a 1Gi PVC mounted at `/data`.
 
 ## CloudEvent structure
 
-Every event follows [CloudEvents v1.0](https://cloudevents.io/):
+The contract between south and north. Every event follows [CloudEvents v1.0](https://cloudevents.io/):
 
 ```json
 {
@@ -112,7 +109,7 @@ Every event follows [CloudEvents v1.0](https://cloudevents.io/):
 }
 ```
 
-The `eventclass` field drives dashboard color-coding and breakdown aggregation:
+The `eventclass` field drives north-side color-coding and breakdown aggregation:
 - `access` — badge scans, door state
 - `telem` — device telemetry, sensor readings
 - `compliance` — maintenance, safety tasks

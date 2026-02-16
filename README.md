@@ -2,49 +2,57 @@
 
 Live interactive demo: physical security events flowing from edge devices through Red Hat OpenShift to SAP BTP via Edge Integration Cell.
 
+## Architecture
+
+**North is decision support. South is execution. Both are permanent.**
+
+```
+South (execution)          Middle (plumbing)              North (decision support)
+─────────────────          ─────────────────              ───────────────────────
+Phone / badge reader  →    Flask on OpenShift    →        Dashboard, presentations
+Sensors, cameras           (event ingestion, SSE,         Evidence panel
+HVAC, biometrics            telemetry, state)             ↓ (future)
+                                  ↓                       SAP EIC → BTP
+                            /data/state.json (PVC)
+```
+
+- **South** — device I/O. Everything that generates or acts on physical-world signals. Permanent boundary.
+- **North** — enterprise integration surface. EIC, BTP, dashboards. Everything that consumes events and turns them into business meaning. Permanent boundary.
+- **Middle** — replaceable. Currently Flask on OpenShift. Could be Kafka, Event Mesh, or whatever normalizes and routes events between south and north.
+
+[View the animated architecture diagram](https://jodonnel.github.io/ohc-sap-demo/architecture.html)
+
 ## Screenshots
 
 <p align="center">
   <img src="docs/img/wumpus-game.png" alt="Wumpus mobile game" width="220">
 </p>
 
-## Architecture
-
-```
-Phone (edge) → POST /ingest → Flask on OpenShift → SSE → Dashboard / Presentations
-                                    ↓
-                              /data/state.json (PVC — survives pod restarts)
-```
-
-Single pod (`north`) serves everything: event ingestion, SSE broadcast, game, dashboard, presentations, evidence panel. No separate web server — just Flask on UBI9.
-
-[View the animated architecture diagram](https://jodonnel.github.io/ohc-sap-demo/architecture.html)
-
 ## Endpoints
 
-| Path | Description |
-|------|-------------|
-| `/play` | Mobile wumpus game (Lenel OnGuard badge events + Chloe guide) |
-| `/stage` | Operations dashboard (event counter, telemetry, breakdowns) |
-| `/present` | SAP seller presentation (10 slides, live SSE counter) |
-| `/present-rh` | Red Hat seller presentation (OHC + Partner comp) |
-| `/present-dtw` | Demo to Win presentation (nervous system metaphor) |
-| `/present-util` | Utilities/Energy vertical presentation |
-| `/present-rail` | Rail/Transport vertical presentation |
-| `/present-ad` | Active Directory / identity vertical presentation |
-| `/present-index` | Presentation selector |
-| `/about-panel` | System evidence panel (uptime, commit, SSE clients) |
-| `/ingest` | POST endpoint for CloudEvents |
-| `/events` | Server-Sent Events stream |
-| `/state` | Current state JSON |
-| `/telemetry` | Aggregated device telemetry |
-| `/log` | Event history (last 200) |
-| `/about` | System metadata JSON |
-| `/healthz` | Liveness probe |
-| `/readyz` | Readiness probe |
-| `/go/<alias>` | Short URL redirects (`/go/play`, `/go/dtw`, `/go/stage`, etc.) |
-| `/go` | List all short URLs |
-| `/reset` | POST — reset all state |
+| Path | Description | Layer |
+|------|-------------|-------|
+| `/play` | Mobile wumpus game (Lenel OnGuard badge events + Chloe guide) | South |
+| `/stage` | Operations dashboard (event counter, telemetry, breakdowns) | North |
+| `/present` | SAP seller presentation (10 slides, live SSE counter) | North |
+| `/present-rh` | Red Hat seller presentation (OHC + Partner comp) | North |
+| `/present-dtw` | Demo to Win presentation (nervous system metaphor) | North |
+| `/present-util` | Utilities/Energy vertical presentation | North |
+| `/present-rail` | Rail/Transport vertical presentation | North |
+| `/present-ad` | Active Directory / identity vertical presentation | North |
+| `/present-index` | Presentation selector | North |
+| `/about-panel` | System evidence panel (uptime, commit, SSE clients) | North |
+| `/ingest` | POST endpoint for CloudEvents | Middle |
+| `/events` | Server-Sent Events stream | Middle |
+| `/state` | Current state JSON | Middle |
+| `/telemetry` | Aggregated device telemetry | Middle |
+| `/log` | Event history (last 200) | Middle |
+| `/about` | System metadata JSON | Middle |
+| `/healthz` | Liveness probe | Middle |
+| `/readyz` | Readiness probe | Middle |
+| `/go/<alias>` | Short URL redirects (`/go/play`, `/go/dtw`, `/go/stage`, etc.) | Middle |
+| `/go` | List all short URLs | Middle |
+| `/reset` | POST — reset all state | Middle |
 
 ## Running locally
 
@@ -69,10 +77,10 @@ oc kustomize deploy/overlays/qa/ | oc apply -f -
 ## Stack
 
 - **Red Hat OpenShift** (RHDP sandbox on AWS)
-- **Python/Flask** (single pod — event ingestion, SSE, telemetry, all routes)
+- **Python/Flask** (middle layer — event ingestion, SSE, telemetry, routing)
 - **Vanilla HTML/CSS/JS** (no frameworks)
-- **Server-Sent Events** (real-time push to dashboard + presentations)
-- **CloudEvents v1.0** (structured event payloads)
+- **Server-Sent Events** (real-time push to north-side consumers)
+- **CloudEvents v1.0** (structured event payloads — the contract between south and north)
 - **Persistent state** (JSON flush to PVC every 10s, SIGTERM handler)
 - **Red Hat fonts** (Red Hat Display, Red Hat Text, Red Hat Mono)
 
@@ -80,9 +88,11 @@ oc kustomize deploy/overlays/qa/ | oc apply -f -
 
 ```
 .
-├── north/                 # Flask service (the only pod)
-│   ├── app.py             # Event ingestion, SSE, telemetry, all routes
-│   ├── stage/             # Dashboard, presentations, evidence panel, QR page
+├── south-ui/              # South: execution layer
+│   └── index.html         # Mobile wumpus game (device I/O simulation)
+├── north/                 # Middle + North (today colocated in one pod)
+│   ├── app.py             # Middle: event ingestion, SSE, telemetry, routing
+│   ├── stage/             # North: dashboards, presentations, evidence panel
 │   │   ├── dashboard.html
 │   │   ├── present.html, present-rh.html, present-dtw.html, ...
 │   │   ├── present-index.html
@@ -90,13 +100,13 @@ oc kustomize deploy/overlays/qa/ | oc apply -f -
 │   │   └── qr.html
 │   ├── assets/            # Static assets (mounted via ConfigMap)
 │   └── Containerfile      # UBI9/python-311 container build
-├── south-ui/              # Mobile wumpus game HTML
-│   └── index.html         # Served by north at /play (via ConfigMap)
 ├── deploy/                # GitOps-ready kustomize manifests
 │   ├── base/              # Cluster-agnostic resources
 │   └── overlays/qa/       # QA environment patches
-├── docs/                  # GitHub Pages (architecture diagram, Chloe assets)
-│   ├── architecture.html
+├── docs/                  # GitHub Pages + architecture docs
+│   ├── architecture.html  # Animated architecture diagram
+│   ├── components.md      # Component interaction model
+│   ├── adr/               # Architecture Decision Records
 │   └── assets/chloe/      # Chloe character images (WebP)
 ├── transport/             # Artifact sync scripts
 └── .github/               # CI, templates, community docs

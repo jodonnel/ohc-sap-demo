@@ -6,7 +6,7 @@
 
 ## Context
 
-The Flask app stored all state (event count, telemetry, event log) in memory. Any pod restart — voluntary (rollout) or involuntary (OOM, node drain) — reset the demo to zero. During a live presentation, losing 300+ events mid-demo is unacceptable.
+The middle layer (Flask) stored all state (event count, telemetry, event log) in memory. Any pod restart — voluntary (rollout) or involuntary (OOM, node drain) — reset the demo to zero. During a live presentation, losing 300+ events mid-demo is unacceptable.
 
 Options considered:
 
