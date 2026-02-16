@@ -1,0 +1,94 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "building ops",
+      "intents": [
+        {
+          "name": "StatusIntent",
+          "slots": [],
+          "samples": [
+            "status report",
+            "give me a status report",
+            "what's the status",
+            "how's the nervous system",
+            "nervous system status",
+            "what's happening",
+            "how are things",
+            "report",
+            "sitrep",
+            "how many events",
+            "what's the count",
+            "how many nerve impulses"
+          ]
+        },
+        {
+          "name": "DevicesIntent",
+          "slots": [],
+          "samples": [
+            "how many devices",
+            "how many devices are connected",
+            "how many nerve endings",
+            "device count",
+            "how many phones",
+            "who's connected",
+            "how many players"
+          ]
+        },
+        {
+          "name": "RateIntent",
+          "slots": [],
+          "samples": [
+            "what's the event rate",
+            "what's the rate",
+            "how fast are events coming in",
+            "events per second",
+            "how busy is it",
+            "throughput"
+          ]
+        },
+        {
+          "name": "LockdownIntent",
+          "slots": [],
+          "samples": [
+            "initiate lockdown",
+            "lock it down",
+            "lockdown",
+            "lock down the building",
+            "secure the building",
+            "emergency lockdown",
+            "send a lockdown command"
+          ]
+        },
+        {
+          "name": "ResetIntent",
+          "slots": [],
+          "samples": [
+            "reset the count",
+            "reset",
+            "zero the count",
+            "start over",
+            "clear the events",
+            "reset the nervous system"
+          ]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        }
+      ],
+      "types": []
+    }
+  }
+}

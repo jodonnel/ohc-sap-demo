@@ -387,6 +387,9 @@ def reset_state():
             pass
     return add_cors(Response(json.dumps({"ok": True, "reset": True}), mimetype="application/json"))
 
+from alexa_skill import alexa_bp
+app.register_blueprint(alexa_bp)
+
 load_state()
 _flush_thread.start()
 

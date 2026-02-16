@@ -271,6 +271,7 @@ const CLASSES = {
   telem:       { icon:'📡', color:'var(--purple)', label:'Telemetry' },
   presenter:   { icon:'🎤', color:'var(--dim)',    label:'Presenter' },
   status:      { icon:'🎮', color:'var(--dim)',    label:'Status' },
+  command:     { icon:'⬇️', color:'var(--green)',  label:'Motor Command' },
   unknown:     { icon:'📦', color:'var(--muted)',  label:'Other' },
 };
 
@@ -348,6 +349,9 @@ const DESCRIPTIONS = {
 
   // ── Presenter ──
   'presenter.slide_change': d => 'Slide ' + (d.slide || '?') + '/' + (d.total || '?'),
+
+  // ── Motor Commands (north→south) ──
+  'command.lockdown': d => '🚨 Lockdown initiated via ' + (d.initiated_by || 'unknown').replace(/_/g, ' '),
 };
 
 // ═══════════════════════════════════════════
@@ -373,6 +377,7 @@ function classifyEvent(type) {
   if (prefix === 'telemetry') return 'telem';
   if (prefix === 'maintenance' || prefix === 'safety') return 'compliance';
   if (prefix === 'game' || prefix === 'session' || prefix === 'action') return 'status';
+  if (prefix === 'command') return 'command';
   if (CLASSES[prefix] && prefix !== 'unknown') return prefix;
   // Fallback to substring for compound types like access.onguard.badge_scan
   for (const cls of Object.keys(CLASSES)) {
