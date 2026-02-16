@@ -276,11 +276,8 @@
       <div class="meta" id="lastTs"></div>
     </div>
     <div class="tile transport">
-      <h3>Transport</h3>
-      <div class="meta"><strong>Server-Sent Events</strong> (push)</div>
-      <div class="meta" style="margin-top:8px">Endpoint: <strong>/events</strong></div>
-      <div class="meta">Format: <strong>CloudEvents JSON</strong></div>
-      <div class="meta">Keepalive: <strong>15s</strong></div>
+      <h3>Event Classes</h3>
+      <div class="meta" id="evClasses" style="line-height:1.8">Waiting for events…</div>
     </div>
     <div class="tile runtime">
       <h3>Runtime</h3>
@@ -430,6 +427,14 @@
       document.getElementById("tGPU").innerText = fmt(d.gpus);
       document.getElementById("tNetworks").innerText = fmt(d.networks);
       document.getElementById("tBattery").innerText = d.batteryCount ? d.avgBattery + "% avg (" + d.batteryCount + ")" : "—";
+      // Event classes
+      const classIcons = {access:"🔐",incident:"🚨",compliance:"📋",network:"🌐",surveillance:"📹",building:"🏢",physical:"👣",telemetry:"📊",sensor:"🌡️",alert:"⚠️",telem:"📡",tap:"🪪",status:"✅",game:"🎮"};
+      const ec = d.eventClasses || {};
+      const classHtml = Object.entries(ec).sort((a,b)=>b[1]-a[1]).map(([k,v])=> {
+        const icon = classIcons[k] || "•";
+        return "<strong>" + icon + " " + k + "</strong>: " + v;
+      }).join("<br>") || "Waiting for events…";
+      document.getElementById("evClasses").innerHTML = classHtml;
     }).catch(()=>{});
   }, 5000);
 </script>

@@ -26,6 +26,7 @@ telemetry = {
     "gpus": {},             # Apple GPU/Adreno 730 → count
     "timezones": {},        # America/New_York → count
     "profiles": [],         # full device profiles (last 50)
+    "event_classes": {},    # incident/compliance/network/access/... → count
 }
 
 def add_cors(resp):
@@ -78,6 +79,9 @@ def ingest():
     # Telemetry aggregation
     payload = data.get("data", data.get("payload", data))
     evt_type = data.get("type", "")
+    evt_class = data.get("eventclass", "")
+    if evt_class:
+        telemetry["event_classes"][evt_class] = telemetry["event_classes"].get(evt_class, 0) + 1
 
     if "telemetry.power_state" in evt_type:
         try:
@@ -173,6 +177,7 @@ def get_telemetry():
         "gpus": telemetry["gpus"],
         "timezones": telemetry["timezones"],
         "profiles": telemetry["profiles"][-10:],
+        "eventClasses": telemetry["event_classes"],
     }), mimetype="application/json"))
 
 @app.get("/log")

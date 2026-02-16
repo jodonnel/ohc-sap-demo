@@ -183,7 +183,7 @@
   <h1>Confront the Wumpus</h1>
   <p>Badge through 12 zones. Complete tasks. Find the threat. Every action generates a CloudEvent — access control, building sensors, telemetry — flowing through Red Hat OpenShift in real time.</p>
   <button class="start-btn" id="startBtn">Activate Badge</button>
-  <p style="font-size:11px; margin-top:8px">~90 seconds · Complete 3 tasks to prepare, then confront the wumpus</p>
+  <p style="font-size:11px; margin-top:8px">~2 minutes · Collect evidence from 3 zones, then confront the intruder</p>
 </div>
 
 <!-- Main game -->
@@ -197,7 +197,7 @@
     <div class="task-pip" id="pip0"></div>
     <div class="task-pip" id="pip1"></div>
     <div class="task-pip" id="pip2"></div>
-    <span class="task-label"><strong id="tasksDone">0</strong>/3 tasks — <span id="taskHint">complete tasks to confront the wumpus</span></span>
+    <span class="task-label"><strong id="tasksDone">0</strong>/3 tasks — <span id="taskHint">collect evidence to gain clearance</span></span>
   </div>
 
   <div class="room-display" id="roomDisplay">
@@ -237,63 +237,127 @@
 // ── Config ──
 const INGEST_URL = "/ingest"; // north-side endpoint
 const ROOMS = [
-  { id: 0,  icon: "🏢", name: "Lobby",         desc: "Main entrance. Visitor kiosk and security desk.", adj: [1, 4] },
-  { id: 1,  icon: "🛗", name: "Elevator Bay",   desc: "Three elevators. Floor indicator stuck on 3.", adj: [0, 2, 5],
-    task: { icon: "📋", label: "Check elevator log",
-      prompt: "Maintenance log shows elevator 2 serviced 47 days ago — overdue. Flag it?",
-      choices: ["🚩 Flag overdue", "✅ Looks fine"],
-      evType: "maintenance.elevator_check", evSrc: "elevator-ctrl-bay-1",
-      evData: { system: "OTIS-SeriesR", unit: "ELEV-02", lastService: "2025-12-30", intervalDays: 30, status: "OVERDUE" }}},
-  { id: 2,  icon: "☕", name: "Break Room",      desc: "Coffee machine humming. Badge reader on the inner door.", adj: [1, 3, 6],
-    task: { icon: "🔥", label: "Check fire extinguisher",
-      prompt: "Extinguisher gauge reads yellow zone. Pressure may be low.",
-      choices: ["🔴 Report to safety", "🟢 Gauge is fine"],
-      evType: "safety.fire_equipment", evSrc: "safety-inspector-breakroom",
-      evData: { equipment: "FE-BR-001", type: "ABC dry chemical", gauge: "yellow", lastInspection: "2025-08-15", status: "NEEDS_SERVICE" }}},
-  { id: 3,  icon: "📦", name: "Loading Dock",    desc: "External access. Camera feeds look grainy.", adj: [2, 7],
+  { id: 0,  icon: "🏢", name: "Lobby",         desc: "Main entrance. The after-hours alarm tripped 12 minutes ago. Security desk is unmanned.", adj: [1, 4] },
+  { id: 1,  icon: "🛗", name: "Elevator Bay",   desc: "Three elevators. Floor indicator on car 2 shows it was called to B1 at 02:14 AM.", adj: [0, 2, 5],
+    task: { icon: "📋", label: "Pull access logs",
+      prompt: "Elevator card reader log: badge #4471 used at 02:14 — but that badge was reported lost last Tuesday. Revoke or trace?",
+      choices: ["🚫 Revoke badge now", "🔍 Trace recent usage"],
+      evClass: "incident", evType: "incident.credential_anomaly", evSrc: "lenel-panel-elev-bay",
+      evData: { system: "Lenel OnGuard", badgeID: 4471, readerName: "RDR-ELEV-BAY-2", lastReportedStatus: "LOST",
+        eventType: 5, eventDescription: "Badge reported lost — used after-hours", panelID: 11,
+        accessLog: [{time: "02:14:03", door: "Elevator Bay"}, {time: "02:16:41", door: "Loading Dock"}],
+        severity: "HIGH", incidentID: "INC-2026-0217" }}},
+  { id: 2,  icon: "☕", name: "Break Room",      desc: "Coffee machine still warm. Someone was here recently. A USB drive sits on the counter.", adj: [1, 3, 6],
+    task: { icon: "💾", label: "Examine USB drive",
+      prompt: "Unmarked USB-C drive found on the counter. Policy says don't plug unknown media in. Bag it as evidence or scan it?",
+      choices: ["🔒 Bag as evidence", "⚡ Scan in sandbox"],
+      evClass: "compliance", evType: "compliance.removable_media", evSrc: "security-sweep-breakroom",
+      evData: { mediaType: "USB-C flash drive", brand: "unknown", capacity: "unknown", labelText: "none",
+        chainOfCustody: "photographed in-situ", locationFound: "Break Room counter",
+        policyRef: "SEC-POL-014: Removable Media Handling", complianceAction: "QUARANTINE",
+        forensicPriority: "MEDIUM" }}},
+  { id: 3,  icon: "📦", name: "Loading Dock",    desc: "External door ajar. Camera 7 feed is static. Fresh boot prints on the wet floor.", adj: [2, 7],
     task: { icon: "📹", label: "Review camera feed",
-      prompt: "Camera 7 feed degraded — 40% packet loss. Tampering or hardware failure?",
-      choices: ["🚨 Escalate to SOC", "🔧 Reset camera"],
-      evType: "surveillance.camera_diag", evSrc: "vms-camera-dock-7",
-      evData: { cameraID: "CAM-DOCK-07", model: "Axis P3245-V", packetLoss: "40%", firmware: "10.12.114", status: "DEGRADED" }}},
-  { id: 4,  icon: "🖥️", name: "NOC",            desc: "Network Operations Center. Wall of screens.", adj: [0, 5, 8],
-    task: { icon: "🌡️", label: "Check HVAC alerts",
-      prompt: "Zone 4 reading 81°F — above 78°F threshold. Server inlet temps rising.",
-      choices: ["❄️ Force cooling override", "⏳ Wait and monitor"],
-      evType: "building.hvac_override", evSrc: "bms-hvac-zone-4",
-      evData: { zone: 4, currentTemp: 81.2, threshold: 78.0, setpoint: 72.0, mode: "COOLING", status: "THRESHOLD_EXCEEDED" }}},
-  { id: 5,  icon: "🏛️", name: "Main Corridor",  desc: "Long hallway. Motion sensors every 20 feet.", adj: [1, 4, 6, 9] },
-  { id: 6,  icon: "🔬", name: "Lab",             desc: "R&D floor. Biometric access required.", adj: [2, 5, 7, 10],
-    task: { icon: "🧬", label: "Biometric enrollment",
-      prompt: "Lab requires fingerprint verification. Enroll to proceed.",
-      choices: ["👆 Scan fingerprint", "⏭️ Skip — badge only"],
-      evType: "access.biometric_enroll", evSrc: "lenel-biometric-lab",
-      evData: { readerType: "HID iCLASS SE RB25F", method: "fingerprint", template: "ISO-19795-1", quality: 92, accessLevel: "LAB-SECURE" }}},
-  { id: 7,  icon: "🚪", name: "Server Room",     desc: "Cold air. Racks blinking. Man-trap entrance.", adj: [3, 6, 11],
-    task: { icon: "🌡️", label: "Log rack temperature",
-      prompt: "Rack B3 inlet: 74°F, outlet: 96°F. Delta 22°F — within spec but high.",
-      choices: ["📝 Log and flag", "✅ Within spec"],
-      evType: "telemetry.rack_temp", evSrc: "dcim-sensor-rack-B3",
-      evData: { rack: "B3", inlet: 74.1, outlet: 96.3, delta: 22.2, threshold: 25.0, pduLoad: "4.2kW", status: "NOMINAL_HIGH" }}},
-  { id: 8,  icon: "📡", name: "Comms Closet",    desc: "MDF. Fiber trunks. UPS battery indicator amber.", adj: [4, 9],
-    task: { icon: "🔋", label: "Check UPS battery",
-      prompt: "UPS: 34 min runtime, battery health 71%. Replace threshold 60%.",
-      choices: ["📋 Schedule replacement", "✅ Above threshold"],
-      evType: "telemetry.ups_diag", evSrc: "ups-apc-mdf-01",
-      evData: { model: "APC Smart-UPS 3000", runtime_min: 34, batteryHealth: 71, replaceThreshold: 60, loadPct: 62 }}},
-  { id: 9,  icon: "🪟", name: "Executive Suite", desc: "Corner office. Glass walls. Privacy film active.", adj: [5, 8, 10],
-    task: { icon: "🪟", label: "Toggle privacy film",
-      prompt: "Privacy film engaged. Override to inspect the room?",
-      choices: ["👁️ Disengage film", "🔒 Leave it on"],
-      evType: "building.privacy_film", evSrc: "bms-smartglass-exec",
-      evData: { zone: "EXEC-SUITE-A", filmState: "OPAQUE", overrideBy: "security-sweep", powerDraw: "12W" }}},
-  { id: 10, icon: "🏥", name: "Wellness Room",   desc: "Quiet zone. Air quality sensor blinking.", adj: [6, 9, 11],
-    task: { icon: "💨", label: "Read air quality",
-      prompt: "CO2: 1,150 ppm (threshold 1,000). VOCs elevated. Needs ventilation?",
-      choices: ["🌬️ Trigger vent flush", "📊 Log reading only"],
-      evType: "telemetry.air_quality", evSrc: "aq-sensor-wellness-01",
-      evData: { co2_ppm: 1150, voc_ppb: 380, pm25: 8.2, humidity: 58, temp_f: 73.4, status: "ELEVATED" }}},
-  { id: 11, icon: "🔒", name: "Vault",           desc: "High-security storage. Multi-factor required.", adj: [7, 10] },
+      prompt: "Camera 7 went offline at 02:11 — 3 minutes before the badge scan. Footage up to 02:11 shows a figure in dark clothing approaching from the parking structure. Escalate or try to restore the feed?",
+      choices: ["🚨 Escalate to SOC", "🔧 Restore feed first"],
+      evClass: "surveillance", evType: "surveillance.camera_tamper", evSrc: "vms-camera-dock-7",
+      evData: { cameraID: "CAM-DOCK-07", model: "Axis P3245-V", lastFrameTime: "02:11:04",
+        offlineReason: "SIGNAL_LOST", packetLoss: "100%", firmware: "10.12.114",
+        lastKnownImage: "figure approaching from parking structure NE corner",
+        correlatedEvents: ["INC-2026-0217"], tamperConfidence: "HIGH",
+        nearestAccessPoint: "Loading Dock exterior door" }}},
+  { id: 4,  icon: "🖥️", name: "NOC",            desc: "Network Operations Center. SIEM dashboard is flashing — 43 failed auth attempts in the last hour.", adj: [0, 5, 8],
+    task: { icon: "🔴", label: "Investigate SIEM alerts",
+      prompt: "SIEM: 43 failed SSH attempts against OT network gateway from internal IP 10.42.8.90 — that's the comms closet subnet. Brute force or misconfigured service?",
+      choices: ["🔒 Isolate the subnet", "📊 Pull full packet capture"],
+      evClass: "network", evType: "network.intrusion_detection", evSrc: "siem-splunk-noc",
+      evData: { siemRule: "BRUTE-FORCE-SSH-INTERNAL", sourceIP: "10.42.8.90", sourceSubnet: "comms-closet",
+        targetIP: "10.42.1.1", targetSystem: "OT-Gateway-Primary", protocol: "SSH",
+        failedAttempts: 43, timeWindow: "3600s", firstAttempt: "01:22:07", lastAttempt: "02:18:55",
+        usernames: ["admin", "root", "operator", "scada"], severity: "CRITICAL",
+        mitreAttackTactic: "TA0006 Credential Access", correlatedIncident: "INC-2026-0217" }}},
+  { id: 5,  icon: "🏛️", name: "Main Corridor",  desc: "Long hallway. Motion sensors every 20 feet. Sensor 3 and 4 triggered in sequence at 02:17.", adj: [1, 4, 6, 9],
+    task: { icon: "👣", label: "Review motion trail",
+      prompt: "Motion sensors fired in sequence: S1→S3→S4→S6 between 02:15 and 02:18. That path leads from the elevator bay toward the server room. Normal patrol or intruder?",
+      choices: ["🚨 Flag as intrusion path", "📋 Cross-ref with guard schedule"],
+      evClass: "physical", evType: "physical.motion_trail", evSrc: "motion-array-corridor",
+      evData: { sensorArray: "CORRIDOR-MAIN", sensorsTriggered: ["S1","S3","S4","S6"],
+        firstTrigger: "02:15:22", lastTrigger: "02:18:09", direction: "east-toward-server-wing",
+        speed: "1.3 m/s", guardSchedule: "no patrol scheduled until 06:00",
+        correlatedBadge: 4471, confidence: "HIGH",
+        pathAnalysis: "Consistent with single individual, walking pace, avoiding S2 and S5 (camera coverage zones)" }}},
+  { id: 6,  icon: "🔬", name: "Lab",             desc: "R&D floor. Biometric reader shows 3 failed fingerprint attempts at 02:19, then a successful badge-only override.", adj: [2, 5, 7, 10],
+    task: { icon: "🧬", label: "Investigate biometric bypass",
+      prompt: "Someone failed fingerprint 3 times, then used a badge-only override. That override requires security manager credentials. Was a manager here, or was the reader spoofed?",
+      choices: ["🔐 Lock down biometric system", "📞 Call security manager"],
+      evClass: "access", evType: "access.biometric_bypass", evSrc: "lenel-biometric-lab",
+      evData: { readerType: "HID iCLASS SE RB25F", method: "fingerprint", failedAttempts: 3,
+        overrideMethod: "badge-only", overrideBadge: 4471, overrideLevel: "SECURITY_MANAGER",
+        template: "ISO-19795-1", lastValidFingerprint: "2026-01-28 (different cardholder)",
+        accessLevel: "LAB-SECURE", anomaly: "Badge 4471 not enrolled for biometric — override should not have worked",
+        severity: "CRITICAL" }}},
+  { id: 7,  icon: "🚪", name: "Server Room",     desc: "Cold air. Racks blinking. An unfamiliar device is zip-tied to the cable tray above rack B3.", adj: [3, 6, 11],
+    task: { icon: "📡", label: "Investigate rogue device",
+      prompt: "Small black box connected to the management switch on rack B3. No asset tag. MAC address doesn't match any inventory. It's drawing 2.1W from the PoE port. Pull it or document first?",
+      choices: ["🔌 Disconnect immediately", "📸 Document and isolate port"],
+      evClass: "network", evType: "network.rogue_device", evSrc: "nac-switch-rack-B3",
+      evData: { switchPort: "Gi1/0/24", macAddress: "DE:AD:BE:EF:42:17", ipAssigned: "10.42.3.198",
+        vendor: "UNKNOWN — not in IEEE OUI database", poeDraw: "2.1W", uptime: "47 min",
+        trafficProfile: "periodic bursts every 90s, 4KB average, destination 198.51.100.42:8443",
+        assetTag: "NONE", rackLocation: "B3-top-cable-tray",
+        threatAssessment: "Possible exfiltration device or C2 beacon", severity: "CRITICAL",
+        mitreAttackTactic: "TA0010 Exfiltration" }}},
+  { id: 8,  icon: "📡", name: "Comms Closet",    desc: "MDF. Fiber trunks hum. One of the SC connectors has been re-seated — the dust cap is on the floor.", adj: [4, 9],
+    task: { icon: "🔍", label: "Inspect fiber trunk",
+      prompt: "Trunk 4 SC connector was re-seated recently — dust cap on the floor, clean fingerprints on the ferrule. Optical power is 1.2 dB lower than baseline. Possible fiber tap. Test or replace?",
+      choices: ["📏 Run OTDR test", "🔄 Replace patch cable"],
+      evClass: "network", evType: "network.fiber_tap_suspected", evSrc: "fiber-monitor-mdf-trunk4",
+      evData: { trunk: "MDF-TRUNK-04", connectorType: "SC/UPC", baselinePower: "-8.2 dBm",
+        currentPower: "-9.4 dBm", delta: "1.2 dB", normalVariance: "0.3 dB",
+        physicalEvidence: "dust cap displaced, fingerprints on ferrule",
+        affectedCircuits: ["WAN-PRIMARY", "DC-INTERCONNECT-EAST"],
+        tapProbability: "MODERATE-HIGH", lastInspection: "2026-01-15",
+        severity: "HIGH", mitreAttackTactic: "TA0009 Collection" }}},
+  { id: 9,  icon: "🪟", name: "Executive Suite", desc: "Corner office. Privacy film is disengaged — it was set to opaque at close of business. Someone overrode it remotely.", adj: [5, 8, 10],
+    task: { icon: "🖥️", label: "Check BMS override log",
+      prompt: "Privacy film override at 02:20 from IP 10.42.8.90 — same IP as the SSH brute force. The BMS credentials used belong to a terminated facilities manager. Lock down BMS or trace the session?",
+      choices: ["🔒 Rotate all BMS credentials", "🔍 Trace active session"],
+      evClass: "building", evType: "building.unauthorized_override", evSrc: "bms-smartglass-exec",
+      evData: { zone: "EXEC-SUITE-A", system: "BMS-Honeywell-Niagara", filmState: "TRANSPARENT",
+        previousState: "OPAQUE", overrideTime: "02:20:14", overrideIP: "10.42.8.90",
+        credential: "fmgr-jharrison", credentialStatus: "TERMINATED (2025-11-30)",
+        correlatedEvents: ["BRUTE-FORCE-SSH from same IP", "INC-2026-0217"],
+        severity: "CRITICAL", attackNarrative: "Credential reuse from compromised/terminated account" }}},
+  { id: 10, icon: "🏥", name: "Wellness Room",   desc: "Quiet zone. Air quality sensor readings are erratic — CO2 spiked then flatlined at exactly 400 ppm. That's suspiciously clean.", adj: [6, 9, 11],
+    task: { icon: "⚠️", label: "Check sensor integrity",
+      prompt: "CO2 reading flatlined at exactly 400.0 ppm for 47 minutes. Real sensors drift. This one was recalibrated at 02:13 via the maintenance port — no work order exists. Sensor tamper?",
+      choices: ["🔴 Flag as tampered", "🔧 Factory reset sensor"],
+      evClass: "compliance", evType: "compliance.sensor_tamper", evSrc: "aq-sensor-wellness-01",
+      evData: { sensorModel: "Sensirion SCD41", metric: "CO2", reading: 400.0, unit: "ppm",
+        pattern: "FLATLINE — no variance for 47 min", normalVariance: "±15 ppm",
+        recalibrationTime: "02:13:44", recalibrationMethod: "maintenance port (local)",
+        workOrder: "NONE", lastLegitCalibration: "2026-01-08",
+        possibleMotivation: "Mask elevated CO2 from occupancy — hide presence in adjacent zone",
+        severity: "MEDIUM", correlatedZones: ["Vault (adjacent)"] }}},
+  { id: 11, icon: "🔒", name: "Vault",           desc: "High-security storage. Multi-factor required. The audit terminal shows an active session — someone is logged in right now.", adj: [7, 10],
+    task: { icon: "🔐", label: "Check vault audit log",
+      prompt: "Vault MFA log: badge 4471 + PIN at 02:22. That lost badge again. Session is still active — last action was 90 seconds ago querying asset manifests for 'project-nightingale'. Terminate or monitor?",
+      choices: ["⛔ Terminate session now", "👁️ Monitor silently"],
+      evClass: "incident", evType: "incident.active_breach", evSrc: "vault-audit-terminal",
+      evData: { system: "Vault MFA Controller", badgeUsed: 4471, pinEntry: "SUCCESS",
+        sessionStart: "02:22:08", sessionStatus: "ACTIVE", lastAction: "QUERY asset manifest",
+        queryTarget: "project-nightingale", documentsAccessed: 3,
+        authChain: ["badge 4471 (LOST)", "PIN (compromised?)", "biometric BYPASSED at Lab"],
+        attackTimeline: [
+          "02:11 — Camera 7 disabled at Loading Dock",
+          "02:14 — Lost badge used at Elevator Bay",
+          "02:17 — Motion trail through Main Corridor",
+          "02:19 — Biometric bypass at Lab",
+          "02:20 — BMS override from comms closet IP",
+          "02:22 — Vault session opened"
+        ],
+        severity: "CRITICAL", incidentID: "INC-2026-0217",
+        mitreAttackTactic: "TA0009 Collection / TA0010 Exfiltration" }}},
 ];
 
 // ── State ──
@@ -366,6 +430,7 @@ function sendEvent(type, cls, source, data) {
     source: "south/" + source,
     id: crypto.randomUUID ? crypto.randomUUID() : "evt-" + eventCount,
     time: new Date().toISOString(),
+    eventclass: cls,
     data: {
       ...data,
       room: ROOMS[currentRoom].name,
@@ -576,7 +641,7 @@ function updateTaskBar() {
   }
   tasksDoneEl.innerText = tasksCompleted.length;
   if (tasksCompleted.length >= TASKS_REQUIRED) {
-    taskHintEl.innerText = "READY — confront the wumpus!";
+    taskHintEl.innerText = "CLEARANCE GRANTED — locate the intruder";
     taskHintEl.style.color = "var(--green)";
     // Unlock all previously denied rooms
     lockedRooms.clear();
@@ -602,7 +667,7 @@ function startTask(room) {
 function completeTask(room, task, choiceIdx) {
   completedRoomTasks.add(currentRoom);
   tasksCompleted.push({ room: room.name, task: task.evType, choice: choiceIdx });
-  sendEvent(task.evType, "status", task.evSrc, {
+  sendEvent(task.evType, task.evClass || "status", task.evSrc, {
     ...task.evData,
     action: task.evType,
     choiceIndex: choiceIdx,
@@ -612,7 +677,7 @@ function completeTask(room, task, choiceIdx) {
   });
   roomAlert.style.display = "";
   roomAlert.className = "room-alert safe";
-  roomAlert.innerText = "✅ Task complete — logged and escalated";
+  roomAlert.innerText = "✅ Logged — evidence collected";
   updateTaskBar();
   setTimeout(() => renderActions(room), 1000);
 }
@@ -660,7 +725,7 @@ function renderRoom() {
       // Not prepared — access denied, bounce back
       roomAlert.style.display = "";
       roomAlert.className = "room-alert locked";
-      roomAlert.innerText = "🔒 ACCESS DENIED — Threat detected but you lack clearance. Complete " + (TASKS_REQUIRED - tasksCompleted.length) + " more task(s)!";
+      roomAlert.innerText = "🔒 ACCESS DENIED — Active intrusion detected. Collect " + (TASKS_REQUIRED - tasksCompleted.length) + " more piece(s) of evidence for clearance.";
       roomDisplay.style.animation = "shake 0.4s";
       setTimeout(() => roomDisplay.style.animation = "", 400);
       sendEvent("access.onguard.badge_scan", "alert", "lenel-reader-" + room.name.toLowerCase().replace(/ /g, "-"), {
@@ -908,23 +973,25 @@ function endGame(won) {
   gameOver = true;
   const elapsed = Math.round((Date.now() - startTime) / 1000);
 
-  sendEvent("game.complete", "status", "game-engine", {
-    result: won ? "threat_neutralized" : "game_over",
+  sendEvent("game.complete", "incident", "game-engine", {
+    result: won ? "intruder_cornered" : "game_over",
     roomsVisited: visited.size,
+    evidenceCollected: tasksCompleted.length,
     totalEvents: eventCount,
     elapsedSeconds: elapsed,
+    incidentID: "INC-2026-0217",
   });
 
   gameArea.style.display = "none";
   endScreen.classList.add("active");
   endIcon.innerText = won ? "🏆" : "💀";
-  endTitle.innerText = won ? "Wumpus Confronted!" : "Game Over";
+  endTitle.innerText = won ? "Intruder Cornered" : "Breach Uncontained";
   endStats.innerHTML =
-    "Rooms explored: <strong>" + visited.size + " / " + ROOMS.length + "</strong><br>" +
-    "Tasks completed: <strong>" + tasksCompleted.length + "</strong><br>" +
+    "Zones swept: <strong>" + visited.size + " / " + ROOMS.length + "</strong><br>" +
+    "Evidence collected: <strong>" + tasksCompleted.length + "</strong><br>" +
     "Events generated: <strong>" + eventCount + "</strong><br>" +
-    "Time: <strong>" + Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0") + "</strong><br><br>" +
-    "<span style='color:var(--muted);font-size:12px'>Every badge scan, task, and sensor reading<br>flowed as a CloudEvent through the edge pipeline<br>on Red Hat OpenShift — visible on the stage dashboard</span>";
+    "Response time: <strong>" + Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0") + "</strong><br><br>" +
+    "<span style='color:var(--muted);font-size:12px'>Every badge scan, investigation, and sensor reading<br>flowed as a CloudEvent through the edge pipeline<br>on Red Hat OpenShift — visible on the stage dashboard</span>";
 
   renderMinimap();
 }
