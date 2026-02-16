@@ -1,4 +1,4 @@
-from flask import Flask, request, Response, send_from_directory
+from flask import Flask, request, Response, send_from_directory, redirect
 from datetime import datetime, timezone
 import json
 import queue
@@ -338,6 +338,33 @@ def readyz():
     ready = count >= 0  # always ready once loaded
     return Response("ready" if ready else "not ready",
                     status=200 if ready else 503,
+                    mimetype="text/plain")
+
+# ── Short URLs ──
+# /go/<alias> redirects to the full path — for SMS, email, printed cards
+SHORT_URLS = {
+    "play":    "/play",
+    "stage":   "/stage",
+    "present": "/present",
+    "dtw":     "/present-dtw",
+    "rh":      "/present-rh",
+    "about":   "/about-panel",
+    "qr":      "/qr",
+    "index":   "/present-index",
+}
+
+@app.get("/go/<alias>")
+def short_url(alias):
+    target = SHORT_URLS.get(alias.lower())
+    if target:
+        return redirect(target)
+    return Response("Unknown short URL", status=404, mimetype="text/plain")
+
+@app.get("/go")
+def short_url_list():
+    base = request.host_url.rstrip("/")
+    lines = [f"{base}/go/{k}  →  {v}" for k, v in SHORT_URLS.items()]
+    return Response("\n".join(["OHC Short URLs", "=" * 40] + lines),
                     mimetype="text/plain")
 
 @app.post("/reset")

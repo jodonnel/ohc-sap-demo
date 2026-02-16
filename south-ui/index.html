@@ -145,6 +145,23 @@
   .ticker-inner .evt .type.sensor { color: var(--teal); }
   .ticker-inner .evt .src { color: var(--text); opacity: 0.6; }
 
+  /* ── Chloe commentary ── */
+  .chloe-bar {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px;
+    background: rgba(0, 112, 242, 0.06);
+    border: 1px solid rgba(0, 112, 242, 0.15);
+    border-radius: 10px;
+    font-size: 12px; line-height: 1.5; color: #93C5FD;
+    min-height: 42px;
+    transition: opacity 0.3s;
+  }
+  .chloe-bar .chloe-avatar {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    object-fit: cover; margin-top: 1px;
+  }
+  .chloe-bar .chloe-text { flex: 1; }
+
   /* ── End screen ── */
   .end-screen {
     flex: 1; display: none; flex-direction: column; align-items: center;
@@ -209,6 +226,11 @@
     <div class="room-name" id="roomName">Lobby</div>
     <div class="room-desc" id="roomDesc">Main entrance. Security desk ahead.</div>
     <div class="room-alert" id="roomAlert" style="display:none"></div>
+  </div>
+
+  <div class="chloe-bar" id="chloeBar">
+    <img class="chloe-avatar" src="https://jodonnel.github.io/ohc-sap-demo/assets/chloe/splash.webp" alt="Chloe">
+    <div class="chloe-text" id="chloeText">Chloe here. I'll explain what each event means as you go.</div>
   </div>
 
   <div class="minimap" id="minimap"></div>
@@ -352,6 +374,11 @@ const tickerBtn = document.getElementById("tickerBtn");
 const tasksDoneEl = document.getElementById("tasksDone");
 const taskHintEl = document.getElementById("taskHint");
 const dotEl = document.getElementById("dot");
+const chloeTextEl = document.getElementById("chloeText");
+
+function chloeSpeak(text) {
+  if (chloeTextEl) chloeTextEl.textContent = text;
+}
 
 // ── Ticker toggle ──
 tickerBtn.onclick = () => {
@@ -495,6 +522,8 @@ function completeTask(room, task, choiceIdx) {
   roomAlert.style.display = "";
   roomAlert.className = "room-alert safe";
   roomAlert.innerText = "✅ " + CHLOE_QUIPS[Math.floor(Math.random() * CHLOE_QUIPS.length)];
+  // Chloe debrief — explain what the event means in enterprise terms
+  if (CHLOE_TASK_DEBRIEF[task.evType]) chloeSpeak(CHLOE_TASK_DEBRIEF[task.evType]);
   updateTaskBar();
   setTimeout(() => renderActions(room), 1000);
 }
@@ -533,6 +562,9 @@ function renderRoom() {
   roomName.innerText = room.name;
   roomDesc.innerText = room.desc;
 
+  // Chloe room intel
+  if (CHLOE_ROOM_INTEL[currentRoom]) chloeSpeak(CHLOE_ROOM_INTEL[currentRoom]);
+
   roomAlert.style.display = "none";
   if (currentRoom === wumpusRoom) {
     if (tasksCompleted.length >= TASKS_REQUIRED) {
@@ -565,6 +597,7 @@ function renderRoom() {
     roomAlert.style.display = "";
     roomAlert.className = "room-alert warn";
     roomAlert.innerText = "⚠️ Anomalous activity detected nearby";
+    chloeSpeak("Proximity alert — motion sensors fired in an adjacent zone. This is a real-time correlation event.");
     sendEvent("alert.proximity", "alert", "motion-sensor-" + room.name.toLowerCase().replace(/ /g, "-"), {
       action: "anomaly_nearby", severity: "warning"
     });
@@ -801,12 +834,22 @@ function endGame(won) {
   endScreen.classList.add("active");
   endIcon.innerText = won ? "🏆" : "💀";
   endTitle.innerText = won ? "Wumpus Confronted!" : "Game Over";
+  const eventBreakdown = [
+    tasksCompleted.length + " compliance/maintenance tasks",
+    visited.size + " badge scans (Lenel OnGuard protocol)",
+    "~" + Math.round(visited.size * 1.5) + " passive sensor readings",
+  ].join("<br>");
+
   endStats.innerHTML =
     "Rooms explored: <strong>" + visited.size + " / " + ROOMS.length + "</strong><br>" +
     "Tasks completed: <strong>" + tasksCompleted.length + "</strong><br>" +
     "Events generated: <strong>" + eventCount + "</strong><br>" +
     "Time: <strong>" + Math.floor(elapsed / 60) + ":" + String(elapsed % 60).padStart(2, "0") + "</strong><br><br>" +
-    "<span style='color:var(--muted);font-size:12px'>Every badge scan, task, and sensor reading<br>flowed as a CloudEvent through<br>Red Hat OpenShift to the operations dashboard</span>";
+    "<span style='color:#93C5FD;font-size:12px;line-height:1.6'>" +
+    "What just happened:<br>" + eventBreakdown + "<br><br>" +
+    "Every event flowed as a CloudEvent v1.0 through<br>" +
+    "<strong style='color:var(--red)'>Red Hat OpenShift</strong> → operations dashboard.<br>" +
+    "Next stop: <strong style='color:#F0AB00'>SAP Edge Integration Cell</strong> → BTP.</span>";
 
   renderMinimap();
 }
@@ -827,6 +870,35 @@ const CHLOE_QUIPS = [
   "Chloe approves. Keep moving.",
   "Logged and shipped. Next room.",
 ];
+
+// ── Chloe room-entry commentary (education layer) ──
+const CHLOE_ROOM_INTEL = {
+  0: "Lobby — every visitor gets a Lenel OnGuard badge. That's the first event in the chain.",
+  1: "Elevator Bay — JCI OpenBlue manages this. Maintenance events flow through the same bus as badge taps.",
+  2: "Break Room — fire safety equipment has its own event class. Compliance auditors love this data.",
+  3: "Loading Dock — external access point. Camera feeds are surveillance events, not telemetry. Different class, same pipeline.",
+  4: "NOC — HVAC overrides generate building automation events. These are the ones SAP BTP turns into work orders.",
+  5: "Main Corridor — motion sensors fire passively. You won't see them, but the dashboard does.",
+  6: "Lab — biometric enrollment is a high-trust event. ISO-19795 template quality matters for audit.",
+  7: "Server Room — rack telemetry is continuous. Temperature deltas tell you more than absolutes.",
+  8: "Comms Closet — UPS diagnostics are the boring events that prevent expensive outages.",
+  9: "Executive Suite — smart glass control is a building automation event. Low watts, high drama.",
+  10: "Wellness Room — air quality is IoT telemetry. CO2 above 1,000 ppm means someone should open a window.",
+  11: "Vault — multi-factor access. The event payload carries both credential factors for audit trail.",
+};
+
+// ── Chloe task debrief (what just happened in enterprise terms) ──
+const CHLOE_TASK_DEBRIEF = {
+  "maintenance.elevator_check": "That maintenance flag just became a CloudEvent. In production, SAP EIC routes this to a PM work order in S/4HANA.",
+  "safety.fire_equipment": "Safety compliance event logged. This feeds the building's risk score in SAP Analytics Cloud.",
+  "surveillance.camera_diag": "Camera diagnostic event — the SOC sees this in real time. In production, this triggers an incident in ServiceNow via BTP.",
+  "building.hvac_override": "HVAC override event. BMS systems like JCI Metasys generate thousands of these. SAP EIC normalizes them.",
+  "access.biometric_enroll": "Biometric enrollment event. The template quality score (92) matters — below 70 means re-enroll.",
+  "telemetry.rack_temp": "Rack telemetry logged. DCIM sensors push these every 30 seconds. The delta matters more than the absolute.",
+  "telemetry.ups_diag": "UPS diagnostic event. Battery health trending is how you avoid a 3 AM datacenter emergency.",
+  "building.privacy_film": "Smart glass control event. Low power draw but high audit value — who overrode privacy, when, why.",
+  "telemetry.air_quality": "Air quality telemetry. In production, CO2 above threshold triggers automated ventilation via BMS integration.",
+};
 const tipEl = document.getElementById('chloeTip');
 let tipIdx = 0;
 function rotateTip() { tipEl.textContent = '💬 ' + CHLOE_TIPS[tipIdx++ % CHLOE_TIPS.length]; }
