@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OHC Edge Demo — Select Audience</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Text:wght@300;400;700&family=Red+Hat+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090F; --surface: #0D1117; --border: #1C2333;
+  --muted: #4E5D6C; --text: #F0F4F8;
+  --red: #EE0000; --blue: #0070F2; --green: #00D26A;
+  --red-glow: rgba(238,0,0,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Red Hat Display',sans-serif; }
+
+.page {
+  max-width:720px; margin:0 auto; padding:60px 24px;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+.brand { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.brand .rh { color:var(--red); font-size:12px; font-weight:700; letter-spacing:2px; }
+.brand .sep { color:var(--muted); font-size:18px; }
+.brand .sap { color:var(--blue); font-size:12px; font-weight:700; letter-spacing:2px; }
+
+h1 {
+  font-size:clamp(1.8rem,5vw,2.6rem); font-weight:900; text-align:center;
+  line-height:1.1; margin-bottom:6px;
+}
+.subtitle { font-size:14px; color:var(--muted); font-family:'Red Hat Text',sans-serif; margin-bottom:40px; text-align:center; }
+
+.cards { display:flex; flex-direction:column; gap:12px; width:100%; }
+
+a.card {
+  display:flex; align-items:center; gap:16px;
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:20px 24px; text-decoration:none; color:var(--text);
+  transition:all 0.2s;
+}
+a.card:hover { border-color:var(--red); background:#0D1117; box-shadow:0 0 24px var(--red-glow); transform:translateY(-1px); }
+a.card:active { transform:scale(0.99); }
+
+.card-icon { font-size:28px; flex-shrink:0; width:44px; text-align:center; }
+.card-body { flex:1; }
+.card-title { font-size:16px; font-weight:700; margin-bottom:2px; }
+.card-desc { font-size:12px; color:var(--muted); font-family:'Red Hat Text',sans-serif; line-height:1.4; }
+.card-arrow { color:var(--muted); font-size:18px; flex-shrink:0; transition:color 0.2s; }
+a.card:hover .card-arrow { color:var(--red); }
+
+.divider { width:100%; height:1px; background:var(--border); margin:20px 0; }
+.section-label { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; align-self:flex-start; }
+
+.footer { margin-top:40px; font-size:11px; color:var(--muted); font-family:'Red Hat Mono',monospace; text-align:center; }
+.footer a { color:var(--blue); text-decoration:none; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="brand"><span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span></div>
+  <h1>Open. Hybrid. Cloud.</h1>
+  <div class="subtitle">Select your audience to launch the presentation</div>
+
+  <div class="section-label">Customer / Partner Audiences</div>
+  <div class="cards">
+
+    <a class="card" href="/present">
+      <span class="card-icon">🏢</span>
+      <div class="card-body">
+        <div class="card-title">SAP Customers & Partners</div>
+        <div class="card-desc">General edge integration pitch. BTP consumption. Physical security to digital core.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-util">
+      <span class="card-icon">⚡</span>
+      <div class="card-body">
+        <div class="card-title">SAP for Utilities</div>
+        <div class="card-desc">Substations, NERC CIP, Metcalf, predictive maintenance. Physical GRC for critical infrastructure.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-rail">
+      <span class="card-icon">🚆</span>
+      <div class="card-body">
+        <div class="card-title">Rail</div>
+        <div class="card-desc">Depot & yard security, trackside predictive maintenance, incident qualification. Consolidation-ready.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-ad">
+      <span class="card-icon">🛡️</span>
+      <div class="card-body">
+        <div class="card-title">Aerospace & Defense</div>
+        <div class="card-desc">SCIFs, CMMC/NIST 800-171, disconnected ops, NS2-ready. They already run OpenShift and SAP.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Internal</div>
+  <div class="cards">
+
+    <a class="card" href="/present-rh">
+      <span class="card-icon">🎯</span>
+      <div class="card-body">
+        <div class="card-title">Red Hat Sellers</div>
+        <div class="card-desc">OHC + Partner comp framing. Every SAP Edge deal is an OHC deal and a Partner deal.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Demo Tools</div>
+  <div class="cards">
+
+    <a class="card" href="/stage">
+      <span class="card-icon">📊</span>
+      <div class="card-body">
+        <div class="card-title">Stage Dashboard</div>
+        <div class="card-desc">Edge Operations Center — live event feed, class bars, device mosaic. Open on your laptop.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="https://jodonnel.github.io/ohc-sap-demo/architecture.html" target="_blank">
+      <span class="card-icon">🏗️</span>
+      <div class="card-body">
+        <div class="card-title">Architecture Diagram</div>
+        <div class="card-desc">Interactive edge-to-core reference architecture. Click devices on/off, filter by event class.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/play">
+      <span class="card-icon">📱</span>
+      <div class="card-body">
+        <div class="card-title">Confront the Wumpus</div>
+        <div class="card-desc">The mobile game. Badge through 12 zones, complete tasks, find the threat.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/qr">
+      <span class="card-icon">📷</span>
+      <div class="card-body">
+        <div class="card-title">QR Code (Projector)</div>
+        <div class="card-desc">Full-screen scannable QR code for audience onboarding.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    Jim O'Donnell · jodonnel@redhat.com · <a href="https://github.com/jodonnel/ohc-sap-demo">github.com/jodonnel/ohc-sap-demo</a>
+  </div>
+</div>
+
+</body>
+</html>
