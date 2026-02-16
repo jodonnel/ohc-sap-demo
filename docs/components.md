@@ -2,11 +2,11 @@
 
 ## The metaphor
 
-**North makes decisions. South operates.**
+**North is decision support. South is execution.**
 
-South is the building's nervous system — badge taps, sensor readings, HVAC overrides, camera diagnostics. Every action generates a CloudEvent.
+South is execution — badge taps, sensor readings, HVAC overrides, camera diagnostics. Physical-world actions that generate CloudEvents.
 
-North is the brain — it ingests those events, aggregates telemetry, broadcasts via SSE, and renders dashboards and presentations that make sense of the signal.
+North is decision support — it ingests those events, aggregates telemetry, broadcasts via SSE, and surfaces signal through dashboards and presentations so humans (or eventually BTP) can act on it.
 
 ## Event flow
 

@@ -6,7 +6,7 @@
 
 ## Context
 
-The demo has a core architectural metaphor: **north makes decisions, south operates.** South is the edge — badge taps, sensor readings, building operations. North is the brain — event aggregation, dashboards, presentations, evidence.
+The demo has a core architectural metaphor: **north is decision support, south is execution.** South is the edge — badge taps, sensor readings, building operations. North is the brain — event aggregation, dashboards, presentations, evidence.
 
 Originally this was two pods:
 
@@ -32,5 +32,5 @@ The game doesn't know it's colocated. It posts to `/ingest` like any edge client
 - One pod to manage instead of two
 - The north/south conceptual boundary is unchanged
 - `south-ui/` remains a separate codebase with its own ConfigMap
-- The demo narrative ("south operates, north decides") is unaffected
+- The demo narrative ("south executes, north supports decisions") is unaffected
 - If a future version needs true edge deployment (e.g., MicroShift), south-ui can be re-extracted trivially
