@@ -9,9 +9,4 @@ resources:
   - north-assets-configmap.yaml
   - north-stage-dashboard-configmap.yaml
   - north-state-pvc.yaml
-  # south-ui (edge device simulator)
-  - south-ui-deployment.yaml
-  - south-ui-service.yaml
-  - south-ui-route.yaml
-  - south-ui-env-configmap.yaml
-  - south-ui-html-configmap.yaml
+  # south-ui game HTML is served by north at /play (via south-ui-html ConfigMap)

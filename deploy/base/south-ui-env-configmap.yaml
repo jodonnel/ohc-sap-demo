@@ -1,7 +1,0 @@
-apiVersion: v1
-data:
-  NORTH_URL: https://north-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com
-kind: ConfigMap
-metadata:
-  name: south-ui-env
-
