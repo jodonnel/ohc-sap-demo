@@ -1,6 +1,6 @@
 # OHC Edge Demo — Red Hat x SAP
 
-Live interactive demo: physical security events flowing from edge devices through Red Hat OpenShift and SAP Edge Integration Cell to SAP BTP.
+Live interactive demo: physical security events flowing from edge devices through Red Hat OpenShift to SAP BTP via Edge Integration Cell.
 
 ## Screenshots
 
@@ -11,40 +11,50 @@ Live interactive demo: physical security events flowing from edge devices throug
 ## Architecture
 
 ```
-Phone (edge device) --> POST /ingest --> Flask on OpenShift --> SSE --> Stage dashboard
+Phone (edge) → POST /ingest → Flask on OpenShift → SSE → Dashboard / Presentations
+                                    ↓
+                              /data/state.json (PVC — survives pod restarts)
 ```
 
-Each game action generates realistic Lenel OnGuard access control events in CloudEvents format.
+Single pod (`north`) serves everything: event ingestion, SSE broadcast, game, dashboard, presentations, evidence panel. No separate web server — just Flask on UBI9.
 
 [View the animated architecture diagram](https://jodonnel.github.io/ohc-sap-demo/architecture.html)
 
-## Live URLs
+## Endpoints
 
-| Endpoint | Description |
-|----------|-------------|
-| `/present` | SAP seller / customer-facing presentation (10 slides, SSE) |
-| `/present-rh` | Red Hat seller presentation (OHC + Partner comp framing) |
-| `/stage` | Stage dashboard (event counter, telemetry) |
-| `/play` | Mobile wumpus game (Lenel OnGuard badge events) |
-| `/qr` | QR code page for projector |
+| Path | Description |
+|------|-------------|
+| `/play` | Mobile wumpus game (Lenel OnGuard badge events + Chloe guide) |
+| `/stage` | Operations dashboard (event counter, telemetry, breakdowns) |
+| `/present` | SAP seller presentation (10 slides, live SSE counter) |
+| `/present-rh` | Red Hat seller presentation (OHC + Partner comp) |
+| `/present-dtw` | Demo to Win presentation (nervous system metaphor) |
+| `/present-util` | Utilities/Energy vertical presentation |
+| `/present-rail` | Rail/Transport vertical presentation |
+| `/present-ad` | Active Directory / identity vertical presentation |
+| `/present-index` | Presentation selector |
+| `/about-panel` | System evidence panel (uptime, commit, SSE clients) |
 | `/ingest` | POST endpoint for CloudEvents |
 | `/events` | Server-Sent Events stream |
 | `/state` | Current state JSON |
 | `/telemetry` | Aggregated device telemetry |
 | `/log` | Event history (last 200) |
+| `/about` | System metadata JSON |
+| `/healthz` | Liveness probe |
+| `/readyz` | Readiness probe |
+| `/go/<alias>` | Short URL redirects (`/go/play`, `/go/dtw`, `/go/stage`, etc.) |
+| `/go` | List all short URLs |
+| `/reset` | POST — reset all state |
 
 ## Running locally
-
-Open `north/stage/present.html` in a browser — the built-in simulator runs without a server.
-
-For the full stack:
 
 ```bash
 cd north/
 pip install flask
 python app.py
-# Presentation:  http://localhost:8080/present
+# Game:          http://localhost:8080/play
 # Dashboard:     http://localhost:8080/stage
+# Presentation:  http://localhost:8080/present
 # Send event:    curl -X POST http://localhost:8080/ingest \
 #                  -H 'Content-Type: application/json' \
 #                  -d '{"type":"ohc.demo.test","data":{"ping":true}}'
@@ -59,26 +69,36 @@ oc kustomize deploy/overlays/qa/ | oc apply -f -
 ## Stack
 
 - **Red Hat OpenShift** (RHDP sandbox on AWS)
-- **Python/Flask** (north pod — event ingestion, SSE, telemetry)
+- **Python/Flask** (single pod — event ingestion, SSE, telemetry, all routes)
 - **Vanilla HTML/CSS/JS** (no frameworks)
-- **Server-Sent Events** (real-time push)
-- **CloudEvents format** (structured event payloads)
+- **Server-Sent Events** (real-time push to dashboard + presentations)
+- **CloudEvents v1.0** (structured event payloads)
+- **Persistent state** (JSON flush to PVC every 10s, SIGTERM handler)
 - **Red Hat fonts** (Red Hat Display, Red Hat Text, Red Hat Mono)
 
 ## Repository layout
 
 ```
 .
-├── north/                 # IT-side Flask service + presentation
-│   ├── app.py             # Event ingestion, SSE, telemetry, routes
-│   ├── stage/             # dashboard.html, present.html, qr.html
+├── north/                 # Flask service (the only pod)
+│   ├── app.py             # Event ingestion, SSE, telemetry, all routes
+│   ├── stage/             # Dashboard, presentations, evidence panel, QR page
+│   │   ├── dashboard.html
+│   │   ├── present.html, present-rh.html, present-dtw.html, ...
+│   │   ├── present-index.html
+│   │   ├── about.html     # Evidence panel
+│   │   └── qr.html
+│   ├── assets/            # Static assets (mounted via ConfigMap)
 │   └── Containerfile      # UBI9/python-311 container build
-├── south-ui/              # Edge-facing mobile wumpus game
-│   └── index.html         # Served via ConfigMap + httpd
+├── south-ui/              # Mobile wumpus game HTML
+│   └── index.html         # Served by north at /play (via ConfigMap)
 ├── deploy/                # GitOps-ready kustomize manifests
 │   ├── base/              # Cluster-agnostic resources
 │   └── overlays/qa/       # QA environment patches
-├── docs/                  # Architecture diagram (GitHub Pages)
+├── docs/                  # GitHub Pages (architecture diagram, Chloe assets)
+│   ├── architecture.html
+│   └── assets/chloe/      # Chloe character images (WebP)
+├── transport/             # Artifact sync scripts
 └── .github/               # CI, templates, community docs
 ```
 
