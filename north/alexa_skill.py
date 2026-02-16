@@ -32,6 +32,14 @@ import uuid
 
 alexa_bp = Blueprint('alexa', __name__)
 
+# Ref to app module globals — set by init_alexa() after blueprint registration
+_app = None
+
+def init_alexa(app_module):
+    """Store reference to app module globals. Call after register_blueprint."""
+    global _app
+    _app = app_module
+
 
 # ═══════════════════════════════════════════
 # RESPONSE HELPERS
@@ -117,14 +125,12 @@ def alexa_handler():
 
 def _get_state():
     """Read demo state directly from app.py globals (same process)."""
-    import app
-    return {"count": app.count, "last": app.last}
+    return {"count": _app.count, "last": _app.last}
 
 
 def _get_telemetry():
     """Read telemetry directly from app.py globals (same process)."""
-    import app
-    t = app.telemetry
+    t = _app.telemetry
     avg = round(sum(t["batteries"]) / max(1, len(t["batteries"]))) if t["batteries"] else 0
     return {"devices": t["devices"], "avgBattery": avg,
             "networks": t["networks"], "locales": t["locales"]}
@@ -207,10 +213,9 @@ def handle_rate():
 
 def handle_lockdown():
     """Inject a lockdown command CloudEvent directly — motor command DOWN."""
-    import app
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-    app.count += 1
-    app.last_event_time = now
+    _app.count += 1
+    _app.last_event_time = now
     event_payload = {
         "ts": now,
         "payload": {
@@ -226,14 +231,14 @@ def handle_lockdown():
                 "description": "Lockdown initiated via Alexa voice command",
             },
         },
-        "count": app.count,
+        "count": _app.count,
     }
-    app.last = event_payload
-    app.event_log.append(event_payload)
-    if len(app.event_log) > 200:
-        app.event_log.pop(0)
-    app.telemetry["event_classes"]["command"] = app.telemetry["event_classes"].get("command", 0) + 1
-    app.publish(event_payload)
+    _app.last = event_payload
+    _app.event_log.append(event_payload)
+    if len(_app.event_log) > 200:
+        _app.event_log.pop(0)
+    _app.telemetry["event_classes"]["command"] = _app.telemetry["event_classes"].get("command", 0) + 1
+    _app.publish(event_payload)
 
     speech = (
         "Lockdown initiated. Command event sent through the spinal cord. "
@@ -246,21 +251,21 @@ def handle_lockdown():
 
 def handle_reset():
     """Reset all state directly via app globals."""
-    import app, os
-    with app.lock:
-        app.count = 0
-        app.last = {}
-        app.last_event_time = None
-        app.event_log.clear()
-        for k in app.telemetry:
-            if isinstance(app.telemetry[k], list):
-                app.telemetry[k].clear()
-            elif isinstance(app.telemetry[k], dict):
-                app.telemetry[k].clear()
+    import os
+    with _app.lock:
+        _app.count = 0
+        _app.last = {}
+        _app.last_event_time = None
+        _app.event_log.clear()
+        for k in _app.telemetry:
+            if isinstance(_app.telemetry[k], list):
+                _app.telemetry[k].clear()
+            elif isinstance(_app.telemetry[k], dict):
+                _app.telemetry[k].clear()
             else:
-                app.telemetry[k] = 0
+                _app.telemetry[k] = 0
         try:
-            os.remove(app.STATE_FILE)
+            os.remove(_app.STATE_FILE)
         except FileNotFoundError:
             pass
     speech = "The nervous system has been reset. All counters back to zero. Ready for new impulses."
