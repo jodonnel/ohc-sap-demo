@@ -156,23 +156,23 @@ def handle_status():
     devices = telem.get("devices", 0)
 
     if count == 0:
-        speech = "The nervous system is quiet. No events recorded yet. Waiting for nerve impulses."
+        speech = "The nervous system is quiet. No events recorded yet. Waiting for events."
     elif count < 100:
         speech = (
             f"The nervous system is warming up. "
-            f"{count} nerve impulses from {devices} devices. "
+            f"{count} events from {devices} devices. "
             f"Still ramping."
         )
     elif count < 500:
         speech = (
             f"The nervous system is active. "
-            f"{count} nerve impulses from {devices} devices. "
+            f"{count} events from {devices} devices. "
             f"Signals are flowing through the spinal cord."
         )
     else:
         speech = (
             f"The nervous system is fully online. "
-            f"{count} nerve impulses from {devices} devices. "
+            f"{count} events from {devices} devices. "
             f"Every signal is reaching the brain."
         )
 

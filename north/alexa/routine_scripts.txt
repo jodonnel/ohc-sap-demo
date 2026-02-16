@@ -6,19 +6,19 @@
 
 # ─── Milestone 100 ───
 Trigger name: "Demo 100"
-Alexa says:  "Attention. One hundred nerve impulses received. The nervous system is waking up."
+Alexa says:  "Attention. One hundred events received. The nervous system is waking up."
 
 # ─── Milestone 250 ───
 Trigger name: "Demo 250"
-Alexa says:  "Two hundred fifty nerve impulses and counting. The spinal cord is fully active."
+Alexa says:  "Two hundred fifty events and counting. The spinal cord is fully active."
 
 # ─── Milestone 500 ───
 Trigger name: "Demo 500"
-Alexa says:  "Five hundred nerve impulses. The brain is receiving signal. The loop is closing."
+Alexa says:  "Five hundred events. The brain is receiving signal. The loop is closing."
 
 # ─── Milestone 1000 ───
 Trigger name: "Demo 1000"
-Alexa says:  "One thousand nerve impulses processed. The nervous system is fully online. Sensory input up. Motor commands down."
+Alexa says:  "One thousand events processed. The nervous system is fully online. Sensory input up. Motor commands down."
 
 # ─── Custom Alert (fire manually or from threshold) ───
 Trigger name: "Demo Alert"

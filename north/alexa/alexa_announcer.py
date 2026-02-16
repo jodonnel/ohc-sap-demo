@@ -15,7 +15,7 @@ Setup:
      - "Demo 100" / "Demo 500" / "Demo 1000" / "Demo Alert"
   6. In Alexa app → Routines:
      - When: Smart Home → "Demo 100" (doorbell press)
-     - Action: Alexa Says → Custom → "100 nerve impulses received. The nervous system is waking up."
+     - Action: Alexa Says → Custom → "100 events received. The nervous system is waking up."
      - Repeat for each milestone
   7. Copy each trigger's webhook URL into the .env below
 
