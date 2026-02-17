@@ -40,7 +40,7 @@ HVAC, biometrics            telemetry, state)             ↓ (future)
 | `/present-util` | Utilities/Energy vertical presentation | North |
 | `/present-rail` | Rail/Transport vertical presentation | North |
 | `/present-ad` | Active Directory / identity vertical presentation | North |
-| `/present-index` | Presentation selector | North |
+| `/present-index` | Presentation selector + kiosk mode (auto-advance booth display) | North |
 | `/about-panel` | System evidence panel (uptime, commit, SSE clients) | North |
 | `/ingest` | POST endpoint for CloudEvents | Middle |
 | `/events` | Server-Sent Events stream | Middle |

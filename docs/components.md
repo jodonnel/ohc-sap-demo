@@ -65,7 +65,9 @@ Decision support consumer. Connects to `/events` (SSE) and `/telemetry` (polling
 
 ### stage/present*.html — Presentations (North)
 
-Six audience-specific slide decks + a selector page. Each connects to SSE for a live event counter in the nav bar. The counter is the proof — "this number is going up because people in this room are generating events right now."
+Six audience-specific slide decks + a selector page with kiosk mode. Each connects to SSE for a live event counter in the nav bar. The counter is the proof — "this number is going up because people in this room are generating events right now."
+
+**Kiosk mode** (present-index.html): auto-cycles through selected decks at a configurable interval (3-30s per slide). Fullscreen iframe player with HUD overlay, pause/stop controls, ESC/Space keyboard shortcuts. Built for unattended booth and event display. Deck registry (`DECKS` array) makes adding new presentations trivial.
 
 | File | Audience |
 |------|----------|
