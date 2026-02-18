@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#665500"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">#47 — MII/ME Coexistence Migration</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888">Dual-Route: Legacy MII + New SAP Digital Manufacturing · No Production Downtime</text>
+
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 1 — SHOP FLOOR</text>
+
+  <rect x="40" y="120" width="160" height="70" rx="6" fill="#1f1f1f" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="120" y="139" text-anchor="middle" font-size="9" font-weight="700" fill="#CC0000">⚙️ PLC / Machine</text>
+  <text x="120" y="154" text-anchor="middle" font-size="8" fill="#ccc">Production order events</text>
+  <text x="120" y="168" text-anchor="middle" font-size="7.5" fill="#666">OPC UA · Modbus</text>
+  <text x="120" y="179" text-anchor="middle" font-size="7.5" fill="#CC0000">ohc.demo.shopfloor.prod_order</text>
+
+  <rect x="40" y="205" width="160" height="75" rx="6" fill="#111" stroke="#442222" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="120" y="222" text-anchor="middle" font-size="9" font-weight="700" fill="#663333">⚠️ SAP MII / ME</text>
+  <text x="120" y="237" text-anchor="middle" font-size="7.5" fill="#553333">EOL: Dec 31 2027</text>
+  <text x="120" y="251" text-anchor="middle" font-size="7.5" fill="#553333">Running in container</text>
+  <text x="120" y="265" text-anchor="middle" font-size="7.5" fill="#553333">OpenShift Virtualization</text>
+  <text x="120" y="276" text-anchor="middle" font-size="7" fill="#440000">← still running during migration</text>
+
+  <rect x="40" y="295" width="160" height="55" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="312" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">📊 MES Operator UI</text>
+  <text x="120" y="327" text-anchor="middle" font-size="7.5" fill="#ccc">Work instructions</text>
+  <text x="120" y="341" text-anchor="middle" font-size="7.5" fill="#666">Unchanged during migration</text>
+
+  <rect x="40" y="365" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="383" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Enterprise Linux</text>
+  <rect x="40" y="401" width="160" height="28" rx="4" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="120" y="419" text-anchor="middle" font-size="8.5" fill="#6688cc">Ansible (wave rollout)</text>
+
+  <line x1="220" y1="280" x2="270" y2="280" stroke="#CC0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <text x="245" y="273" text-anchor="middle" font-size="7.5" fill="#CC0000">CloudEvents</text>
+  <text x="245" y="291" text-anchor="middle" font-size="7" fill="#666">fan-out</text>
+
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT CLUSTER</text>
+
+  <rect x="298" y="138" width="224" height="55" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="156" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">OHC North · Fan-Out Router</text>
+  <text x="410" y="170" text-anchor="middle" font-size="8" fill="#aaa">Receives prod_order event</text>
+  <text x="410" y="183" text-anchor="middle" font-size="7.5" fill="#666">Duplicates to BOTH routes simultaneously</text>
+
+  <!-- Legacy route -->
+  <rect x="298" y="205" width="105" height="75" rx="5" fill="#1a0a00" stroke="#665500" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="350" y="222" text-anchor="middle" font-size="8" font-weight="700" fill="#aa8800">Legacy Route</text>
+  <text x="350" y="237" text-anchor="middle" font-size="7.5" fill="#887744">MII stub</text>
+  <text x="350" y="251" text-anchor="middle" font-size="7.5" fill="#887744">VM on OShift</text>
+  <text x="350" y="264" text-anchor="middle" font-size="7.5" fill="#887744">Virt. engine</text>
+  <text x="350" y="276" text-anchor="middle" font-size="7" fill="#665500">EOL runtime</text>
+
+  <!-- New route -->
+  <rect x="415" y="205" width="107" height="75" rx="5" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="468" y="222" text-anchor="middle" font-size="8" font-weight="700" fill="#4caf50">New Route</text>
+  <text x="468" y="237" text-anchor="middle" font-size="7.5" fill="#6ab06a">EIC on OShift</text>
+  <text x="468" y="251" text-anchor="middle" font-size="7.5" fill="#6ab06a">SAP DM target</text>
+  <text x="468" y="264" text-anchor="middle" font-size="7.5" fill="#6ab06a">Cloud-native</text>
+  <text x="468" y="276" text-anchor="middle" font-size="7" fill="#2a4a2a">Future state</text>
+
+  <!-- EIC -->
+  <rect x="298" y="293" width="224" height="70" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="311" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="326" text-anchor="middle" font-size="8" fill="#6699bb">Routes to SAP DM (new path)</text>
+  <text x="410" y="340" text-anchor="middle" font-size="8" fill="#6699bb">Parallel result comparison</text>
+  <text x="410" y="354" text-anchor="middle" font-size="7.5" fill="#445566">Wave cutover: plant by plant</text>
+
+  <!-- Comparison display -->
+  <rect x="298" y="376" width="224" height="60" rx="5" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="410" y="394" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff">Coexistence Dashboard</text>
+  <text x="410" y="408" text-anchor="middle" font-size="7.5" fill="#888">Legacy vs Modern side-by-side</text>
+  <text x="410" y="421" text-anchor="middle" font-size="7.5" fill="#888">Response latency comparison</text>
+
+  <rect x="298" y="449" width="224" height="30" rx="5" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="410" y="468" text-anchor="middle" font-size="8.5" font-weight="700" fill="#6688cc">Ansible (wave automation)</text>
+
+  <line x1="410" y1="193" x2="350" y2="205" stroke="#665500" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arr-gold)"/>
+  <line x1="410" y1="193" x2="468" y2="205" stroke="#2a7a2a" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <line x1="410" y1="280" x2="410" y2="293" stroke="#0057a8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <line x1="410" y1="363" x2="410" y2="376" stroke="#555" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <line x1="550" y1="330" x2="610" y2="330" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="323" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="341" text-anchor="middle" font-size="7" fill="#666">REST</text>
+
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — SAP ENTERPRISE</text>
+
+  <rect x="625" y="115" width="240" height="80" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">SAP Digital Manufacturing</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6ab06a">New MES execution target</text>
+  <text x="745" y="162" text-anchor="middle" font-size="8" fill="#6ab06a">Production order processing</text>
+  <text x="745" y="176" text-anchor="middle" font-size="7.5" fill="#446644">Cloud-native · AI-ready</text>
+  <text x="745" y="188" text-anchor="middle" font-size="7" fill="#2a4a2a">SAP DM / DMC (replacement for MII/ME)</text>
+
+  <rect x="625" y="210" width="110" height="70" rx="6" fill="#111" stroke="#442222" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="680" y="228" text-anchor="middle" font-size="8.5" font-weight="700" fill="#663333">SAP MII</text>
+  <text x="680" y="243" text-anchor="middle" font-size="7.5" fill="#553333">Legacy (EOL)</text>
+  <text x="680" y="257" text-anchor="middle" font-size="7.5" fill="#553333">Still receives during</text>
+  <text x="680" y="270" text-anchor="middle" font-size="7" fill="#440000">migration window</text>
+
+  <rect x="748" y="210" width="110" height="70" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1"/>
+  <text x="803" y="228" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4a90d9">SAP BTP</text>
+  <text x="803" y="243" text-anchor="middle" font-size="7.5" fill="#6699bb">Central governance</text>
+  <text x="803" y="257" text-anchor="middle" font-size="7.5" fill="#6699bb">Integration Suite</text>
+  <text x="803" y="269" text-anchor="middle" font-size="7" fill="#445566">EIC lifecycle mgmt</text>
+
+  <rect x="625" y="295" width="234" height="95" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="315" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="331" text-anchor="middle" font-size="8" fill="#6ab06a">Production never stops</text>
+  <text x="742" y="346" text-anchor="middle" font-size="8" fill="#6ab06a">Old + new run simultaneously</text>
+  <text x="742" y="361" text-anchor="middle" font-size="7.5" fill="#446644">Cutover plant-by-plant, wave-by-wave</text>
+  <text x="742" y="375" text-anchor="middle" font-size="7.5" fill="#446644">Dashboard proves parity before cutover</text>
+  <text x="742" y="387" text-anchor="middle" font-size="7" fill="#2a4a2a">Red Hat: consistent runtime across both paths</text>
+
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#CC0000"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Red Hat OpenShift + Virtualization</text>
+  <rect x="200" y="588" width="14" height="6" fill="none" stroke="#442222" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="218" y="596" font-size="8" fill="#aaa">Legacy MII/ME (EOL — in VM)</text>
+  <circle cx="390" cy="592" r="4" fill="#4caf50"/>
+  <text x="400" y="596" font-size="8" fill="#aaa">SAP Digital Manufacturing (new)</text>
+  <circle cx="580" cy="592" r="4" fill="#0057a8"/>
+  <text x="590" y="596" font-size="8" fill="#aaa">SAP BTP / EIC</text>
+  <circle cx="680" cy="592" r="4" fill="#6688cc"/>
+  <text x="690" y="596" font-size="8" fill="#aaa">Ansible wave automation</text>
+</svg>

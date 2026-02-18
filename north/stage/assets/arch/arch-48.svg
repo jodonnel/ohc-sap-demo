@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#c45000"/></marker>
+    <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6a3a9a"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">#48 — Energy Anomaly Detection → SAP EAM</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888">OT Sensor → Edge AI Classifier → CloudEvent → EIC → SAP EAM Work Order · NERC CIP</text>
+
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 1 — SUBSTATION OT</text>
+
+  <rect x="40" y="120" width="160" height="80" rx="6" fill="#1f1f1f" stroke="#c45000" stroke-width="1.5"/>
+  <text x="120" y="139" text-anchor="middle" font-size="9" font-weight="700" fill="#c45000">⚡ Substation Sensors</text>
+  <text x="120" y="154" text-anchor="middle" font-size="8" fill="#ccc">Voltage · current · temperature</text>
+  <text x="120" y="168" text-anchor="middle" font-size="8" fill="#ccc">Vibration · partial discharge</text>
+  <text x="120" y="182" text-anchor="middle" font-size="7.5" fill="#666">IEC 61850 · Modbus · DNP3</text>
+  <text x="120" y="193" text-anchor="middle" font-size="7.5" fill="#666">1000s readings/second</text>
+
+  <rect x="40" y="215" width="160" height="60" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="233" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">🔌 RTU / IED</text>
+  <text x="120" y="248" text-anchor="middle" font-size="8" fill="#ccc">Remote terminal unit</text>
+  <text x="120" y="261" text-anchor="middle" font-size="7.5" fill="#666">SCADA data acquisition</text>
+
+  <rect x="40" y="290" width="160" height="60" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="308" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">🛡 Historian / SCADA</text>
+  <text x="120" y="323" text-anchor="middle" font-size="8" fill="#ccc">OSIsoft PI / Ignition</text>
+  <text x="120" y="337" text-anchor="middle" font-size="7.5" fill="#666">Time-series storage</text>
+
+  <rect x="40" y="365" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="383" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Device Edge</text>
+  <rect x="40" y="401" width="160" height="28" rx="4" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="120" y="419" text-anchor="middle" font-size="8.5" fill="#888">RHEL + MicroShift</text>
+  <rect x="40" y="437" width="160" height="28" rx="4" fill="#0a0a1a" stroke="#3355aa" stroke-width="1"/>
+  <text x="120" y="455" text-anchor="middle" font-size="8.5" fill="#6688cc">Ansible (NERC CIP mgmt)</text>
+
+  <line x1="220" y1="300" x2="270" y2="300" stroke="#c45000" stroke-width="2" marker-end="url(#arr-orange)"/>
+  <text x="245" y="293" text-anchor="middle" font-size="7.5" fill="#c45000">sensor data</text>
+  <text x="245" y="311" text-anchor="middle" font-size="7" fill="#666">OPC UA / MQTT</text>
+
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT AI CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT + OPENSHIFT AI</text>
+
+  <rect x="298" y="138" width="224" height="55" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="156" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">OHC Sensor Ingest</text>
+  <text x="410" y="170" text-anchor="middle" font-size="8" fill="#aaa">OPC UA / MQTT bridge</text>
+  <text x="410" y="183" text-anchor="middle" font-size="7.5" fill="#666">Streaming time-series buffer</text>
+
+  <rect x="298" y="205" width="224" height="90" rx="5" fill="#100a28" stroke="#6a3a9a" stroke-width="1.5"/>
+  <text x="410" y="223" text-anchor="middle" font-size="9" font-weight="700" fill="#9a6adf">🧠 Anomaly Classifier</text>
+  <text x="410" y="238" text-anchor="middle" font-size="8" fill="#8866cc">Time-series ML model</text>
+  <text x="410" y="252" text-anchor="middle" font-size="8" fill="#8866cc">Voltage spike · temp exceedance</text>
+  <text x="410" y="265" text-anchor="middle" font-size="8" fill="#8866cc">Partial discharge pattern</text>
+  <text x="410" y="279" text-anchor="middle" font-size="7.5" fill="#5a3a8a">Confidence score · anomaly_type</text>
+  <text x="410" y="291" text-anchor="middle" font-size="7.5" fill="#5a3a8a">OpenShift AI · GPU accelerated</text>
+
+  <rect x="298" y="307" width="224" height="60" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1"/>
+  <text x="410" y="325" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">CloudEvent Builder</text>
+  <text x="410" y="340" text-anchor="middle" font-size="8" fill="#aaa">ohc.demo.ot.anomaly_detected</text>
+  <text x="410" y="354" text-anchor="middle" font-size="7.5" fill="#666">asset_id · type · severity · reading · threshold</text>
+
+  <rect x="298" y="379" width="224" height="70" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="397" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="411" text-anchor="middle" font-size="8" fill="#6699bb">Routes → SAP EAM work order</text>
+  <text x="410" y="425" text-anchor="middle" font-size="8" fill="#6699bb">Priority based on severity (1-5)</text>
+  <text x="410" y="438" text-anchor="middle" font-size="7.5" fill="#445566">NERC CIP evidence event logged</text>
+
+  <rect x="298" y="461" width="224" height="27" rx="5" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="410" y="478" text-anchor="middle" font-size="8.5" font-weight="700" fill="#6688cc">Ansible Automation Platform</text>
+
+  <line x1="410" y1="193" x2="410" y2="205" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <line x1="410" y1="295" x2="410" y2="307" stroke="#6a3a9a" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <line x1="410" y1="367" x2="410" y2="379" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <line x1="550" y1="415" x2="610" y2="415" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="408" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="426" text-anchor="middle" font-size="7" fill="#666">BAPI</text>
+
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — SAP ENTERPRISE</text>
+
+  <rect x="625" y="115" width="240" height="95" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">SAP EAM / PM</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6ab06a">Predictive maintenance work order</text>
+  <text x="745" y="162" text-anchor="middle" font-size="8" fill="#6ab06a">Before failure occurs</text>
+  <text x="745" y="176" text-anchor="middle" font-size="8" fill="#6ab06a">Assigns field crew + safety briefing</text>
+  <text x="745" y="190" text-anchor="middle" font-size="7.5" fill="#446644">Crew gets threat context before dispatch</text>
+  <text x="745" y="202" text-anchor="middle" font-size="7" fill="#2a4a2a">No blind dispatches like Duke Energy incident</text>
+
+  <rect x="625" y="225" width="110" height="65" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="680" y="243" text-anchor="middle" font-size="8.5" font-weight="700" fill="#aaa">RegScale CCM</text>
+  <text x="680" y="258" text-anchor="middle" font-size="7.5" fill="#777">NERC CIP-010</text>
+  <text x="680" y="271" text-anchor="middle" font-size="7.5" fill="#777">Evidence logging</text>
+  <text x="680" y="283" text-anchor="middle" font-size="7" fill="#555">OSCAL artifacts</text>
+
+  <rect x="748" y="225" width="110" height="65" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1"/>
+  <text x="803" y="243" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4a90d9">SAP BTP</text>
+  <text x="803" y="258" text-anchor="middle" font-size="7.5" fill="#6699bb">Fleet analytics</text>
+  <text x="803" y="271" text-anchor="middle" font-size="7.5" fill="#6699bb">Multi-site dashboard</text>
+  <text x="803" y="283" text-anchor="middle" font-size="7" fill="#445566">Predictive scheduling</text>
+
+  <rect x="625" y="305" width="234" height="95" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="325" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="341" text-anchor="middle" font-size="8" fill="#6ab06a">Failure predicted before it happens</text>
+  <text x="742" y="356" text-anchor="middle" font-size="8" fill="#6ab06a">Field crew dispatched with full threat context</text>
+  <text x="742" y="371" text-anchor="middle" font-size="7.5" fill="#446644">NERC CIP compliance evidence auto-generated</text>
+  <text x="742" y="385" text-anchor="middle" font-size="7.5" fill="#446644">No lineman sent blind into dangerous situation</text>
+  <text x="742" y="397" text-anchor="middle" font-size="7" fill="#2a4a2a">AI runs at edge — zero cloud round-trip latency</text>
+
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#CC0000"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Red Hat OpenShift AI / Device Edge</text>
+  <circle cx="240" cy="592" r="4" fill="#c45000"/>
+  <text x="250" y="596" font-size="8" fill="#aaa">OT sensors (substation)</text>
+  <circle cx="380" cy="592" r="4" fill="#6a3a9a"/>
+  <text x="390" y="596" font-size="8" fill="#aaa">Edge AI anomaly classifier</text>
+  <circle cx="530" cy="592" r="4" fill="#0057a8"/>
+  <text x="540" y="596" font-size="8" fill="#aaa">SAP EAM / BTP</text>
+  <circle cx="630" cy="592" r="4" fill="#4caf50"/>
+  <text x="640" y="596" font-size="8" fill="#aaa">NERC CIP compliant outcome</text>
+</svg>

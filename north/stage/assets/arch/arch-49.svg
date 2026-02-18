@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#006b6b"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">#49 — Real Consumer IoT → CloudEvents</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888">Withings Scale + Garmin Watch → Same OpenShift Pipeline as a Ford PLC · Architecture Proof</text>
+
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 1 — CONSUMER DEVICES</text>
+
+  <rect x="40" y="120" width="160" height="80" rx="6" fill="#1f1f1f" stroke="#006b6b" stroke-width="1.5"/>
+  <text x="120" y="139" text-anchor="middle" font-size="9" font-weight="700" fill="#00aaaa">⚖ Withings Scale</text>
+  <text x="120" y="154" text-anchor="middle" font-size="8" fill="#ccc">WiFi-connected</text>
+  <text x="120" y="168" text-anchor="middle" font-size="8" fill="#ccc">Weight · body comp · HR</text>
+  <text x="120" y="182" text-anchor="middle" font-size="7.5" fill="#006b6b">Withings Health Mate API</text>
+  <text x="120" y="193" text-anchor="middle" font-size="7.5" fill="#006b6b">Webhook → /ingest/withings</text>
+
+  <rect x="40" y="215" width="160" height="80" rx="6" fill="#1f1f1f" stroke="#006b6b" stroke-width="1.5"/>
+  <text x="120" y="234" text-anchor="middle" font-size="9" font-weight="700" fill="#00aaaa">⌚ Garmin Watch</text>
+  <text x="120" y="249" text-anchor="middle" font-size="8" fill="#ccc">Garmin Connect API</text>
+  <text x="120" y="263" text-anchor="middle" font-size="8" fill="#ccc">HR · steps · stress · GPS</text>
+  <text x="120" y="277" text-anchor="middle" font-size="7.5" fill="#006b6b">Health API / webhook</text>
+  <text x="120" y="288" text-anchor="middle" font-size="7.5" fill="#006b6b">→ /ingest/garmin</text>
+
+  <rect x="40" y="310" width="160" height="65" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="120" y="328" text-anchor="middle" font-size="9" font-weight="700" fill="#777">🏭 Ford PLC (ref.)</text>
+  <text x="120" y="343" text-anchor="middle" font-size="8" fill="#666">Same pipeline</text>
+  <text x="120" y="357" text-anchor="middle" font-size="7.5" fill="#555">OPC UA · badge scan</text>
+  <text x="120" y="369" text-anchor="middle" font-size="7.5" fill="#555">Architecture-agnostic</text>
+
+  <rect x="40" y="390" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="408" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Device Edge</text>
+  <rect x="40" y="426" width="160" height="28" rx="4" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="120" y="444" text-anchor="middle" font-size="8.5" fill="#888">Ansible (webhook mgmt)</text>
+
+  <line x1="220" y1="290" x2="270" y2="270" stroke="#006b6b" stroke-width="2" marker-end="url(#arr-teal)"/>
+  <text x="248" y="270" text-anchor="middle" font-size="7.5" fill="#00aaaa">webhook</text>
+  <line x1="220" y1="290" x2="270" y2="310" stroke="#006b6b" stroke-width="2" marker-end="url(#arr-teal)"/>
+
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT — SAME PIPELINE</text>
+
+  <rect x="298" y="138" width="224" height="65" rx="5" fill="#0a1a1a" stroke="#006b6b" stroke-width="1.5"/>
+  <text x="410" y="157" text-anchor="middle" font-size="9" font-weight="700" fill="#00aaaa">IoT Webhook Receivers</text>
+  <text x="410" y="172" text-anchor="middle" font-size="8" fill="#008888">POST /ingest/withings</text>
+  <text x="410" y="186" text-anchor="middle" font-size="8" fill="#008888">POST /ingest/garmin</text>
+  <text x="410" y="197" text-anchor="middle" font-size="7.5" fill="#005555">New routes, same OHC North App</text>
+
+  <rect x="298" y="215" width="224" height="70" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="233" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">CloudEvent Normalizer</text>
+  <text x="410" y="248" text-anchor="middle" font-size="8" fill="#aaa">ohc.demo.iot.biometric</text>
+  <text x="410" y="262" text-anchor="middle" font-size="8" fill="#666">device_type · metric · value · unit · timestamp</text>
+  <text x="410" y="276" text-anchor="middle" font-size="7.5" fill="#CC0000">Same schema as badge_scan / vehicle.telemetry</text>
+
+  <rect x="298" y="297" width="224" height="60" rx="5" fill="#1a1000" stroke="#c45000" stroke-width="1"/>
+  <text x="410" y="315" text-anchor="middle" font-size="9" font-weight="700" fill="#c45000">💡 The Point</text>
+  <text x="410" y="330" text-anchor="middle" font-size="8" fill="#aa7744">Architecture doesn't care</text>
+  <text x="410" y="344" text-anchor="middle" font-size="8" fill="#aa7744">what the nerve ending is</text>
+  <text x="410" y="355" text-anchor="middle" font-size="7.5" fill="#664422">Scale = badge = PLC = same pipeline</text>
+
+  <rect x="298" y="369" width="224" height="70" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="387" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="402" text-anchor="middle" font-size="8" fill="#6699bb">Routes biometric events to BTP</text>
+  <text x="410" y="416" text-anchor="middle" font-size="8" fill="#6699bb">Optional: SAP Health / wellness apps</text>
+  <text x="410" y="429" text-anchor="middle" font-size="7.5" fill="#445566">Demonstrates adapter-agnostic EIC</text>
+
+  <rect x="298" y="451" width="224" height="30" rx="5" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="410" y="470" text-anchor="middle" font-size="8.5" font-weight="700" fill="#6688cc">Ansible Automation Platform</text>
+
+  <line x1="410" y1="203" x2="410" y2="215" stroke="#006b6b" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+  <line x1="410" y1="285" x2="410" y2="297" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <line x1="410" y1="357" x2="410" y2="369" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <line x1="550" y1="400" x2="610" y2="400" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="393" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="411" text-anchor="middle" font-size="7" fill="#666">REST</text>
+
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — SAP BTP</text>
+
+  <rect x="625" y="115" width="240" height="80" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Business Technology Platform</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6699bb">Receives biometric CloudEvents</text>
+  <text x="745" y="162" text-anchor="middle" font-size="8" fill="#6699bb">Integration Suite routing</text>
+  <text x="745" y="176" text-anchor="middle" font-size="8" fill="#6699bb">Event Mesh fan-out</text>
+  <text x="745" y="188" text-anchor="middle" font-size="7" fill="#445566">Central orchestration layer</text>
+
+  <rect x="625" y="210" width="110" height="70" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="680" y="228" text-anchor="middle" font-size="8" font-weight="700" fill="#aaa">Wellness App</text>
+  <text x="680" y="243" text-anchor="middle" font-size="7.5" fill="#777">Health dashboard</text>
+  <text x="680" y="257" text-anchor="middle" font-size="7.5" fill="#777">Trend analysis</text>
+  <text x="680" y="269" text-anchor="middle" font-size="7" fill="#555">Optional: HR wellness</text>
+
+  <rect x="748" y="210" width="110" height="70" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="803" y="228" text-anchor="middle" font-size="8" font-weight="700" fill="#aaa">Analytics Cloud</text>
+  <text x="803" y="243" text-anchor="middle" font-size="7.5" fill="#777">SAP Analytics Cloud</text>
+  <text x="803" y="257" text-anchor="middle" font-size="7.5" fill="#777">Biometric trends</text>
+  <text x="803" y="269" text-anchor="middle" font-size="7" fill="#555">Demo: real Jim data</text>
+
+  <rect x="625" y="295" width="234" height="110" rx="6" fill="#1a0a00" stroke="#c45000" stroke-width="1.5"/>
+  <text x="742" y="315" text-anchor="middle" font-size="9" font-weight="700" fill="#c45000">🎯 The Limbic Kill Shot</text>
+  <text x="742" y="332" text-anchor="middle" font-size="8" fill="#aa7744">"This morning I stepped on my scale."</text>
+  <text x="742" y="348" text-anchor="middle" font-size="8" fill="#aa7744">"That weigh-in became a CloudEvent."</text>
+  <text x="742" y="364" text-anchor="middle" font-size="8" fill="#aa7744">"It flowed through the same OpenShift</text>
+  <text x="742" y="378" text-anchor="middle" font-size="8" fill="#aa7744">pipeline as the badge scan you just saw."</text>
+  <text x="742" y="394" text-anchor="middle" font-size="7.5" fill="#664422">"The architecture doesn't care</text>
+  <text x="742" y="406" text-anchor="middle" font-size="7.5" fill="#664422">what the nerve ending is."</text>
+
+  <rect x="625" y="420" width="234" height="55" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="438" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="454" text-anchor="middle" font-size="8" fill="#6ab06a">Pattern proven with Jim's real data</text>
+  <text x="742" y="467" text-anchor="middle" font-size="7.5" fill="#446644">No simulations — actual Withings + Garmin</text>
+
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#006b6b"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Consumer IoT (Withings / Garmin)</text>
+  <circle cx="230" cy="592" r="4" fill="#CC0000"/>
+  <text x="240" y="596" font-size="8" fill="#aaa">Same Red Hat OpenShift pipeline</text>
+  <circle cx="415" cy="592" r="4" fill="#c45000"/>
+  <text x="425" y="596" font-size="8" fill="#aaa">The point: architecture-agnostic</text>
+  <circle cx="600" cy="592" r="4" fill="#0057a8"/>
+  <text x="610" y="596" font-size="8" fill="#aaa">SAP BTP receives any CloudEvent</text>
+</svg>

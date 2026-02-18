@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#c45000"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff" letter-spacing="1">#42 — 3D-GRC Kill Chain</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888" letter-spacing="0.5">Physical → IT → OT Threat Correlation · Badge Clone → Lateral Move → OT Lockdown</text>
+
+  <!-- TIER 1: PHYSICAL / OT LAYER -->
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">PHYSICAL / OT LAYER</text>
+
+  <!-- PACS -->
+  <rect x="40" y="120" width="160" height="75" rx="6" fill="#1f1f1f" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="120" y="140" text-anchor="middle" font-size="9" font-weight="700" fill="#CC0000">🚪 PACS</text>
+  <text x="120" y="155" text-anchor="middle" font-size="8" fill="#ccc">Badge reader / CCURE</text>
+  <text x="120" y="168" text-anchor="middle" font-size="8" fill="#666">Detects: badge clone</text>
+  <text x="120" y="181" text-anchor="middle" font-size="7.5" fill="#CC0000">⚠ Event: badge_anomaly</text>
+
+  <!-- CCTV -->
+  <rect x="40" y="210" width="160" height="60" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="228" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">📷 CCTV / Video</text>
+  <text x="120" y="243" text-anchor="middle" font-size="8" fill="#ccc">Corroborates access</text>
+  <text x="120" y="257" text-anchor="middle" font-size="7.5" fill="#666">ONVIF / RTSP</text>
+
+  <!-- OT / PLC -->
+  <rect x="40" y="285" width="160" height="70" rx="6" fill="#1f1f1f" stroke="#c45000" stroke-width="1.5"/>
+  <text x="120" y="303" text-anchor="middle" font-size="9" font-weight="700" fill="#c45000">⚙️ OT / PLC / SCADA</text>
+  <text x="120" y="318" text-anchor="middle" font-size="8" fill="#ccc">Production systems</text>
+  <text x="120" y="332" text-anchor="middle" font-size="8" fill="#666">Modbus · OPC UA</text>
+  <text x="120" y="345" text-anchor="middle" font-size="7.5" fill="#c45000">← lockdown target</text>
+
+  <!-- Network sensor -->
+  <rect x="40" y="370" width="160" height="55" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="388" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">🌐 NAC / Network</text>
+  <text x="120" y="403" text-anchor="middle" font-size="8" fill="#ccc">Rogue device detected</text>
+  <text x="120" y="415" text-anchor="middle" font-size="7.5" fill="#666">Event: it_lateral</text>
+
+  <!-- RHEL -->
+  <rect x="40" y="440" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="458" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Enterprise Linux</text>
+  <rect x="40" y="476" width="160" height="28" rx="4" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="120" y="494" text-anchor="middle" font-size="8.5" fill="#888">Ansible (remediation)</text>
+
+  <!-- Arrow T1→T2 -->
+  <line x1="220" y1="300" x2="270" y2="300" stroke="#CC0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <text x="245" y="293" text-anchor="middle" font-size="7.5" fill="#CC0000">CloudEvents</text>
+  <text x="245" y="311" text-anchor="middle" font-size="7" fill="#666">SSE / HTTP</text>
+
+  <!-- TIER 2: OPENSHIFT CORRELATION ENGINE -->
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT CLUSTER</text>
+
+  <!-- OHC North -->
+  <rect x="298" y="138" width="224" height="55" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="156" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">OHC North App</text>
+  <text x="410" y="170" text-anchor="middle" font-size="8" fill="#aaa">Event ingest · SSE fan-out</text>
+  <text x="410" y="183" text-anchor="middle" font-size="7.5" fill="#666">Scenario player (Kill Chain mode)</text>
+
+  <!-- Correlation Engine -->
+  <rect x="298" y="205" width="224" height="85" rx="5" fill="#1a0a00" stroke="#c45000" stroke-width="1.5"/>
+  <text x="410" y="223" text-anchor="middle" font-size="9" font-weight="700" fill="#c45000">🧠 Correlation Engine</text>
+  <text x="410" y="237" text-anchor="middle" font-size="8" fill="#aa7744">badge_anomaly + it_lateral</text>
+  <text x="410" y="250" text-anchor="middle" font-size="8" fill="#aa7744">+ ot_access → kill chain</text>
+  <text x="410" y="263" text-anchor="middle" font-size="8" fill="#aa7744">Fires: ot_lockdown event</text>
+  <text x="410" y="277" text-anchor="middle" font-size="7.5" fill="#664422">Ansible trigger on threshold</text>
+
+  <!-- EIC -->
+  <rect x="298" y="303" width="224" height="70" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="321" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="335" text-anchor="middle" font-size="8" fill="#6699bb">Routes events → SAP GRC</text>
+  <text x="410" y="348" text-anchor="middle" font-size="8" fill="#6699bb">Suspends ERP credentials</text>
+  <text x="410" y="361" text-anchor="middle" font-size="7.5" fill="#445566">HTTPS · REST · RFC</text>
+
+  <!-- Dashboard -->
+  <rect x="298" y="386" width="224" height="50" rx="5" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="410" y="405" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff">Kill Chain Dashboard</text>
+  <text x="410" y="419" text-anchor="middle" font-size="7.5" fill="#888">3-phase timeline · threat level indicator</text>
+  <text x="410" y="431" text-anchor="middle" font-size="7.5" fill="#888">Physical / IT / OT lanes</text>
+
+  <!-- AAP -->
+  <rect x="298" y="448" width="224" height="35" rx="5" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="410" y="470" text-anchor="middle" font-size="8.5" font-weight="700" fill="#6688cc">Ansible Automation Platform</text>
+
+  <!-- Internal arrows -->
+  <line x1="410" y1="193" x2="410" y2="205" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <line x1="410" y1="290" x2="410" y2="303" stroke="#c45000" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+  <line x1="410" y1="373" x2="410" y2="386" stroke="#0057a8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+  <!-- Arrow T2→T3 -->
+  <line x1="550" y1="340" x2="610" y2="340" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="333" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="351" text-anchor="middle" font-size="7" fill="#666">REST / RFC</text>
+
+  <!-- TIER 3: ENTERPRISE -->
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — ENTERPRISE GRC</text>
+
+  <!-- SAP GRC -->
+  <rect x="625" y="115" width="240" height="90" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP GRC</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6699bb">Access Control · SoD engine</text>
+  <text x="745" y="161" text-anchor="middle" font-size="8" fill="#6699bb">Suspends ERP user account</text>
+  <text x="745" y="174" text-anchor="middle" font-size="8" fill="#6699bb">Flags policy violation</text>
+  <text x="745" y="187" text-anchor="middle" font-size="7.5" fill="#445566">Audit trail · risk score update</text>
+  <text x="745" y="198" text-anchor="middle" font-size="7.5" fill="#445566">Triggers SAP GRC workflow</text>
+
+  <!-- AlertEnterprise -->
+  <rect x="625" y="220" width="110" height="80" rx="6" fill="#1a1a1a" stroke="#c45000" stroke-width="1.5"/>
+  <text x="680" y="238" text-anchor="middle" font-size="8.5" font-weight="700" fill="#c45000">AlertEnterprise</text>
+  <text x="680" y="252" text-anchor="middle" font-size="7.5" fill="#aa7744">PIAM platform</text>
+  <text x="680" y="265" text-anchor="middle" font-size="7.5" fill="#aa7744">Physical identity</text>
+  <text x="680" y="278" text-anchor="middle" font-size="7.5" fill="#aa7744">Badge revocation</text>
+  <text x="680" y="291" text-anchor="middle" font-size="7" fill="#664422">Cross-domain corr.</text>
+
+  <!-- RegScale -->
+  <rect x="748" y="220" width="110" height="80" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="803" y="238" text-anchor="middle" font-size="8.5" font-weight="700" fill="#aaa">RegScale CCM</text>
+  <text x="803" y="252" text-anchor="middle" font-size="7.5" fill="#777">NERC CIP evidence</text>
+  <text x="803" y="265" text-anchor="middle" font-size="7.5" fill="#777">IEC 62443 mapping</text>
+  <text x="803" y="278" text-anchor="middle" font-size="7.5" fill="#777">NIST CSF 2.0</text>
+  <text x="803" y="291" text-anchor="middle" font-size="7" fill="#555">OSCAL artifacts</text>
+
+  <!-- S4 -->
+  <rect x="625" y="315" width="110" height="70" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="680" y="333" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">S/4HANA</text>
+  <text x="680" y="348" text-anchor="middle" font-size="7.5" fill="#6ab06a">HCM · Fieldglass</text>
+  <text x="680" y="361" text-anchor="middle" font-size="7.5" fill="#6ab06a">Contractor records</text>
+  <text x="680" y="374" text-anchor="middle" font-size="7" fill="#446644">Identity source of truth</text>
+
+  <!-- SOC -->
+  <rect x="748" y="315" width="110" height="70" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="803" y="333" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">SOC / SIEM</text>
+  <text x="803" y="348" text-anchor="middle" font-size="7.5" fill="#777">Splunk / Sentinel</text>
+  <text x="803" y="361" text-anchor="middle" font-size="7.5" fill="#777">Alert correlation</text>
+  <text x="803" y="374" text-anchor="middle" font-size="7" fill="#555">Incident ticket</text>
+
+  <!-- Outcome card -->
+  <rect x="625" y="400" width="234" height="75" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="420" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="436" text-anchor="middle" font-size="8" fill="#6ab06a">Badge revoked · ERP account suspended</text>
+  <text x="742" y="450" text-anchor="middle" font-size="8" fill="#6ab06a">OT isolated · Audit trail complete</text>
+  <text x="742" y="464" text-anchor="middle" font-size="7.5" fill="#446644">NERC CIP / IEC 62443 evidence generated</text>
+  <text x="742" y="476" text-anchor="middle" font-size="7" fill="#446644">No single vendor needed — Red Hat is the spine</text>
+
+  <!-- Arrows T3 internal -->
+  <line x1="745" y1="205" x2="745" y2="220" stroke="#0057a8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+  <!-- Legend -->
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#CC0000"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Red Hat OpenShift + Ansible</text>
+  <circle cx="195" cy="592" r="4" fill="#c45000"/>
+  <text x="205" y="596" font-size="8" fill="#aaa">OT / Physical layer</text>
+  <circle cx="330" cy="592" r="4" fill="#0057a8"/>
+  <text x="340" y="596" font-size="8" fill="#aaa">SAP GRC / BTP</text>
+  <circle cx="440" cy="592" r="4" fill="#4caf50"/>
+  <text x="450" y="596" font-size="8" fill="#aaa">Clean outcome (breach contained)</text>
+  <circle cx="640" cy="592" r="4" fill="#aaa"/>
+  <text x="650" y="596" font-size="8" fill="#aaa">RegScale / SIEM (compliance evidence)</text>
+</svg>

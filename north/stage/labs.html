@@ -312,7 +312,7 @@ const USE_CASES = [
     filters:["IoT","EIC","OpenShift"]
   },
   {
-    num:"07", issue:47, demo:null,
+    num:"07", issue:47, demo:"/present-mii",
     title:"MII/ME Coexistence Migration",
     tagline:"Run old and new side-by-side. No production downtime.",
     abstract:"MII and ME share the same Dec 2027 EOL as PI/PO — but MES systems can't simply be switched off. The demo shows parallel routing: existing MII logic runs in a container on OpenShift Virtualization while new events simultaneously flow to SAP Digital Manufacturing. Migration happens in waves. No downtime.",
@@ -320,7 +320,7 @@ const USE_CASES = [
     filters:["OpenShift","EIC"]
   },
   {
-    num:"08", issue:48, demo:null,
+    num:"08", issue:48, demo:"/present-substation",
     title:"Energy Anomaly → SAP EAM",
     tagline:"AI at the substation. Predict failure before the lineman gets hurt.",
     abstract:"An AI model on a Red Hat OpenShift edge node analyzes substation sensor data in real time — detecting anomalies before equipment fails. When a threshold is crossed, a CloudEvent flows through EIC to SAP EAM, creating a predictive maintenance work order. Without correlated context, field crews are dispatched blind into dangerous situations.",

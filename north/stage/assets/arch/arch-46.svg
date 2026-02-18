@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-navy" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#003a8c"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">#46 — Mercedes-Benz Connected Vehicle Relay</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888">Real Fleet API (Kafka Push) → OpenShift Kafka Consumer → EIC → SAP PM/EAM</text>
+
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 1 — VEHICLE / OEM</text>
+
+  <rect x="40" y="120" width="160" height="85" rx="6" fill="#1f1f1f" stroke="#003a8c" stroke-width="1.5"/>
+  <text x="120" y="140" text-anchor="middle" font-size="9" font-weight="700" fill="#4488ff">🚗 Connected Vehicle</text>
+  <text x="120" y="155" text-anchor="middle" font-size="8" fill="#ccc">Factory telematics module</text>
+  <text x="120" y="169" text-anchor="middle" font-size="8" fill="#666">No retrofit required</text>
+  <text x="120" y="183" text-anchor="middle" font-size="7.5" fill="#666">Odometer · fuel · EV range</text>
+  <text x="120" y="194" text-anchor="middle" font-size="7.5" fill="#666">Fault codes · lock state</text>
+
+  <rect x="40" y="220" width="160" height="80" rx="6" fill="#1f1f1f" stroke="#003a8c" stroke-width="1.5"/>
+  <text x="120" y="238" text-anchor="middle" font-size="9" font-weight="700" fill="#4488ff">☁ MB Cloud</text>
+  <text x="120" y="253" text-anchor="middle" font-size="8" fill="#ccc">Mercedes-Benz /developers</text>
+  <text x="120" y="267" text-anchor="middle" font-size="8" fill="#6688cc">Management API (REST)</text>
+  <text x="120" y="281" text-anchor="middle" font-size="8" fill="#6688cc">Activate vehicles · services</text>
+  <text x="120" y="292" text-anchor="middle" font-size="7.5" fill="#445566">Softcars for dev/demo ✓</text>
+
+  <rect x="40" y="315" width="160" height="65" rx="6" fill="#1f1f1f" stroke="#003a8c" stroke-width="1.5"/>
+  <text x="120" y="333" text-anchor="middle" font-size="9" font-weight="700" fill="#4488ff">📡 Kafka Push API</text>
+  <text x="120" y="348" text-anchor="middle" font-size="8" fill="#ccc">Live telemetry stream</text>
+  <text x="120" y="362" text-anchor="middle" font-size="8" fill="#666">Real-time push (no polling)</text>
+  <text x="120" y="373" text-anchor="middle" font-size="7.5" fill="#003a8c">topic: mb.vehicle.telemetry</text>
+
+  <rect x="40" y="395" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="413" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Enterprise Linux</text>
+  <rect x="40" y="431" width="160" height="28" rx="4" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="120" y="449" text-anchor="middle" font-size="8.5" fill="#888">Ansible (lifecycle)</text>
+
+  <line x1="220" y1="350" x2="270" y2="350" stroke="#003a8c" stroke-width="2" marker-end="url(#arr-navy)"/>
+  <text x="245" y="343" text-anchor="middle" font-size="7.5" fill="#4488ff">Kafka</text>
+  <text x="245" y="361" text-anchor="middle" font-size="7" fill="#666">stream</text>
+
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT CLUSTER</text>
+
+  <rect x="298" y="138" width="224" height="70" rx="5" fill="#0a0f1a" stroke="#003a8c" stroke-width="1.5"/>
+  <text x="410" y="157" text-anchor="middle" font-size="9" font-weight="700" fill="#4488ff">Kafka Consumer Service</text>
+  <text x="410" y="172" text-anchor="middle" font-size="8" fill="#6688cc">Subscribes to MB Kafka topic</text>
+  <text x="410" y="186" text-anchor="middle" font-size="8" fill="#6688cc">Deserializes Avro/JSON payload</text>
+  <text x="410" y="199" text-anchor="middle" font-size="7.5" fill="#445566">MB_KAFKA_BROKER · MB_API_KEY env</text>
+
+  <rect x="298" y="220" width="224" height="70" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="238" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">CloudEvent Normalizer</text>
+  <text x="410" y="252" text-anchor="middle" font-size="8" fill="#aaa">ohc.demo.vehicle.telemetry</text>
+  <text x="410" y="266" text-anchor="middle" font-size="8" fill="#666">vehicle_id · odometer · fuel_pct</text>
+  <text x="410" y="279" text-anchor="middle" font-size="7.5" fill="#666">ev_range_km · fault_codes[] · lock_state</text>
+
+  <rect x="298" y="302" width="224" height="80" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="320" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="335" text-anchor="middle" font-size="8" fill="#6699bb">maintenance_due → SAP PM</text>
+  <text x="410" y="349" text-anchor="middle" font-size="8" fill="#6699bb">fault_code → SAP EAM</text>
+  <text x="410" y="363" text-anchor="middle" font-size="8" fill="#6699bb">mileage → SAP SuccessFactors</text>
+  <text x="410" y="375" text-anchor="middle" font-size="7.5" fill="#445566">Content-based routing</text>
+
+  <rect x="298" y="395" width="224" height="45" rx="5" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="410" y="413" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff">Automotive Dashboard Lane</text>
+  <text x="410" y="427" text-anchor="middle" font-size="7.5" fill="#888">vehicle_id · telemetry card · routing status</text>
+
+  <rect x="298" y="452" width="224" height="30" rx="5" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="410" y="471" text-anchor="middle" font-size="8.5" font-weight="700" fill="#6688cc">Ansible Automation Platform</text>
+
+  <line x1="410" y1="208" x2="410" y2="220" stroke="#003a8c" stroke-width="1.5" marker-end="url(#arr-navy)"/>
+  <line x1="410" y1="290" x2="410" y2="302" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <line x1="410" y1="382" x2="410" y2="395" stroke="#0057a8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+  <line x1="550" y1="340" x2="610" y2="340" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="333" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="351" text-anchor="middle" font-size="7" fill="#666">REST/BAPI</text>
+
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — SAP ENTERPRISE</text>
+
+  <rect x="625" y="115" width="240" height="80" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">SAP Plant Maintenance</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6ab06a">Service work order on maint_due</text>
+  <text x="745" y="162" text-anchor="middle" font-size="8" fill="#6ab06a">Dealer assignment · scheduling</text>
+  <text x="745" y="187" text-anchor="middle" font-size="7" fill="#2a4a2a">BAPI_ALM_ORDER_MAINTAIN</text>
+
+  <rect x="625" y="210" width="110" height="65" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="680" y="228" text-anchor="middle" font-size="8.5" font-weight="700" fill="#aaa">SAP EAM</text>
+  <text x="680" y="243" text-anchor="middle" font-size="7.5" fill="#777">Fault code processing</text>
+  <text x="680" y="257" text-anchor="middle" font-size="7.5" fill="#777">Asset lifecycle mgmt</text>
+  <text x="680" y="269" text-anchor="middle" font-size="7" fill="#555">Predictive triggers</text>
+
+  <rect x="748" y="210" width="110" height="65" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1"/>
+  <text x="803" y="228" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4a90d9">SuccessFactors</text>
+  <text x="803" y="243" text-anchor="middle" font-size="7.5" fill="#6699bb">Driver analytics</text>
+  <text x="803" y="257" text-anchor="middle" font-size="7.5" fill="#6699bb">Mileage-based bonuses</text>
+  <text x="803" y="269" text-anchor="middle" font-size="7" fill="#445566">Fleet HR integration</text>
+
+  <rect x="625" y="290" width="234" height="90" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="310" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="326" text-anchor="middle" font-size="8" fill="#6ab06a">Live OEM telemetry on SAP pipeline</text>
+  <text x="742" y="341" text-anchor="middle" font-size="8" fill="#6ab06a">No hardware retrofit · factory Kafka</text>
+  <text x="742" y="356" text-anchor="middle" font-size="7.5" fill="#446644">PM work order on maintenance signal</text>
+  <text x="742" y="368" text-anchor="middle" font-size="7" fill="#2a4a2a">Softcars: demo without real vehicles</text>
+
+  <rect x="625" y="395" width="234" height="60" rx="6" fill="#0a0f1a" stroke="#003a8c" stroke-width="1.5"/>
+  <text x="742" y="413" text-anchor="middle" font-size="9" font-weight="700" fill="#4488ff">Mercedes-Benz Fleet API</text>
+  <text x="742" y="429" text-anchor="middle" font-size="7.5" fill="#6688cc">developer.mercedes-benz.com/products</text>
+  <text x="742" y="444" text-anchor="middle" font-size="7" fill="#445566">Softcars available for dev · no contract req.</text>
+
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#CC0000"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Red Hat OpenShift</text>
+  <circle cx="170" cy="592" r="4" fill="#003a8c"/>
+  <text x="180" y="596" font-size="8" fill="#aaa">Mercedes-Benz Fleet API (Kafka)</text>
+  <circle cx="380" cy="592" r="4" fill="#0057a8"/>
+  <text x="390" y="596" font-size="8" fill="#aaa">SAP EIC / BTP</text>
+  <circle cx="480" cy="592" r="4" fill="#4caf50"/>
+  <text x="490" y="596" font-size="8" fill="#aaa">SAP PM / EAM (outcome)</text>
+  <circle cx="640" cy="592" r="4" fill="#4488ff"/>
+  <text x="650" y="596" font-size="8" fill="#aaa">Real OEM data — not simulated</text>
+</svg>

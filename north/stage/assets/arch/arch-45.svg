@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#006b6b"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">#45 — Johnson Controls OpenBlue → SAP PM</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888">BMS Fault → OpenBlue Bridge → OpenShift EIC → SAP Plant Maintenance Work Order</text>
+
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 1 — BUILDING OT</text>
+
+  <rect x="40" y="120" width="160" height="80" rx="6" fill="#1f1f1f" stroke="#006b6b" stroke-width="1.5"/>
+  <text x="120" y="140" text-anchor="middle" font-size="9" font-weight="700" fill="#00aaaa">🌡 HVAC / Chiller</text>
+  <text x="120" y="155" text-anchor="middle" font-size="8" fill="#ccc">BACnet · Modbus</text>
+  <text x="120" y="169" text-anchor="middle" font-size="8" fill="#666">asset_id · fault_code</text>
+  <text x="120" y="182" text-anchor="middle" font-size="7.5" fill="#006b6b">Chiller temp exceeded</text>
+  <text x="120" y="193" text-anchor="middle" font-size="7.5" fill="#CC0000">→ Fault triggered</text>
+
+  <rect x="40" y="215" width="160" height="60" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="233" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">💡 Lighting / Access</text>
+  <text x="120" y="248" text-anchor="middle" font-size="8" fill="#ccc">BACnet · DALI</text>
+  <text x="120" y="261" text-anchor="middle" font-size="7.5" fill="#666">Additional sensor streams</text>
+
+  <rect x="40" y="290" width="160" height="70" rx="6" fill="#1f1f1f" stroke="#006b6b" stroke-width="1.5"/>
+  <text x="120" y="308" text-anchor="middle" font-size="9" font-weight="700" fill="#00aaaa">🌉 OpenBlue Bridge</text>
+  <text x="120" y="323" text-anchor="middle" font-size="8" fill="#ccc">Edge gateway (JCI)</text>
+  <text x="120" y="337" text-anchor="middle" font-size="8" fill="#666">Normalizes OT protocols</text>
+  <text x="120" y="350" text-anchor="middle" font-size="7.5" fill="#006b6b">MQTT → HTTPS egress</text>
+
+  <rect x="40" y="375" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="393" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Device Edge</text>
+  <rect x="40" y="411" width="160" height="28" rx="4" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="120" y="429" text-anchor="middle" font-size="8.5" fill="#888">RHEL + Ansible</text>
+  <rect x="40" y="447" width="160" height="28" rx="4" fill="#0a1a1a" stroke="#006b6b" stroke-width="1"/>
+  <text x="120" y="465" text-anchor="middle" font-size="8.5" fill="#00aaaa">OpenBlue Enterprise Mgr</text>
+
+  <line x1="220" y1="300" x2="270" y2="300" stroke="#006b6b" stroke-width="2" marker-end="url(#arr-teal)"/>
+  <text x="245" y="293" text-anchor="middle" font-size="7.5" fill="#00aaaa">MQTT/HTTPS</text>
+  <text x="245" y="311" text-anchor="middle" font-size="7" fill="#666">CloudEvent</text>
+
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT CLUSTER</text>
+
+  <rect x="298" y="138" width="224" height="55" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="156" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">OHC North App</text>
+  <text x="410" y="170" text-anchor="middle" font-size="8" fill="#aaa">OpenBlue event ingest</text>
+  <text x="410" y="183" text-anchor="middle" font-size="7.5" fill="#666">ohc.demo.openblue.asset_fault</text>
+
+  <rect x="298" y="205" width="224" height="80" rx="5" fill="#0a1a1a" stroke="#006b6b" stroke-width="1.5"/>
+  <text x="410" y="223" text-anchor="middle" font-size="9" font-weight="700" fill="#00aaaa">Fault Classifier</text>
+  <text x="410" y="238" text-anchor="middle" font-size="8" fill="#008888">Severity scoring (1-5)</text>
+  <text x="410" y="252" text-anchor="middle" font-size="8" fill="#008888">Priority routing rules</text>
+  <text x="410" y="266" text-anchor="middle" font-size="8" fill="#008888">Enriches with asset metadata</text>
+  <text x="410" y="279" text-anchor="middle" font-size="7.5" fill="#005555">asset_id · zone · sla_priority</text>
+
+  <rect x="298" y="297" width="224" height="80" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="315" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="329" text-anchor="middle" font-size="8" fill="#6699bb">Maps fault → PM notification</text>
+  <text x="410" y="343" text-anchor="middle" font-size="8" fill="#6699bb">Creates PM order payload</text>
+  <text x="410" y="357" text-anchor="middle" font-size="8" fill="#6699bb">Routes to SAP PM via BAPI</text>
+  <text x="410" y="370" text-anchor="middle" font-size="7.5" fill="#445566">Returns PM order number → dashboard</text>
+
+  <rect x="298" y="390" width="224" height="45" rx="5" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="410" y="408" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff">Facilities Dashboard</text>
+  <text x="410" y="422" text-anchor="middle" font-size="7.5" fill="#888">Fault card · PM order · SLA timer</text>
+
+  <rect x="298" y="448" width="224" height="30" rx="5" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="410" y="467" text-anchor="middle" font-size="8.5" font-weight="700" fill="#6688cc">Ansible Automation Platform</text>
+
+  <line x1="410" y1="193" x2="410" y2="205" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <line x1="410" y1="285" x2="410" y2="297" stroke="#006b6b" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+  <line x1="410" y1="377" x2="410" y2="390" stroke="#0057a8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+  <line x1="550" y1="340" x2="610" y2="340" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="333" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="351" text-anchor="middle" font-size="7" fill="#666">BAPI</text>
+
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — SAP ENTERPRISE</text>
+
+  <rect x="625" y="115" width="240" height="100" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">SAP Plant Maintenance</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6ab06a">Creates PM Work Order</text>
+  <text x="745" y="162" text-anchor="middle" font-size="8" fill="#6ab06a">Assigns technician / priority</text>
+  <text x="745" y="176" text-anchor="middle" font-size="8" fill="#6ab06a">Returns PM order number</text>
+  <text x="745" y="190" text-anchor="middle" font-size="7.5" fill="#446644">SLA tracking · spare parts check</text>
+  <text x="745" y="203" text-anchor="middle" font-size="7" fill="#2a4a2a">BAPI_ALM_ORDER_MAINTAIN</text>
+
+  <rect x="625" y="230" width="110" height="70" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1"/>
+  <text x="680" y="248" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4a90d9">SAP BTP</text>
+  <text x="680" y="263" text-anchor="middle" font-size="7.5" fill="#6699bb">Central orchestration</text>
+  <text x="680" y="277" text-anchor="middle" font-size="7.5" fill="#6699bb">Analytics · reporting</text>
+  <text x="680" y="291" text-anchor="middle" font-size="7" fill="#445566">Multi-building view</text>
+
+  <rect x="748" y="230" width="110" height="70" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="803" y="248" text-anchor="middle" font-size="8.5" font-weight="700" fill="#aaa">SAP EAM</text>
+  <text x="803" y="263" text-anchor="middle" font-size="7.5" fill="#777">Asset lifecycle</text>
+  <text x="803" y="277" text-anchor="middle" font-size="7.5" fill="#777">Warranty tracking</text>
+  <text x="803" y="291" text-anchor="middle" font-size="7" fill="#555">Predictive schedule</text>
+
+  <rect x="625" y="315" width="234" height="85" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="335" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="351" text-anchor="middle" font-size="8" fill="#6ab06a">Chiller fault → PM work order in &lt;30s</text>
+  <text x="742" y="366" text-anchor="middle" font-size="8" fill="#6ab06a">Technician dispatched with full context</text>
+  <text x="742" y="381" text-anchor="middle" font-size="7.5" fill="#446644">No manual intervention required</text>
+  <text x="742" y="393" text-anchor="middle" font-size="7" fill="#2a4a2a">OpenShift displacement: was on Azure</text>
+
+  <rect x="625" y="415" width="234" height="60" rx="6" fill="#0a1a1a" stroke="#006b6b" stroke-width="1.5"/>
+  <text x="742" y="433" text-anchor="middle" font-size="9" font-weight="700" fill="#00aaaa">Johnson Controls OpenBlue</text>
+  <text x="742" y="449" text-anchor="middle" font-size="7.5" fill="#008888">$111B–$143B smart building TAM</text>
+  <text x="742" y="462" text-anchor="middle" font-size="7" fill="#005555">$2B digital services · OpenShift displacement</text>
+
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#CC0000"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Red Hat OpenShift / Device Edge</text>
+  <circle cx="220" cy="592" r="4" fill="#006b6b"/>
+  <text x="230" y="596" font-size="8" fill="#aaa">Johnson Controls OpenBlue (BACnet/Modbus)</text>
+  <circle cx="460" cy="592" r="4" fill="#0057a8"/>
+  <text x="470" y="596" font-size="8" fill="#aaa">SAP EIC / BTP</text>
+  <circle cx="550" cy="592" r="4" fill="#4caf50"/>
+  <text x="560" y="596" font-size="8" fill="#aaa">SAP PM work order outcome</text>
+</svg>

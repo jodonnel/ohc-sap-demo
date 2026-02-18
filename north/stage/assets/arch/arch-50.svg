@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6a3a9a"/></marker>
+    <marker id="arr-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#aa8800"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">#50 — Meta Glasses Blackjack</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888">Camera → OpenShift Vision Ingest → BTP Strategy Engine → Earpiece · Target: 389ms</text>
+
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 1 — EDGE DEVICE</text>
+
+  <rect x="40" y="120" width="160" height="90" rx="6" fill="#1f1f1f" stroke="#aa8800" stroke-width="1.5"/>
+  <text x="120" y="140" text-anchor="middle" font-size="9" font-weight="700" fill="#ffcc00">😎 Meta Glasses</text>
+  <text x="120" y="155" text-anchor="middle" font-size="8" fill="#ccc">Built-in camera</text>
+  <text x="120" y="169" text-anchor="middle" font-size="8" fill="#ccc">Captures table view</text>
+  <text x="120" y="183" text-anchor="middle" font-size="8" fill="#666">JPEG frame → base64</text>
+  <text x="120" y="196" text-anchor="middle" font-size="7.5" fill="#aa8800">POST /ingest/vision</text>
+  <text x="120" y="207" text-anchor="middle" font-size="7.5" fill="#666">session_id · image_b64</text>
+
+  <rect x="40" y="225" width="160" height="65" rx="6" fill="#1f1f1f" stroke="#aa8800" stroke-width="1"/>
+  <text x="120" y="243" text-anchor="middle" font-size="9" font-weight="700" fill="#ffcc00">🎧 Earpiece</text>
+  <text x="120" y="258" text-anchor="middle" font-size="8" fill="#ccc">Receives play decision</text>
+  <text x="120" y="272" text-anchor="middle" font-size="8" fill="#ccc">STAND / HIT / DOUBLE</text>
+  <text x="120" y="283" text-anchor="middle" font-size="7.5" fill="#aa8800">← response &lt;389ms</text>
+
+  <rect x="40" y="305" width="160" height="60" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="323" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">🃏 Blackjack Table</text>
+  <text x="120" y="338" text-anchor="middle" font-size="8" fill="#ccc">Cards visible to camera</text>
+  <text x="120" y="352" text-anchor="middle" font-size="7.5" fill="#666">Real or Softcars equiv.</text>
+
+  <rect x="40" y="380" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="398" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Device Edge</text>
+  <rect x="40" y="416" width="160" height="28" rx="4" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="120" y="434" text-anchor="middle" font-size="8.5" fill="#888">RHEL + Ansible</text>
+
+  <line x1="220" y1="230" x2="270" y2="230" stroke="#aa8800" stroke-width="2" marker-end="url(#arr-gold)"/>
+  <text x="245" y="220" text-anchor="middle" font-size="7.5" fill="#ffcc00">image POST</text>
+  <text x="245" y="242" text-anchor="middle" font-size="7" fill="#666">&lt;50ms</text>
+
+  <!-- Return arrow T2→T1 -->
+  <line x1="270" y1="260" x2="220" y2="260" stroke="#2a7a2a" stroke-width="2" marker-end="url(#arr-green)"/>
+  <text x="245" y="253" text-anchor="middle" font-size="7.5" fill="#4caf50">decision</text>
+  <text x="245" y="271" text-anchor="middle" font-size="7" fill="#666">JSON resp.</text>
+
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT AI CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT + OPENSHIFT AI</text>
+
+  <rect x="298" y="138" width="224" height="55" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="156" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">Vision Ingest Endpoint</text>
+  <text x="410" y="170" text-anchor="middle" font-size="8" fill="#aaa">POST /ingest/vision</text>
+  <text x="410" y="183" text-anchor="middle" font-size="7.5" fill="#666">Decodes image · queues for card detection</text>
+
+  <rect x="298" y="205" width="224" height="80" rx="5" fill="#100a28" stroke="#6a3a9a" stroke-width="1.5"/>
+  <text x="410" y="223" text-anchor="middle" font-size="9" font-weight="700" fill="#9a6adf">🃏 Card Detection Model</text>
+  <text x="410" y="238" text-anchor="middle" font-size="8" fill="#8866cc">Computer vision (stub or real)</text>
+  <text x="410" y="252" text-anchor="middle" font-size="8" fill="#8866cc">Returns: cards seen</text>
+  <text x="410" y="266" text-anchor="middle" font-size="8" fill="#8866cc">e.g. ["10H", "6S"]</text>
+  <text x="410" y="279" text-anchor="middle" font-size="7.5" fill="#5a3a8a">GPU: NVIDIA · OpenShift AI</text>
+
+  <rect x="298" y="297" width="224" height="55" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1"/>
+  <text x="410" y="315" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">CloudEvent Builder</text>
+  <text x="410" y="330" text-anchor="middle" font-size="8" fill="#aaa">ohc.demo.vision.blackjack_hand</text>
+  <text x="410" y="343" text-anchor="middle" font-size="7.5" fill="#666">cards[] · session_id · table_state</text>
+
+  <rect x="298" y="364" width="224" height="70" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="382" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="397" text-anchor="middle" font-size="8" fill="#6699bb">Routes hand → BTP strategy engine</text>
+  <text x="410" y="411" text-anchor="middle" font-size="8" fill="#6699bb">Receives decision · relays to client</text>
+  <text x="410" y="424" text-anchor="middle" font-size="7.5" fill="#445566">Fires: ohc.demo.vision.blackjack_decision</text>
+
+  <rect x="298" y="446" width="224" height="30" rx="5" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="410" y="465" text-anchor="middle" font-size="8.5" font-weight="700" fill="#6688cc">Ansible Automation Platform</text>
+
+  <line x1="410" y1="193" x2="410" y2="205" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <line x1="410" y1="285" x2="410" y2="297" stroke="#6a3a9a" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <line x1="410" y1="352" x2="410" y2="364" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <line x1="550" y1="400" x2="610" y2="400" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="393" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="411" text-anchor="middle" font-size="7" fill="#666">REST</text>
+  <!-- Return -->
+  <line x1="610" y1="425" x2="550" y2="425" stroke="#2a7a2a" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <text x="580" y="420" text-anchor="middle" font-size="6.5" fill="#4caf50">decision back</text>
+
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — SAP BTP</text>
+
+  <rect x="625" y="115" width="240" height="110" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">BTP Strategy Engine</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6699bb">Receives hand: ["10H", "6S"]</text>
+  <text x="745" y="162" text-anchor="middle" font-size="8" fill="#6699bb">Basic strategy lookup table</text>
+  <text x="745" y="176" text-anchor="middle" font-size="8" fill="#6699bb">Returns: action + confidence</text>
+  <text x="745" y="190" text-anchor="middle" font-size="8" fill="#6699bb">e.g. { action: "STAND", conf: 0.94 }</text>
+  <text x="745" y="204" text-anchor="middle" font-size="7.5" fill="#445566">SAP BTP Cloud Functions / Integration</text>
+  <text x="745" y="216" text-anchor="middle" font-size="7" fill="#334455">Extensible: card counting, real-time odds</text>
+
+  <rect x="625" y="240" width="234" height="55" rx="6" fill="#1a1200" stroke="#aa8800" stroke-width="1.5"/>
+  <text x="742" y="258" text-anchor="middle" font-size="9" font-weight="700" fill="#ffcc00">⏱ Latency Target</text>
+  <text x="742" y="273" text-anchor="middle" font-size="8" fill="#cc9900">Camera → decision → earpiece</text>
+  <text x="742" y="286" text-anchor="middle" font-size="9" font-weight="700" fill="#ffcc00">Target: &lt; 389ms total</text>
+
+  <rect x="625" y="310" width="234" height="100" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="330" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="347" text-anchor="middle" font-size="8" fill="#6ab06a">Player acts on AI advice. Wins.</text>
+  <text x="742" y="362" text-anchor="middle" font-size="8" fill="#6ab06a">Crowd watches. Nobody forgets this.</text>
+  <text x="742" y="377" text-anchor="middle" font-size="7.5" fill="#446644">Proves closed-loop edge-to-enterprise AI</text>
+  <text x="742" y="391" text-anchor="middle" font-size="7.5" fill="#446644">in a scenario with real stakes</text>
+  <text x="742" y="405" text-anchor="middle" font-size="7" fill="#2a4a2a">Demo-to-win weapon. Build storyboard first.</text>
+
+  <rect x="625" y="425" width="234" height="55" rx="6" fill="#100a28" stroke="#6a3a9a" stroke-width="1.5"/>
+  <text x="742" y="443" text-anchor="middle" font-size="9" font-weight="700" fill="#9a6adf">Build Order</text>
+  <text x="742" y="458" text-anchor="middle" font-size="7.5" fill="#8866cc">1. present-blackjack.html storyboard</text>
+  <text x="742" y="471" text-anchor="middle" font-size="7.5" fill="#8866cc">2. Card detection stub · strategy engine</text>
+
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#ffcc00"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Meta Glasses (edge camera)</text>
+  <circle cx="190" cy="592" r="4" fill="#CC0000"/>
+  <text x="200" y="596" font-size="8" fill="#aaa">Red Hat OpenShift AI</text>
+  <circle cx="320" cy="592" r="4" fill="#6a3a9a"/>
+  <text x="330" y="596" font-size="8" fill="#aaa">GPU card detection</text>
+  <circle cx="430" cy="592" r="4" fill="#0057a8"/>
+  <text x="440" y="596" font-size="8" fill="#aaa">SAP BTP strategy engine</text>
+  <circle cx="580" cy="592" r="4" fill="#4caf50"/>
+  <text x="590" y="596" font-size="8" fill="#aaa">389ms · nobody forgets this</text>
+</svg>

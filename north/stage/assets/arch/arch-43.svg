@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6a3a9a"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">#43 — Shop-Floor Visual Inspection → SAP QM</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888">Camera → OpenShift AI Inference → CloudEvent → EIC → SAP QM · &lt;500ms</text>
+
+  <!-- TIER 1 -->
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 1 — SHOP FLOOR</text>
+
+  <rect x="40" y="120" width="160" height="80" rx="6" fill="#1f1f1f" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="120" y="140" text-anchor="middle" font-size="9" font-weight="700" fill="#CC0000">📷 Line Camera</text>
+  <text x="120" y="155" text-anchor="middle" font-size="8" fill="#ccc">USB / GigE Vision</text>
+  <text x="120" y="169" text-anchor="middle" font-size="8" fill="#666">Captures part image</text>
+  <text x="120" y="182" text-anchor="middle" font-size="7.5" fill="#666">JPEG → base64 POST</text>
+  <text x="120" y="193" text-anchor="middle" font-size="7.5" fill="#CC0000">POST /ingest/vision</text>
+
+  <rect x="40" y="215" width="160" height="65" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="233" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">🏭 Production Line</text>
+  <text x="120" y="248" text-anchor="middle" font-size="8" fill="#ccc">PLC / conveyor</text>
+  <text x="120" y="261" text-anchor="middle" font-size="7.5" fill="#666">Sends part_id + line_id</text>
+  <text x="120" y="272" text-anchor="middle" font-size="7.5" fill="#666">OPC UA trigger</text>
+
+  <rect x="40" y="295" width="160" height="55" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="313" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">🖥 Edge Gateway</text>
+  <text x="120" y="328" text-anchor="middle" font-size="8" fill="#ccc">Image pre-processing</text>
+  <text x="120" y="341" text-anchor="middle" font-size="7.5" fill="#666">Resize · normalize</text>
+
+  <rect x="40" y="365" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="383" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Device Edge</text>
+  <rect x="40" y="401" width="160" height="28" rx="4" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="120" y="419" text-anchor="middle" font-size="8.5" fill="#888">RHEL + MicroShift</text>
+  <rect x="40" y="437" width="160" height="28" rx="4" fill="#0a0a1a" stroke="#3355aa" stroke-width="1"/>
+  <text x="120" y="455" text-anchor="middle" font-size="8.5" fill="#6688cc">Ansible (deploy/update)</text>
+
+  <!-- Arrow T1→T2 -->
+  <line x1="220" y1="290" x2="270" y2="290" stroke="#CC0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <text x="245" y="283" text-anchor="middle" font-size="7.5" fill="#CC0000">image POST</text>
+  <text x="245" y="301" text-anchor="middle" font-size="7" fill="#666">HTTP &lt;50ms</text>
+
+  <!-- TIER 2 -->
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT AI CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT + OPENSHIFT AI</text>
+
+  <!-- Vision ingest -->
+  <rect x="298" y="138" width="224" height="55" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="156" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">OHC Vision Ingest</text>
+  <text x="410" y="170" text-anchor="middle" font-size="8" fill="#aaa">POST /ingest/vision</text>
+  <text x="410" y="183" text-anchor="middle" font-size="7.5" fill="#666">Receives image · queues for inference</text>
+
+  <!-- AI Model -->
+  <rect x="298" y="205" width="224" height="95" rx="5" fill="#100a28" stroke="#6a3a9a" stroke-width="1.5"/>
+  <text x="410" y="223" text-anchor="middle" font-size="9" font-weight="700" fill="#9a6adf">🧠 AI Inference Model</text>
+  <text x="410" y="238" text-anchor="middle" font-size="8" fill="#8866cc">Defect classification</text>
+  <text x="410" y="252" text-anchor="middle" font-size="8" fill="#8866cc">Confidence score</text>
+  <text x="410" y="265" text-anchor="middle" font-size="8" fill="#8866cc">Returns: defect_type · severity</text>
+  <text x="410" y="279" text-anchor="middle" font-size="7.5" fill="#5a3a8a">GPU: RTX 3070 / NVIDIA A-series</text>
+  <text x="410" y="292" text-anchor="middle" font-size="7.5" fill="#5a3a8a">OpenShift AI · KServe serving</text>
+
+  <!-- CloudEvent builder -->
+  <rect x="298" y="312" width="224" height="60" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1"/>
+  <text x="410" y="330" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">CloudEvent Builder</text>
+  <text x="410" y="345" text-anchor="middle" font-size="8" fill="#aaa">ohc.demo.shopfloor.defect_detected</text>
+  <text x="410" y="358" text-anchor="middle" font-size="7.5" fill="#666">part_id · defect_type · severity · line_id</text>
+
+  <!-- EIC -->
+  <rect x="298" y="385" width="224" height="65" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="403" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="417" text-anchor="middle" font-size="8" fill="#6699bb">Routes defect → SAP QM</text>
+  <text x="410" y="430" text-anchor="middle" font-size="8" fill="#6699bb">Halt signal → production line</text>
+  <text x="410" y="443" text-anchor="middle" font-size="7.5" fill="#445566">REST · RFC · BAPI</text>
+
+  <!-- Arrows internal -->
+  <line x1="410" y1="193" x2="410" y2="205" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <line x1="410" y1="300" x2="410" y2="312" stroke="#6a3a9a" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <line x1="410" y1="372" x2="410" y2="385" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <!-- Arrow T2→T3 -->
+  <line x1="550" y1="415" x2="610" y2="415" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="408" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="426" text-anchor="middle" font-size="7" fill="#666">REST/RFC</text>
+
+  <!-- TIER 3 -->
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — SAP ENTERPRISE</text>
+
+  <!-- SAP QM -->
+  <rect x="625" y="115" width="240" height="110" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">SAP Quality Management</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6ab06a">Creates Inspection Lot</text>
+  <text x="745" y="162" text-anchor="middle" font-size="8" fill="#6ab06a">Returns lot number → EIC</text>
+  <text x="745" y="176" text-anchor="middle" font-size="8" fill="#6ab06a">Triggers downstream hold</text>
+  <text x="745" y="190" text-anchor="middle" font-size="7.5" fill="#446644">Dashboard shows QM response</text>
+  <text x="745" y="204" text-anchor="middle" font-size="7.5" fill="#446644">latency target displayed (&lt;500ms)</text>
+  <text x="745" y="217" text-anchor="middle" font-size="7" fill="#2a4a2a">BAPI_QMEL_CREATE · inspection APIs</text>
+
+  <!-- SAP PP -->
+  <rect x="625" y="240" width="110" height="70" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1"/>
+  <text x="680" y="258" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4a90d9">SAP PP</text>
+  <text x="680" y="272" text-anchor="middle" font-size="7.5" fill="#6699bb">Production Planning</text>
+  <text x="680" y="286" text-anchor="middle" font-size="7.5" fill="#6699bb">Halt work order</text>
+  <text x="680" y="300" text-anchor="middle" font-size="7" fill="#445566">on critical defect</text>
+
+  <!-- BTP -->
+  <rect x="748" y="240" width="110" height="70" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1"/>
+  <text x="803" y="258" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4a90d9">SAP BTP</text>
+  <text x="803" y="272" text-anchor="middle" font-size="7.5" fill="#6699bb">Central governance</text>
+  <text x="803" y="286" text-anchor="middle" font-size="7.5" fill="#6699bb">Analytics · reporting</text>
+  <text x="803" y="300" text-anchor="middle" font-size="7" fill="#445566">Integration Suite</text>
+
+  <!-- Outcome -->
+  <rect x="625" y="328" width="234" height="80" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="348" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="364" text-anchor="middle" font-size="8" fill="#6ab06a">Defect classified in &lt;500ms end-to-end</text>
+  <text x="742" y="378" text-anchor="middle" font-size="8" fill="#6ab06a">SAP QM inspection lot created</text>
+  <text x="742" y="392" text-anchor="middle" font-size="7.5" fill="#446644">Downstream production halted if critical</text>
+  <text x="742" y="404" text-anchor="middle" font-size="7" fill="#2a4a2a">Zero cloud round-trip — inference runs at edge</text>
+
+  <!-- NVIDIA badge -->
+  <rect x="625" y="425" width="234" height="40" rx="5" fill="#0a1a0a" stroke="#76b900" stroke-width="1.5"/>
+  <text x="742" y="443" text-anchor="middle" font-size="8.5" font-weight="700" fill="#76b900">NVIDIA GPU Accelerated</text>
+  <text x="742" y="456" text-anchor="middle" font-size="7.5" fill="#4a7a00">RTX 3070 (dev) · A100/H100 (prod)</text>
+
+  <!-- Legend -->
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#CC0000"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Red Hat OpenShift / Device Edge</text>
+  <circle cx="220" cy="592" r="4" fill="#6a3a9a"/>
+  <text x="230" y="596" font-size="8" fill="#aaa">OpenShift AI / GPU inference</text>
+  <circle cx="380" cy="592" r="4" fill="#0057a8"/>
+  <text x="390" y="596" font-size="8" fill="#aaa">SAP EIC / BTP</text>
+  <circle cx="470" cy="592" r="4" fill="#4caf50"/>
+  <text x="480" y="596" font-size="8" fill="#aaa">SAP QM (clean outcome)</text>
+  <circle cx="610" cy="592" r="4" fill="#76b900"/>
+  <text x="620" y="596" font-size="8" fill="#aaa">NVIDIA GPU acceleration</text>
+</svg>

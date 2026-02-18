@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#CC0000"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0057a8"/></marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a7a2a"/></marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#c45000"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#0f0f0f"/>
+  <text x="450" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">#44 — Contractor Overcharge Detection</text>
+  <text x="450" y="57" text-anchor="middle" font-size="10" fill="#888">Badge Swipes → Shift Accumulation → SAP Fieldglass Invoice Comparison → Auto-Flag</text>
+
+  <!-- TIER 1 -->
+  <rect x="20" y="75" width="200" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="20" y="75" width="200" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="20" y="95" width="200" height="12" fill="#2a2a2a"/>
+  <text x="120" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 1 — PHYSICAL ACCESS</text>
+
+  <rect x="40" y="120" width="160" height="80" rx="6" fill="#1f1f1f" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="120" y="140" text-anchor="middle" font-size="9" font-weight="700" fill="#CC0000">🚪 Badge Reader</text>
+  <text x="120" y="155" text-anchor="middle" font-size="8" fill="#ccc">Contractor swipe IN/OUT</text>
+  <text x="120" y="169" text-anchor="middle" font-size="8" fill="#666">contractor_id · timestamp</text>
+  <text x="120" y="182" text-anchor="middle" font-size="7.5" fill="#666">location · door_id</text>
+  <text x="120" y="193" text-anchor="middle" font-size="7.5" fill="#CC0000">CloudEvent: badge_scan</text>
+
+  <rect x="40" y="215" width="160" height="65" rx="6" fill="#1f1f1f" stroke="#555" stroke-width="1"/>
+  <text x="120" y="233" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">🏢 PACS / CCURE</text>
+  <text x="120" y="248" text-anchor="middle" font-size="8" fill="#ccc">AlertEnterprise layer</text>
+  <text x="120" y="261" text-anchor="middle" font-size="7.5" fill="#666">Validates badge active</text>
+  <text x="120" y="272" text-anchor="middle" font-size="7.5" fill="#666">Logs entry/exit pair</text>
+
+  <rect x="40" y="295" width="160" height="55" rx="6" fill="#1f1f1f" stroke="#c45000" stroke-width="1"/>
+  <text x="120" y="313" text-anchor="middle" font-size="9" font-weight="700" fill="#c45000">📋 Invoice System</text>
+  <text x="120" y="328" text-anchor="middle" font-size="8" fill="#ccc">Contractor submits hours</text>
+  <text x="120" y="341" text-anchor="middle" font-size="7.5" fill="#666">SAP Fieldglass timesheet</text>
+
+  <rect x="40" y="365" width="160" height="28" rx="4" fill="#1a0000" stroke="#CC0000" stroke-width="1"/>
+  <text x="120" y="383" text-anchor="middle" font-size="8.5" font-weight="700" fill="#CC0000">Red Hat Enterprise Linux</text>
+  <rect x="40" y="401" width="160" height="28" rx="4" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+  <text x="120" y="419" text-anchor="middle" font-size="8.5" fill="#888">Ansible (lifecycle)</text>
+
+  <!-- Arrow T1→T2 -->
+  <line x1="220" y1="290" x2="270" y2="290" stroke="#CC0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <text x="245" y="283" text-anchor="middle" font-size="7.5" fill="#CC0000">CloudEvents</text>
+  <text x="245" y="301" text-anchor="middle" font-size="7" fill="#666">HTTP/SSE</text>
+
+  <!-- TIER 2 -->
+  <rect x="270" y="75" width="280" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="270" y="75" width="280" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="270" y="95" width="280" height="12" fill="#2a2a2a"/>
+  <text x="410" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 2 — OPENSHIFT CLUSTER</text>
+  <rect x="285" y="115" width="250" height="425" rx="6" fill="#0d1117" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="410" y="130" text-anchor="middle" font-size="8" font-weight="700" fill="#CC0000" letter-spacing="1">RED HAT OPENSHIFT CLUSTER</text>
+
+  <rect x="298" y="138" width="224" height="55" rx="5" fill="#1a1a1a" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="410" y="156" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">OHC North App</text>
+  <text x="410" y="170" text-anchor="middle" font-size="8" fill="#aaa">Badge event ingest · SSE</text>
+  <text x="410" y="183" text-anchor="middle" font-size="7.5" fill="#666">Existing pipeline — zero new infra</text>
+
+  <!-- Shift accumulator -->
+  <rect x="298" y="205" width="224" height="85" rx="5" fill="#1a1000" stroke="#c45000" stroke-width="1.5"/>
+  <text x="410" y="223" text-anchor="middle" font-size="9" font-weight="700" fill="#c45000">⏱ Shift Accumulator</text>
+  <text x="410" y="238" text-anchor="middle" font-size="8" fill="#aa7744">Groups swipes by contractor_id</text>
+  <text x="410" y="252" text-anchor="middle" font-size="8" fill="#aa7744">Calculates hours worked per shift</text>
+  <text x="410" y="265" text-anchor="middle" font-size="8" fill="#aa7744">Stores in-memory (server-side)</text>
+  <text x="410" y="279" text-anchor="middle" font-size="7.5" fill="#664422">End-of-shift → fires summary event</text>
+  <text x="410" y="291" text-anchor="middle" font-size="7.5" fill="#664422">ohc.demo.grc.shift_summary</text>
+
+  <!-- Comparison engine -->
+  <rect x="298" y="302" width="224" height="80" rx="5" fill="#1a0a00" stroke="#c45000" stroke-width="1.5"/>
+  <text x="410" y="320" text-anchor="middle" font-size="9" font-weight="700" fill="#c45000">🔍 Invoice Comparator</text>
+  <text x="410" y="335" text-anchor="middle" font-size="8" fill="#aa7744">Fetches Fieldglass timesheet</text>
+  <text x="410" y="349" text-anchor="middle" font-size="8" fill="#aa7744">claimed_hours vs swipe_hours</text>
+  <text x="410" y="363" text-anchor="middle" font-size="8" fill="#aa7744">Threshold: &gt;15min discrepancy</text>
+  <text x="410" y="374" text-anchor="middle" font-size="7.5" fill="#664422">Fires: timesheet_discrepancy event</text>
+
+  <!-- EIC -->
+  <rect x="298" y="395" width="224" height="65" rx="5" fill="#0a1628" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="410" y="413" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Edge Integration Cell</text>
+  <text x="410" y="427" text-anchor="middle" font-size="8" fill="#6699bb">Routes flag → SAP Fieldglass</text>
+  <text x="410" y="440" text-anchor="middle" font-size="8" fill="#6699bb">Reject timesheet API call</text>
+  <text x="410" y="453" text-anchor="middle" font-size="7.5" fill="#445566">Also notifies SAP HCM / SuccessFactors</text>
+
+  <!-- Ansible -->
+  <rect x="298" y="472" width="224" height="30" rx="5" fill="#1a1a2a" stroke="#3355aa" stroke-width="1"/>
+  <text x="410" y="491" text-anchor="middle" font-size="8.5" font-weight="700" fill="#6688cc">Ansible Automation Platform</text>
+
+  <!-- Arrows internal -->
+  <line x1="410" y1="193" x2="410" y2="205" stroke="#CC0000" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <line x1="410" y1="290" x2="410" y2="302" stroke="#c45000" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+  <line x1="410" y1="382" x2="410" y2="395" stroke="#c45000" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <!-- Arrow T2→T3 -->
+  <line x1="550" y1="425" x2="610" y2="425" stroke="#0057a8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="580" y="418" text-anchor="middle" font-size="7.5" fill="#4a90d9">HTTPS</text>
+  <text x="580" y="436" text-anchor="middle" font-size="7" fill="#666">REST</text>
+
+  <!-- TIER 3 -->
+  <rect x="610" y="75" width="270" height="490" rx="8" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="610" y="75" width="270" height="32" rx="8" fill="#2a2a2a"/>
+  <rect x="610" y="95" width="270" height="12" fill="#2a2a2a"/>
+  <text x="745" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#888" letter-spacing="1.5">TIER 3 — SAP ENTERPRISE</text>
+
+  <rect x="625" y="115" width="240" height="95" rx="6" fill="#0a152a" stroke="#0057a8" stroke-width="1.5"/>
+  <text x="745" y="133" text-anchor="middle" font-size="9" font-weight="700" fill="#4a90d9">SAP Fieldglass</text>
+  <text x="745" y="148" text-anchor="middle" font-size="8" fill="#6699bb">Contractor timesheet management</text>
+  <text x="745" y="162" text-anchor="middle" font-size="8" fill="#6699bb">Receives discrepancy flag</text>
+  <text x="745" y="176" text-anchor="middle" font-size="8" fill="#6699bb">Auto-rejects timesheet</text>
+  <text x="745" y="190" text-anchor="middle" font-size="7.5" fill="#445566">Notifies procurement manager</text>
+  <text x="745" y="202" text-anchor="middle" font-size="7.5" fill="#445566">Audit log entry created</text>
+
+  <rect x="625" y="225" width="110" height="75" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1"/>
+  <text x="680" y="243" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4a90d9">SAP HCM</text>
+  <text x="680" y="258" text-anchor="middle" font-size="7.5" fill="#6699bb">HR record flag</text>
+  <text x="680" y="272" text-anchor="middle" font-size="7.5" fill="#6699bb">Contractor profile</text>
+  <text x="680" y="286" text-anchor="middle" font-size="7" fill="#445566">Pattern detection</text>
+
+  <rect x="748" y="225" width="110" height="75" rx="6" fill="#08152a" stroke="#0057a8" stroke-width="1"/>
+  <text x="803" y="243" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4a90d9">SuccessFactors</text>
+  <text x="803" y="258" text-anchor="middle" font-size="7.5" fill="#6699bb">Workforce analytics</text>
+  <text x="803" y="272" text-anchor="middle" font-size="7.5" fill="#6699bb">Contractor history</text>
+  <text x="803" y="286" text-anchor="middle" font-size="7" fill="#445566">Risk scoring</text>
+
+  <!-- SAP GRC -->
+  <rect x="625" y="315" width="234" height="60" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="742" y="333" text-anchor="middle" font-size="9" font-weight="700" fill="#aaa">SAP GRC</text>
+  <text x="742" y="348" text-anchor="middle" font-size="8" fill="#777">Access Control review triggered</text>
+  <text x="742" y="362" text-anchor="middle" font-size="7.5" fill="#555">SoD violation check · Risk workflow</text>
+
+  <!-- Outcome -->
+  <rect x="625" y="390" width="234" height="90" rx="6" fill="#0a1f0a" stroke="#2a7a2a" stroke-width="1.5"/>
+  <text x="742" y="410" text-anchor="middle" font-size="9" font-weight="700" fill="#4caf50">✅ Outcome</text>
+  <text x="742" y="426" text-anchor="middle" font-size="8" fill="#6ab06a">Fraudulent timesheet auto-rejected</text>
+  <text x="742" y="441" text-anchor="middle" font-size="8" fill="#6ab06a">Procurement manager notified</text>
+  <text x="742" y="455" text-anchor="middle" font-size="7.5" fill="#446644">Full audit trail in SAP GRC</text>
+  <text x="742" y="468" text-anchor="middle" font-size="7" fill="#2a4a2a">Zero new infrastructure — reuses badge pipeline</text>
+
+  <!-- Legend -->
+  <rect x="20" y="574" width="860" height="36" rx="4" fill="#151515" stroke="#333" stroke-width="1"/>
+  <circle cx="40" cy="592" r="4" fill="#CC0000"/>
+  <text x="50" y="596" font-size="8" fill="#aaa">Red Hat OpenShift (badge pipeline)</text>
+  <circle cx="220" cy="592" r="4" fill="#c45000"/>
+  <text x="230" y="596" font-size="8" fill="#aaa">Shift accumulator / comparator</text>
+  <circle cx="390" cy="592" r="4" fill="#0057a8"/>
+  <text x="400" y="596" font-size="8" fill="#aaa">SAP Fieldglass / HCM / GRC</text>
+  <circle cx="540" cy="592" r="4" fill="#4caf50"/>
+  <text x="550" y="596" font-size="8" fill="#aaa">Outcome: fraud rejected, audit complete</text>
+</svg>
