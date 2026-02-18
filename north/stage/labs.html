@@ -264,7 +264,7 @@
 <script>
 const USE_CASES = [
   {
-    num:"01", issue:41,
+    num:"01", issue:41, demo:"/present-piport",
     title:"PI/PO EOL Migration Factory",
     tagline:"The Dec 2027 deadline every SAP customer faces.",
     abstract:"SAP PI and PO reach end of mainstream maintenance December 31, 2027. Every enterprise running legacy middleware faces a mandatory migration to SAP Integration Suite. The OHC demo shows a live IDoc flow: badge tap → goods receipt event → EIC on OpenShift → S/4HANA. Highest urgency, broadest reach in the portfolio.",
@@ -272,7 +272,7 @@ const USE_CASES = [
     filters:["OpenShift","EIC"]
   },
   {
-    num:"02", issue:42,
+    num:"02", issue:42, demo:"/present-grc",
     title:"3D-GRC Kill Chain",
     tagline:"Badge clone → IT lateral → OT shutdown. One story.",
     abstract:"Attackers exploit the seams between physical security, IT, and OT. The demo shows a contractor with a cloned badge: PACS detects the anomaly, SAP GRC correlates it with an active ERP credential, Ansible triggers an automated OT lockdown before the attacker reaches a PLC. No single vendor solves this. Red Hat is the enforcement spine.",
@@ -280,7 +280,7 @@ const USE_CASES = [
     filters:["Security","OpenShift"]
   },
   {
-    num:"03", issue:43,
+    num:"03", issue:43, demo:"/present-shopfloor",
     title:"Shop-Floor Visual Inspection → SAP QM",
     tagline:"Camera sees defect. SAP creates inspection lot. Under 500ms.",
     abstract:"An AI inference model runs locally on an OpenShift edge node — analyzing production line images, classifying defects, and posting CloudEvents to EIC. EIC routes to SAP QM, triggering an inspection lot and halting downstream production if needed. GPU-accelerated on RTX 3070 locally.",
@@ -288,7 +288,7 @@ const USE_CASES = [
     filters:["AI","EIC","OpenShift"]
   },
   {
-    num:"04", issue:44,
+    num:"04", issue:44, demo:null,
     title:"Contractor Overcharge Detection",
     tagline:"Badge swipes don't lie. Invoices do.",
     abstract:"The OHC badge event pipeline already runs. The new layer: EIC routes batch swipe summaries to SAP Fieldglass, comparing hours claimed on invoices against physical access logs. Discrepancies auto-flag the timesheet for rejection. Minimal build, concrete ROI.",
@@ -296,7 +296,7 @@ const USE_CASES = [
     filters:["Security","EIC","IoT"]
   },
   {
-    num:"05", issue:45,
+    num:"05", issue:45, demo:"/present-openblue",
     title:"Johnson Controls OpenBlue → SAP PM",
     tagline:"Chiller fault → work order. $111B TAM.",
     abstract:"OpenBlue aggregates HVAC, lighting, and access data via BACnet/Modbus/OPC UA. A building fault flows through OpenShift-hosted EIC to SAP Plant Maintenance — creating a work order automatically. OpenBlue currently runs on Azure, creating a direct OpenShift displacement conversation.",
@@ -304,7 +304,7 @@ const USE_CASES = [
     filters:["IoT","EIC","OpenShift"]
   },
   {
-    num:"06", issue:46,
+    num:"06", issue:46, demo:null,
     title:"Mercedes-Benz Connected Vehicle Relay",
     tagline:"Real OEM data. Kafka stream. No hardware retrofit.",
     abstract:"Mercedes-Benz publishes a production Fleet API — a Kafka push stream delivering live vehicle telemetry (odometer, fuel, EV range, diagnostics, maintenance signals) from factory-fitted modules. OpenShift hosts a Kafka consumer that normalizes the stream into CloudEvents and routes via EIC to SAP PM/EAM. Dev sandbox via Mercedes Softcars — no contract required.",
@@ -312,7 +312,7 @@ const USE_CASES = [
     filters:["IoT","EIC","OpenShift"]
   },
   {
-    num:"07", issue:47,
+    num:"07", issue:47, demo:null,
     title:"MII/ME Coexistence Migration",
     tagline:"Run old and new side-by-side. No production downtime.",
     abstract:"MII and ME share the same Dec 2027 EOL as PI/PO — but MES systems can't simply be switched off. The demo shows parallel routing: existing MII logic runs in a container on OpenShift Virtualization while new events simultaneously flow to SAP Digital Manufacturing. Migration happens in waves. No downtime.",
@@ -320,7 +320,7 @@ const USE_CASES = [
     filters:["OpenShift","EIC"]
   },
   {
-    num:"08", issue:48,
+    num:"08", issue:48, demo:null,
     title:"Energy Anomaly → SAP EAM",
     tagline:"AI at the substation. Predict failure before the lineman gets hurt.",
     abstract:"An AI model on a Red Hat OpenShift edge node analyzes substation sensor data in real time — detecting anomalies before equipment fails. When a threshold is crossed, a CloudEvent flows through EIC to SAP EAM, creating a predictive maintenance work order. Without correlated context, field crews are dispatched blind into dangerous situations.",
@@ -328,7 +328,7 @@ const USE_CASES = [
     filters:["AI","IoT","EIC","Security"]
   },
   {
-    num:"09", issue:49,
+    num:"09", issue:49, demo:null,
     title:"Real Consumer IoT → CloudEvents",
     tagline:"Jim's scale. Jim's watch. Same pipeline as a Ford PLC.",
     abstract:"A Withings weigh-in becomes a CloudEvent. A Garmin heart rate reading becomes a CloudEvent. Both flow through the same OpenShift pipeline as the badge scan the customer just watched. The architecture doesn't care what the nerve ending is. This is the limbic kill shot — it makes the pattern viscerally real.",
@@ -336,7 +336,7 @@ const USE_CASES = [
     filters:["IoT","EIC"]
   },
   {
-    num:"10", issue:50,
+    num:"10", issue:50, demo:"/present-blackjack",
     title:"Meta Glasses Blackjack",
     tagline:"Camera → OpenShift → BTP → earpiece. 389ms. Nobody forgets this.",
     abstract:"The player wears Meta glasses. The glasses see the cards. The image posts to an OpenShift ingest endpoint. A strategy engine on BTP evaluates the hand and whispers the optimal play in 389ms. This is a demo-to-win weapon — it proves closed-loop edge-to-enterprise AI in a scenario impossible to forget.",
@@ -415,6 +415,7 @@ async function renderCards() {
           <span class="vote-count" id="vc-${uc.issue}">${votes}</span>
           <span>${voted?'voted':'upvote'}</span>
         </button>
+        ${uc.demo ? `<a href="${uc.demo}" class="issue-link" style="color:var(--red);border-color:var(--red)">▶ demo ↗</a>` : ''}
         <a href="${GH_BASE}${uc.issue}" target="_blank" class="issue-link">${ghIcon()} issue #${uc.issue} ↗</a>
       </div>
     `;
