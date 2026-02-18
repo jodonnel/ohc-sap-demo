@@ -1,3 +1,5 @@
 .env
 .mb_token.json
 __pycache__/
+# force-include template (root .gitignore excludes .env.*)
+!.env.example
