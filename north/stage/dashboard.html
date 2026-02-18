@@ -274,6 +274,12 @@ const CLASSES = {
   command:     { icon:'⬇️', color:'var(--green)',  label:'Motor Command' },
   vehicle:     { icon:'🚗', color:'#C0C0C0',       label:'Vehicle Telemetry' },
   piport:      { icon:'🔄', color:'#00AEEF',       label:'PI/PO Migration' },
+  grc:         { icon:'🛡️', color:'#DC2626',       label:'GRC Kill Chain' },
+  shopfloor:   { icon:'🏭', color:'#7C3AED',       label:'Shop Floor' },
+  openblue:    { icon:'🏢', color:'#0EA5E9',       label:'OpenBlue / Facilities' },
+  ot:          { icon:'⚡', color:'#F59E0B',        label:'OT / Utilities' },
+  vision:      { icon:'👁️', color:'#EC4899',       label:'Edge Vision' },
+  iot:         { icon:'📱', color:'#10B981',       label:'Consumer IoT' },
   unknown:     { icon:'📦', color:'var(--muted)',  label:'Other' },
 };
 
@@ -354,6 +360,28 @@ const DESCRIPTIONS = {
 
   // ── Motor Commands (north→south) ──
   'command.lockdown': d => '🚨 Lockdown initiated via ' + (d.initiated_by || 'unknown').replace(/_/g, ' '),
+
+  // ── GRC Kill Chain ──
+  'grc.badge_anomaly':         d => '🚨 Badge anomaly — ' + (d.cardholder || d.badge_id || '?') + ' at ' + (d.reader || 'reader') + ' [' + (d.anomaly || 'flagged') + ']',
+  'grc.it_lateral':            d => '🔓 IT lateral — ' + (d.credential || 'credential') + ' → ' + (d.target || 'target') + ' (GRC: ' + (d.sap_grc_alert || '?') + ')',
+  'grc.ot_lockdown':           d => '🔒 OT lockdown — ' + (d.plcs_isolated || '?') + ' PLCs isolated via Ansible in ' + (d.latency_ms || '?') + 'ms',
+  'grc.timesheet_discrepancy': d => '💸 Timesheet flagged — ' + (d.contractor_id || '?') + ': ' + (d.invoice_hours || '?') + 'h claimed vs ' + (d.actual_hours || '?') + 'h actual',
+
+  // ── Shop Floor ──
+  'shopfloor.defect_detected':   d => '🔍 Defect: ' + (d.defect_type || '?') + ' [' + (d.severity || '?') + '] on ' + (d.line_id || 'line') + ' — lot ' + (d.inspection_lot || '?') + ' in ' + (d.latency_ms || '?') + 'ms',
+  'shopfloor.production_order':  d => '🏭 Order ' + (d.order_id || '?') + ' → MII ' + (d.mii_response && d.mii_response.latency_ms || '?') + 'ms + SAP DM ' + (d.sapdm_response && d.sapdm_response.latency_ms || '?') + 'ms',
+
+  // ── OpenBlue / Facilities ──
+  'openblue.asset_fault': d => '🏢 ' + (d.asset_id || 'Asset') + ' [' + (d.fault_code || '?') + '] in ' + (d.zone || 'zone') + ' → WO ' + (d.sap_pm_work_order || '?'),
+
+  // ── OT / Utilities ──
+  'ot.anomaly_detected': d => '⚡ ' + (d.anomaly_type || 'Anomaly') + ' at ' + (d.asset_id || 'asset') + ' — ' + (d.sensor_reading || '?') + ' vs ' + (d.threshold || '?') + ' → EAM ' + (d.sap_eam_work_order || '?'),
+
+  // ── Consumer IoT ──
+  'iot.biometric': d => d.source === 'withings' ? '⚖️ Weight: ' + (d.value_kg || '?') + 'kg (Withings)' : d.source === 'garmin' ? '❤️ HR: ' + (d.heart_rate || '?') + 'bpm · steps: ' + (d.steps || 0) + ' (Garmin)' : '📱 ' + (d.device || 'IoT device'),
+
+  // ── Edge Vision ──
+  'vision.blackjack_decision': d => '🃏 ' + (d.player_cards || []).join(' ') + ' (' + (d.player_total || '?') + ') vs ' + (d.dealer_up || '?') + ' → ' + (d.action || '?') + ' in ' + (d.latency_ms || '?') + 'ms',
 
   // ── PI/PO Migration (IDoc → EIC → S/4HANA) ──
   'piport.idoc_goods_receipt': d => '📦 IDoc ' + (d.idoc_type || 'MBGMCR002') + ' → ' + (d.routing_path || 'EIC → S/4HANA') + (d.s4_confirmation ? ' ✓ ' + d.s4_confirmation : ' (pending)'),

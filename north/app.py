@@ -395,6 +395,225 @@ def reset_state():
             pass
     return add_cors(Response(json.dumps({"ok": True, "reset": True}), mimetype="application/json"))
 
+# ── Helper: emit a typed CloudEvent into the pipeline ──
+def _emit(event_type, event_class, source, data):
+    global count, last, last_event_time
+    ts = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    with lock:
+        count += 1
+        last_event_time = ts
+        payload = {"type": event_type, "eventclass": event_class, "source": source, "data": data}
+        evt = {"ts": ts, "payload": payload, "count": count}
+        last = evt
+        event_log.append(evt)
+        if len(event_log) > 200:
+            event_log.pop(0)
+        telemetry["event_classes"][event_class] = telemetry["event_classes"].get(event_class, 0) + 1
+    publish(evt)
+    return evt
+
+# ── Contractor Overcharge State ──
+_contractor_swipes = {}  # contractor_id → {"name", "swipes": [], "invoice_hours"}
+
+# ── #42: 3D-GRC Kill Chain Scenario ──
+@app.post("/scenario/grc-killchain")
+def grc_killchain_scenario():
+    body = request.get_json(silent=True) or {}
+    delay = max(0.5, min(float(body.get("delay_s", 3)), 10.0))
+    def run():
+        _emit("ohc.demo.grc.badge_anomaly", "ohc.demo.grc", "alertenterprise-pacs",
+              {"badge_id": "C-4471", "cardholder": "Contractor — Alex R.",
+               "reader": "Server Room North", "anomaly": "cloned_badge",
+               "flagged_by": "AlertEnterprise PACS", "confidence": 0.97})
+        time.sleep(delay)
+        _emit("ohc.demo.grc.it_lateral", "ohc.demo.grc", "sap-grc",
+              {"source_ip": "10.12.44.71", "target": "SAP HANA DB",
+               "credential": "svc-erp-admin", "erp_user": "C-4471-SVC",
+               "correlated_badge": "C-4471", "sap_grc_alert": "AUT-2026-8812"})
+        time.sleep(delay)
+        _emit("ohc.demo.grc.ot_lockdown", "ohc.demo.grc", "ansible-automation",
+              {"triggered_by": "SAP GRC + AlertEnterprise correlation",
+               "scope": "OT Zone B — PLCs 12–19", "method": "Ansible playbook",
+               "playbook": "ot-emergency-lockdown.yml", "plcs_isolated": 8, "latency_ms": 312})
+    threading.Thread(target=run, daemon=True).start()
+    return add_cors(Response(json.dumps({"ok": True, "scenario": "grc-killchain", "delay_s": delay}),
+                             mimetype="application/json"))
+
+@app.get("/present-grc")
+def present_grc():
+    return send_from_directory("/stage", "present-grc-killchain.html")
+
+# ── #43: Shop-Floor Visual Inspection → SAP QM ──
+@app.post("/shopfloor/defect")
+def shopfloor_defect():
+    d = request.get_json(silent=True) or {}
+    lot = "QM-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    _emit("ohc.demo.shopfloor.defect_detected", "ohc.demo.shopfloor", "openshift-ai-edge",
+          {"defect_type": d.get("defect_type", "surface_scratch"),
+           "severity": d.get("severity", "minor"),
+           "part_number": d.get("part_number", "PN-00442"),
+           "line_id": d.get("line_id", "LINE-A3"),
+           "inspection_lot": lot, "latency_ms": 487,
+           "model": "defect-classifier-v2", "confidence": 0.94,
+           "sap_qm_response": "Inspection lot " + lot + " created"})
+    return add_cors(Response(json.dumps({"ok": True, "inspection_lot": lot, "latency_ms": 487}),
+                             mimetype="application/json"))
+
+@app.get("/present-shopfloor")
+def present_shopfloor():
+    return send_from_directory("/stage", "present-shopfloor.html")
+
+# ── #44: Contractor Badge Swipe + Overcharge Check ──
+@app.post("/contractor/swipe")
+def contractor_swipe():
+    d = request.get_json(silent=True) or {}
+    cid = d.get("contractor_id", "C-4471")
+    name = d.get("name", "Contractor " + cid)
+    ts = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    with lock:
+        if cid not in _contractor_swipes:
+            _contractor_swipes[cid] = {"name": name, "swipes": []}
+        _contractor_swipes[cid]["swipes"].append({"ts": ts, "direction": d.get("direction", "in"), "reader": d.get("reader", "Gate A")})
+    _emit("ohc.demo.access.contractor_badge", "ohc.demo.access", "alertenterprise-pacs",
+          {"contractor_id": cid, "name": name, "reader": d.get("reader", "Gate A"),
+           "direction": d.get("direction", "in"), "swipe_count": len(_contractor_swipes[cid]["swipes"])})
+    return add_cors(Response(json.dumps({"ok": True, "contractor_id": cid, "swipe_count": len(_contractor_swipes[cid]["swipes"])}),
+                             mimetype="application/json"))
+
+@app.post("/contractor/check-invoice")
+def contractor_check_invoice():
+    d = request.get_json(silent=True) or {}
+    cid = d.get("contractor_id", "C-4471")
+    invoice_hours = float(d.get("invoice_hours", 8.0))
+    threshold = float(d.get("threshold", 1.0))
+    if cid not in _contractor_swipes:
+        return add_cors(Response(json.dumps({"ok": False, "error": "No swipe data for " + cid}), status=404, mimetype="application/json"))
+    swipes = _contractor_swipes[cid]["swipes"]
+    ins = sum(1 for s in swipes if s["direction"] == "in")
+    outs = sum(1 for s in swipes if s["direction"] == "out")
+    actual_hours = round(min(ins, outs) * 0.5, 2)
+    discrepancy = round(invoice_hours - actual_hours, 2)
+    result = {"contractor_id": cid, "invoice_hours": invoice_hours, "actual_hours": actual_hours,
+              "discrepancy_hours": discrepancy, "flagged": abs(discrepancy) > threshold}
+    if abs(discrepancy) > threshold:
+        _emit("ohc.demo.grc.timesheet_discrepancy", "ohc.demo.grc", "sap-fieldglass",
+              {**result, "action": "Timesheet flagged for rejection",
+               "fieldglass_ticket": "FG-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")})
+    return add_cors(Response(json.dumps({"ok": True, **result}), mimetype="application/json"))
+
+@app.get("/contractor/state")
+def contractor_state():
+    return add_cors(Response(json.dumps(_contractor_swipes), mimetype="application/json"))
+
+# ── #45: OpenBlue → SAP PM ──
+@app.post("/openblue/fault")
+def openblue_fault():
+    d = request.get_json(silent=True) or {}
+    wo = "WO-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    _emit("ohc.demo.openblue.asset_fault", "ohc.demo.openblue", "jci-openblue-bridge",
+          {"asset_id": d.get("asset_id", "CHILLER-01"),
+           "fault_code": d.get("fault_code", "TEMP_HIGH"),
+           "zone": d.get("zone", "Building B — Mechanical Room"),
+           "severity": d.get("severity", "critical"),
+           "protocol": "BACnet", "sap_pm_work_order": wo,
+           "routing": "OpenBlue → EIC → SAP PM"})
+    return add_cors(Response(json.dumps({"ok": True, "work_order": wo}), mimetype="application/json"))
+
+@app.get("/present-openblue")
+def present_openblue():
+    return send_from_directory("/stage", "present-openblue.html")
+
+# ── #46: MII/ME Coexistence — Fan-out production order ──
+@app.post("/shopfloor/production-order")
+def shopfloor_production_order():
+    d = request.get_json(silent=True) or {}
+    oid = d.get("order_id", "PO-" + datetime.now(timezone.utc).strftime("%H%M%S"))
+    mii_r = {"system": "SAP MII (legacy)", "status": "accepted", "latency_ms": 89, "order_id": oid}
+    dm_r  = {"system": "SAP Digital Manufacturing", "status": "accepted", "latency_ms": 34, "order_id": oid}
+    _emit("ohc.demo.shopfloor.production_order", "ohc.demo.shopfloor", "eic-fan-out",
+          {"order_id": oid, "plant": d.get("plant", "PLANT_01"),
+           "material": d.get("material", "MAT-00442"), "quantity": d.get("quantity", 100),
+           "mii_response": mii_r, "sapdm_response": dm_r,
+           "routing_mode": "coexistence", "both_systems_active": True})
+    return add_cors(Response(json.dumps({"ok": True, "mii": mii_r, "sapdm": dm_r}), mimetype="application/json"))
+
+# ── #47: OT Anomaly → SAP EAM ──
+@app.post("/ot/anomaly")
+def ot_anomaly():
+    d = request.get_json(silent=True) or {}
+    wo = "EAM-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    _emit("ohc.demo.ot.anomaly_detected", "ohc.demo.ot", "openshift-ai-substation",
+          {"asset_id": d.get("asset_id", "XFMR-SUB-14"),
+           "anomaly_type": d.get("anomaly_type", "voltage_spike"),
+           "severity": d.get("severity", "high"),
+           "sensor_reading": d.get("sensor_reading", 14200),
+           "threshold": d.get("threshold", 13800),
+           "ai_model": "anomaly-classifier-v1", "confidence": 0.91,
+           "sap_eam_work_order": wo, "nerc_cip_zone": "Zone 3 — High Voltage",
+           "routing": "OpenShift AI → EIC → SAP EAM"})
+    return add_cors(Response(json.dumps({"ok": True, "work_order": wo}), mimetype="application/json"))
+
+# ── #48: Consumer IoT — Withings + Garmin ──
+@app.post("/ingest/withings")
+def ingest_withings():
+    d = request.get_json(silent=True) or {}
+    measures = d.get("measures", [])
+    weight_kg = measures[0].get("value", 82.3) if measures else d.get("weight", 82.3)
+    _emit("ohc.demo.iot.biometric", "ohc.demo.iot", "withings-health-mate",
+          {"device": "Withings Body+", "metric": "weight", "value_kg": weight_kg, "source": "withings"})
+    return add_cors(Response(json.dumps({"ok": True, "metric": "weight", "value_kg": weight_kg}), mimetype="application/json"))
+
+@app.post("/ingest/garmin")
+def ingest_garmin():
+    d = request.get_json(silent=True) or {}
+    _emit("ohc.demo.iot.biometric", "ohc.demo.iot", "garmin-connect",
+          {"device": "Garmin Venu 3", "heart_rate": d.get("heart_rate", 68),
+           "steps": d.get("steps", 0), "stress_score": d.get("stress", 22), "source": "garmin"})
+    return add_cors(Response(json.dumps({"ok": True, "heart_rate": d.get("heart_rate", 68)}), mimetype="application/json"))
+
+# ── #49: Edge Vision — Blackjack ──
+def _bj_total(cards):
+    vals = []
+    for c in cards:
+        r = c[:-1] if len(c) > 1 else c
+        vals.append(11 if r == "A" else 10 if r in ("J","Q","K") else int(r) if r.isdigit() else 10)
+    t = sum(vals)
+    while t > 21 and 11 in vals:
+        vals[vals.index(11)] = 1; t = sum(vals)
+    return t
+
+def _bj_strategy(total, dealer):
+    if total >= 17: return "STAND"
+    if total <= 8: return "HIT"
+    if total == 11: return "DOUBLE"
+    if total == 10 and dealer <= 9: return "DOUBLE"
+    if total >= 13 and dealer <= 6: return "STAND"
+    return "HIT"
+
+@app.post("/ingest/vision")
+def ingest_vision():
+    import time as _t
+    t0 = _t.time()
+    d = request.get_json(silent=True) or {}
+    player_cards = d.get("player_cards", ["10H", "6S"])
+    dealer_up = d.get("dealer_up", "7D")
+    session_id = d.get("session_id", "bj-" + datetime.now(timezone.utc).strftime("%H%M%S"))
+    total = _bj_total(player_cards)
+    dealer_val = _bj_total([dealer_up])
+    action = _bj_strategy(total, dealer_val)
+    latency_ms = round((_t.time() - t0) * 1000 + 389)
+    _emit("ohc.demo.vision.blackjack_decision", "ohc.demo.vision", "openshift-edge-ingest",
+          {"session_id": session_id, "player_cards": player_cards, "player_total": total,
+           "dealer_up": dealer_up, "action": action, "confidence": 0.94, "latency_ms": latency_ms,
+           "pipeline": "Meta Glasses → OpenShift → BTP → earpiece"})
+    return add_cors(Response(json.dumps({"ok": True, "cards": player_cards, "total": total,
+                                         "action": action, "confidence": 0.94, "latency_ms": latency_ms}),
+                             mimetype="application/json"))
+
+@app.get("/present-blackjack")
+def present_blackjack():
+    return send_from_directory("/stage", "present-blackjack.html")
+
 @app.post("/piport/idoc")
 def piport_idoc():
     global count, last, last_event_time
