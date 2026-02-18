@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OHC Edge Demo — Red Hat × SAP</title>
+  <meta name="description" content="Live interactive demo: physical security events flowing from edge devices through Red Hat OpenShift to SAP BTP via Edge Integration Cell. Open source, CloudEvents v1.0.">
+  <meta property="og:title" content="OHC Edge Demo — Red Hat × SAP">
+  <meta property="og:description" content="Physical security events (badge readers, cameras, HVAC, vehicle telemetry) flowing through Red Hat OpenShift to SAP BTP. Live interactive demo.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jodonnel.github.io/ohc-sap-demo/">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://jodonnel.github.io/ohc-sap-demo/">
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Text:wght@400;500;700&family=Red+Hat+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #06090F;
+      --surface:  #0E1520;
+      --border:   #1E2D3D;
+      --text:     #E8EDF2;
+      --muted:    #8B98A5;
+      --dim:      #4E5D6C;
+      --red:      #EE0000;
+      --blue:     #0070F2;
+      --green:    #00D26A;
+      --amber:    #F5A623;
+      --teal:     #00B8D9;
+      --purple:   #8B5CF6;
+      --silver:   #C0C0C0;
+      --orange:   #FF6B35;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Red Hat Text', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6, 9, 15, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 52px;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Red Hat Display', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-decoration: none;
+    }
+    .nav-rh { color: var(--red); }
+    .nav-sep { color: var(--dim); font-weight: 300; }
+    .nav-sap { color: var(--blue); }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.external::after { content: ' ↗'; opacity: 0.5; font-size: 10px; }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 860px;
+      margin: 80px auto 0;
+      padding: 0 32px 72px;
+      animation: fadeUp 0.7s ease-out both;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    h1 {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+    h1 .rh { color: var(--red); }
+    h1 .x  { color: var(--dim); font-weight: 300; }
+    h1 .sap{ color: var(--blue); }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 600px;
+      margin-bottom: 36px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-primary { background: var(--red); color: #fff; }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── Layout ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 32px 100px;
+    }
+
+    /* ── Section titles ── */
+    h2 {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    section { margin-bottom: 60px; animation: fadeUp 0.6s ease-out both; }
+    section:nth-child(2) { animation-delay: 0.1s; }
+    section:nth-child(3) { animation-delay: 0.15s; }
+    section:nth-child(4) { animation-delay: 0.2s; }
+    section:nth-child(5) { animation-delay: 0.25s; }
+    section:nth-child(6) { animation-delay: 0.3s; }
+
+    /* ── Architecture diagram ── */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .arch-col {
+      background: var(--surface);
+      padding: 24px 20px;
+    }
+    .arch-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 10px;
+    }
+    .arch-title {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .arch-title.south { color: var(--green); }
+    .arch-title.mid   { color: var(--amber); }
+    .arch-title.north { color: var(--blue); }
+    .arch-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .arch-items { list-style: none; }
+    .arch-items li {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 2px 0;
+    }
+    .arch-items li::before { content: '→ '; color: var(--dim); }
+    .arch-arrow {
+      text-align: center;
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 6px;
+      font-family: 'Red Hat Mono', monospace;
+    }
+    .arch-note {
+      font-size: 12px;
+      color: var(--dim);
+      font-style: italic;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+    }
+    .arch-note strong { color: var(--muted); font-style: normal; }
+
+    /* ── Event classes ── */
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .class-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .class-icon { font-size: 20px; }
+    .class-name {
+      font-family: 'Red Hat Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .class-label { font-size: 11px; color: var(--muted); }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-family: 'Red Hat Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    code { font-family: 'Red Hat Mono', monospace; font-size: 12px; }
+    p code, li code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--teal);
+    }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--dim);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(30, 45, 61, 0.5);
+      color: var(--muted);
+      vertical-align: top;
+    }
+    td:first-child {
+      font-family: 'Red Hat Mono', monospace;
+      font-size: 12px;
+      color: var(--teal);
+      white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ── Transport cards ── */
+    .transport-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .transport-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+    .transport-card h3 { font-size: 14px; margin-bottom: 4px; }
+    .transport-card .meta { font-size: 11px; color: var(--dim); margin-bottom: 8px; }
+    .transport-card p { font-size: 12px; color: var(--muted); }
+
+    /* ── Docs links ── */
+    .doc-links { display: flex; gap: 12px; flex-wrap: wrap; }
+    .doc-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .doc-link:hover { border-color: var(--muted); color: #fff; }
+    .doc-link .icon { font-size: 16px; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--dim);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+      .hero, main { padding-left: 16px; padding-right: 16px; }
+      .arch-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="#">
+    <span class="nav-rh">RED HAT</span>
+    <span class="nav-sep">×</span>
+    <span class="nav-sap">SAP</span>
+    <span style="color:var(--dim);font-weight:300;font-size:12px;margin-left:4px">OHC Edge Demo</span>
+  </a>
+  <div class="nav-links">
+    <a href="#architecture">Architecture</a>
+    <a href="#events">Events</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="#docs">Docs</a>
+    <a href="https://github.com/jodonnel/ohc-sap-demo" class="external">GitHub</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Open Source Demo
+  </div>
+  <h1>
+    <span class="rh">Red Hat</span> <span class="x">×</span> <span class="sap">SAP</span><br>
+    OHC Edge Integration
+  </h1>
+  <p class="hero-sub">
+    Physical security events — badge readers, cameras, HVAC, vehicle telemetry —
+    flowing through Red Hat OpenShift to SAP BTP via Edge Integration Cell.
+    Live, interactive, open source.
+  </p>
+  <div class="hero-actions">
+    <a href="architecture.html" class="btn btn-primary">View Architecture Diagram</a>
+    <a href="https://github.com/jodonnel/ohc-sap-demo" class="btn btn-secondary">GitHub Repository</a>
+  </div>
+</div>
+
+<main>
+
+  <!-- Architecture -->
+  <section id="architecture">
+    <h2>Architecture</h2>
+    <div class="arch-grid">
+      <div class="arch-col">
+        <div class="arch-label">Layer 1</div>
+        <div class="arch-title south">South</div>
+        <div class="arch-desc">Execution. Device I/O. Permanent boundary.</div>
+        <ul class="arch-items">
+          <li>Badge readers (OnGuard)</li>
+          <li>Cameras &amp; surveillance</li>
+          <li>HVAC controllers</li>
+          <li>Biometric scanners</li>
+          <li>Environmental sensors</li>
+          <li>Connected vehicle</li>
+        </ul>
+        <div class="arch-arrow">POST /ingest ↓</div>
+      </div>
+      <div class="arch-col">
+        <div class="arch-label">Layer 2</div>
+        <div class="arch-title mid">Middle</div>
+        <div class="arch-desc">Plumbing. Replaceable. Currently Flask on OpenShift.</div>
+        <ul class="arch-items">
+          <li>CloudEvent ingestion</li>
+          <li>Telemetry aggregation</li>
+          <li>SSE broadcast</li>
+          <li>State persistence (PVC)</li>
+          <li>Short-URL routing</li>
+        </ul>
+        <div class="arch-arrow">SSE /events ↑</div>
+      </div>
+      <div class="arch-col">
+        <div class="arch-label">Layer 3</div>
+        <div class="arch-title north">North</div>
+        <div class="arch-desc">Decision support. Enterprise surface. Permanent boundary.</div>
+        <ul class="arch-items">
+          <li>SOC Operations dashboard</li>
+          <li>Audience presentations</li>
+          <li>Evidence panel</li>
+          <li>SAP EIC → BTP (roadmap)</li>
+          <li>Analytics Cloud</li>
+        </ul>
+        <div class="arch-arrow">&nbsp;</div>
+      </div>
+    </div>
+    <p class="arch-note">
+      <strong>North and South are permanent.</strong> The middle is replaceable —
+      Flask today, Kafka or SAP Event Mesh tomorrow. When EIC arrives, it slots
+      into North; the middle simplifies. The event contract (CloudEvents v1.0) is
+      the stable interface between all three layers.
+    </p>
+  </section>
+
+  <!-- Event Classes -->
+  <section id="events">
+    <h2>Event Classes</h2>
+    <p style="color:var(--muted);margin-bottom:20px;font-size:13px;">
+      Every CloudEvent carries an <code>eventclass</code> field that drives dashboard color-coding,
+      telemetry breakdowns, and SAP routing rules. Events follow the
+      <a href="https://cloudevents.io/" style="color:var(--teal)">CloudEvents v1.0</a> spec
+      with type prefix <code>ohc.demo.*</code>.
+    </p>
+    <div class="classes-grid">
+      <div class="class-card">
+        <span class="class-icon">🔐</span>
+        <div>
+          <div class="class-name" style="color:#00D26A">access</div>
+          <div class="class-label">Badge scans, door state</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">🚨</span>
+        <div>
+          <div class="class-name" style="color:#EE0000">incident</div>
+          <div class="class-label">Security incidents</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">📋</span>
+        <div>
+          <div class="class-name" style="color:#F5A623">compliance</div>
+          <div class="class-label">Safety &amp; maintenance</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">🌐</span>
+        <div>
+          <div class="class-name" style="color:#0070F2">network</div>
+          <div class="class-label">Network anomalies</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">📹</span>
+        <div>
+          <div class="class-name" style="color:#00B8D9">surveillance</div>
+          <div class="class-label">Camera diagnostics</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">🏢</span>
+        <div>
+          <div class="class-name" style="color:#FF6B35">building</div>
+          <div class="class-label">HVAC, privacy film</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">🌡️</span>
+        <div>
+          <div class="class-name" style="color:#8B98A5">sensor</div>
+          <div class="class-label">Environmental readings</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">📡</span>
+        <div>
+          <div class="class-name" style="color:#8B5CF6">telem</div>
+          <div class="class-label">Device telemetry</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">⚠️</span>
+        <div>
+          <div class="class-name" style="color:#F5A623">alert</div>
+          <div class="class-label">Proximity warnings</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">🚗</span>
+        <div>
+          <div class="class-name" style="color:#C0C0C0">vehicle</div>
+          <div class="class-label">Connected car telemetry</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">🎮</span>
+        <div>
+          <div class="class-name" style="color:#4E5D6C">status</div>
+          <div class="class-label">Game &amp; session lifecycle</div>
+        </div>
+      </div>
+      <div class="class-card">
+        <span class="class-icon">⬇️</span>
+        <div>
+          <div class="class-name" style="color:#00D26A">command</div>
+          <div class="class-label">Actuator commands</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:24px;">CloudEvent envelope</h3>
+    <pre>{
+  "specversion": "1.0",
+  "type":        "ohc.demo.access.onguard.badge_scan",
+  "source":      "south/lenel-reader-lobby",
+  "id":          "uuid-v4",
+  "time":        "2026-02-18T14:00:00Z",
+  "eventclass":  "access",
+  "data": {
+    "badgeID":       "B-1042",
+    "cardholderName":"Jim O'Donnell",
+    "readerName":    "Main Lobby",
+    "action":        "ACCESS_GRANTED"
+  }
+}</pre>
+  </section>
+
+  <!-- Transport Layer -->
+  <section id="transport">
+    <h2>Edge Transport Adapters</h2>
+    <p style="color:var(--muted);margin-bottom:20px;font-size:13px;">
+      Adapters run on-premises or on a laptop — not in the cluster. Each polls a physical
+      or connected device and emits CloudEvents to <code>POST /ingest</code>.
+    </p>
+    <div class="transport-grid">
+      <div class="transport-card">
+        <h3>🚗 Mercedes-Benz Relay</h3>
+        <div class="meta">transport/mercedes/ · Python · OAuth2 · Read-only</div>
+        <p>Polls fuel level, odometer, lock status, tire pressure, and location via the
+        Mercedes Connected Vehicle API. VIN and coordinates are redacted in all events.
+        Runs on the presenter's laptop — not in the cluster.</p>
+      </div>
+      <div class="transport-card">
+        <h3>📦 Artifact Relay</h3>
+        <div class="meta">transport/ · Python · Send/Receive</div>
+        <p>Utility scripts for syncing demo artifacts between local and cluster environments
+        during development and pre-demo setup.</p>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--dim);">
+      Adding a new device class: implement a script that POSTs a valid CloudEvent JSON
+      to <code>/ingest</code> with the appropriate <code>eventclass</code> field.
+      No cluster changes required.
+    </p>
+  </section>
+
+  <!-- Quick Start -->
+  <section id="quickstart">
+    <h2>Quick Start</h2>
+    <h3>Run locally</h3>
+    <pre>git clone https://github.com/jodonnel/ohc-sap-demo
+cd ohc-sap-demo/north
+pip install flask
+python app.py</pre>
+    <table>
+      <tr><th>URL</th><th>What</th></tr>
+      <tr><td>localhost:8080/play</td><td>Mobile edge device simulation game</td></tr>
+      <tr><td>localhost:8080/stage</td><td>SOC operations dashboard (live SSE)</td></tr>
+      <tr><td>localhost:8080/present</td><td>SAP seller presentation</td></tr>
+      <tr><td>localhost:8080/present-rh</td><td>Red Hat seller presentation</td></tr>
+      <tr><td>localhost:8080/present-index</td><td>Presentation selector + kiosk mode</td></tr>
+    </table>
+
+    <h3 style="margin-top:24px;">Send a test event</h3>
+    <pre>curl -X POST http://localhost:8080/ingest \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "specversion": "1.0",
+    "type":        "ohc.demo.access.onguard.badge_scan",
+    "source":      "test/cli",
+    "id":          "test-001",
+    "eventclass":  "access",
+    "data":        { "cardholderName": "Test User", "action": "ACCESS_GRANTED" }
+  }'</pre>
+
+    <h3 style="margin-top:24px;">Deploy to OpenShift</h3>
+    <pre>oc kustomize deploy/overlays/qa/ | oc apply -f -</pre>
+  </section>
+
+  <!-- API Reference -->
+  <section id="api">
+    <h2>API Reference</h2>
+    <table>
+      <tr><th>Method</th><th>Path</th><th>Description</th><th>Layer</th></tr>
+      <tr><td>POST</td><td>/ingest</td><td>Accept a CloudEvent (JSON body)</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>GET</td><td>/events</td><td>Server-Sent Events stream (real-time)</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>GET</td><td>/state</td><td>Current state JSON (counts, telemetry)</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>GET</td><td>/telemetry</td><td>Aggregated device telemetry</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>GET</td><td>/log</td><td>Event history (last 200)</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>GET</td><td>/about</td><td>System metadata JSON (version, uptime, pod)</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>GET</td><td>/healthz</td><td>Liveness probe</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>GET</td><td>/readyz</td><td>Readiness probe</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>POST</td><td>/reset</td><td>Reset all state</td><td style="color:var(--amber)">Middle</td></tr>
+      <tr><td>GET</td><td>/go/&lt;alias&gt;</td><td>Short URL redirects (play, dtw, stage…)</td><td style="color:var(--amber)">Middle</td></tr>
+    </table>
+  </section>
+
+  <!-- Stack -->
+  <section id="stack">
+    <h2>Stack</h2>
+    <table>
+      <tr><th>Component</th><th>Technology</th><th>Why</th></tr>
+      <tr><td>Container platform</td><td>Red Hat OpenShift (RHDP on AWS)</td><td>The product being demonstrated</td></tr>
+      <tr><td>Event integration</td><td>SAP Edge Integration Cell → BTP</td><td>The integration target</td></tr>
+      <tr><td>Middle layer</td><td>Python / Flask</td><td>Zero-dependency, replaceable plumbing</td></tr>
+      <tr><td>Frontend</td><td>Vanilla HTML/CSS/JS</td><td>No build step, ConfigMap-mountable</td></tr>
+      <tr><td>Real-time push</td><td>Server-Sent Events</td><td>Works through OpenShift Routes, no WebSocket upgrade needed</td></tr>
+      <tr><td>Event format</td><td>CloudEvents v1.0</td><td>Open standard; works with BTP, Kafka, Event Mesh</td></tr>
+      <tr><td>State</td><td>JSON flush to PVC (1Gi)</td><td>Survives pod restarts, zero new dependencies</td></tr>
+      <tr><td>GitOps</td><td>Kustomize</td><td>Base + overlay pattern for qa/prod</td></tr>
+      <tr><td>Vehicle adapter</td><td>Mercedes Connected Vehicle API (OAuth2)</td><td>Real edge device for demo differentiation</td></tr>
+    </table>
+  </section>
+
+  <!-- Docs -->
+  <section id="docs">
+    <h2>Documentation</h2>
+    <div class="doc-links">
+      <a href="architecture.html" class="doc-link">
+        <span class="icon">🗺️</span> Architecture Diagram
+      </a>
+      <a href="components.md" class="doc-link">
+        <span class="icon">🧩</span> Component Model
+      </a>
+      <a href="adr/001-collapse-south-ui.md" class="doc-link">
+        <span class="icon">📝</span> ADR-001: South-UI Consolidation
+      </a>
+      <a href="adr/002-state-persistence.md" class="doc-link">
+        <span class="icon">📝</span> ADR-002: State Persistence
+      </a>
+      <a href="https://github.com/jodonnel/ohc-sap-demo/issues" class="doc-link">
+        <span class="icon">🐛</span> Issue Tracker
+      </a>
+      <a href="https://github.com/jodonnel/ohc-sap-demo/blob/main/README.md" class="doc-link">
+        <span class="icon">📖</span> README
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    <a href="https://github.com/jodonnel/ohc-sap-demo">jodonnel/ohc-sap-demo</a>
+    &nbsp;·&nbsp; Apache-2.0
+    &nbsp;·&nbsp; Built with Red Hat OpenShift &amp; SAP BTP
+    &nbsp;·&nbsp; <a href="https://cloudevents.io/">CloudEvents v1.0</a>
+  </p>
+</footer>
+
+</body>
+</html>
