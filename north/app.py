@@ -614,6 +614,14 @@ def ingest_vision():
 def present_blackjack():
     return send_from_directory("/stage", "present-blackjack.html")
 
+@app.get("/present-mii")
+def present_mii():
+    return send_from_directory("/stage", "present-mii.html")
+
+@app.get("/present-substation")
+def present_substation():
+    return send_from_directory("/stage", "present-substation.html")
+
 @app.post("/piport/idoc")
 def piport_idoc():
     global count, last, last_event_time
