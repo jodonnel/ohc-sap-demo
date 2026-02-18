@@ -272,6 +272,7 @@ const CLASSES = {
   presenter:   { icon:'🎤', color:'var(--dim)',    label:'Presenter' },
   status:      { icon:'🎮', color:'var(--dim)',    label:'Status' },
   command:     { icon:'⬇️', color:'var(--green)',  label:'Motor Command' },
+  vehicle:     { icon:'🚗', color:'#C0C0C0',       label:'Vehicle Telemetry' },
   unknown:     { icon:'📦', color:'var(--muted)',  label:'Other' },
 };
 
@@ -352,6 +353,13 @@ const DESCRIPTIONS = {
 
   // ── Motor Commands (north→south) ──
   'command.lockdown': d => '🚨 Lockdown initiated via ' + (d.initiated_by || 'unknown').replace(/_/g, ' '),
+
+  // ── Vehicle Telemetry (Mercedes-Benz connected vehicle relay) ──
+  'vehicle.fuel':          d => '⛽ Fuel level: ' + (d.level_pct !== undefined ? d.level_pct + '%' : (d.level || '—')),
+  'vehicle.odometer':      d => '🔢 Odometer: ' + (d.km !== undefined ? d.km.toLocaleString() + ' km' : (d.reading || '—')),
+  'vehicle.lock_status':   d => '🔐 Vehicle ' + (d.locked ? 'locked' : 'unlocked') + (d.vin_partial ? ' (' + d.vin_partial + ')' : ''),
+  'vehicle.tire_pressure': d => '🛞 Tires — FL:' + (d.fl_kpa || '—') + ' FR:' + (d.fr_kpa || '—') + ' RL:' + (d.rl_kpa || '—') + ' RR:' + (d.rr_kpa || '—') + ' kPa',
+  'vehicle.location_ping': d => '📍 Vehicle location ping' + (d.has_fix ? ' (GPS fix)' : ' (no fix)') + ' — coords redacted',
 };
 
 // ═══════════════════════════════════════════
