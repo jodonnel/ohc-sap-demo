@@ -273,6 +273,7 @@ const CLASSES = {
   status:      { icon:'🎮', color:'var(--dim)',    label:'Status' },
   command:     { icon:'⬇️', color:'var(--green)',  label:'Motor Command' },
   vehicle:     { icon:'🚗', color:'#C0C0C0',       label:'Vehicle Telemetry' },
+  piport:      { icon:'🔄', color:'#00AEEF',       label:'PI/PO Migration' },
   unknown:     { icon:'📦', color:'var(--muted)',  label:'Other' },
 };
 
@@ -353,6 +354,11 @@ const DESCRIPTIONS = {
 
   // ── Motor Commands (north→south) ──
   'command.lockdown': d => '🚨 Lockdown initiated via ' + (d.initiated_by || 'unknown').replace(/_/g, ' '),
+
+  // ── PI/PO Migration (IDoc → EIC → S/4HANA) ──
+  'piport.idoc_goods_receipt': d => '📦 IDoc ' + (d.idoc_type || 'MBGMCR002') + ' → ' + (d.routing_path || 'EIC → S/4HANA') + (d.s4_confirmation ? ' ✓ ' + d.s4_confirmation : ' (pending)'),
+  'piport.idoc_routing_failed': d => '❌ IDoc routing failed — ' + (d.idoc_type || 'MBGMCR002') + ': ' + (d.reason || 'unknown error'),
+  'piport.eic_handoff': d => '🔁 EIC handoff — ' + (d.idoc_type || 'IDoc') + ' queued at ' + (d.eic_endpoint || 'edge integration cell'),
 
   // ── Vehicle Telemetry (Mercedes-Benz connected vehicle relay) ──
   'vehicle.fuel':          d => '⛽ Fuel level: ' + (d.level_pct !== undefined ? d.level_pct + '%' : (d.level || '—')),

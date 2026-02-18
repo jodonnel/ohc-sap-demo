@@ -302,6 +302,14 @@ def present_index():
 def present_dtw():
     return send_from_directory("/stage", "present-dtw.html")
 
+@app.get("/present-piport")
+def present_piport():
+    return send_from_directory("/stage", "present-piport.html")
+
+@app.get("/labs")
+def labs():
+    return send_from_directory("/stage", "labs.html")
+
 @app.get("/qr-present")
 def qr_present():
     return send_from_directory("/stage", "qr-present.html")
@@ -386,6 +394,52 @@ def reset_state():
         except FileNotFoundError:
             pass
     return add_cors(Response(json.dumps({"ok": True, "reset": True}), mimetype="application/json"))
+
+@app.post("/piport/idoc")
+def piport_idoc():
+    global count, last, last_event_time
+    data = request.get_json(silent=True) or {}
+    idoc_type = data.get("idoc_type", "MBGMCR002")
+    plant = data.get("plant", "PLANT_01")
+    material = data.get("material", "MAT-00001")
+    quantity = data.get("quantity", 1)
+
+    event = {
+        "ts": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "payload": {
+            "type": "ohc.demo.piport.idoc_goods_receipt",
+            "eventclass": "ohc.demo.piport",
+            "source": "pi-po-migration-factory",
+            "data": {
+                "idoc_type": idoc_type,
+                "plant": plant,
+                "material": material,
+                "quantity": quantity,
+                "routing_path": "PI/PO → EIC → S/4HANA",
+                "eic_endpoint": "eic.ohc.demo.local",
+                "s4_confirmation": "GR-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S"),
+                "latency_ms": 142,
+            }
+        }
+    }
+    event["payload"]["type"] = "ohc.demo.piport.idoc_goods_receipt"
+
+    with lock:
+        count += 1
+        last_event_time = event["ts"]
+        event["count"] = count
+        last = {"ts": event["ts"], "payload": event["payload"], "count": count}
+        event_log.append(last)
+        if len(event_log) > 200:
+            event_log.pop(0)
+        ec = "ohc.demo.piport"
+        telemetry["event_classes"][ec] = telemetry["event_classes"].get(ec, 0) + 1
+
+    publish(last)
+    return add_cors(Response(
+        json.dumps({"ok": True, "idoc_type": idoc_type, "s4_confirmation": event["payload"]["data"]["s4_confirmation"]}),
+        mimetype="application/json"
+    ))
 
 from alexa_skill import alexa_bp, init_alexa
 app.register_blueprint(alexa_bp)
