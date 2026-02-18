@@ -347,17 +347,26 @@ const USE_CASES = [
 
 const GH_BASE = "https://github.com/jodonnel/ohc-sap-demo/issues/";
 
+// Storage: localStorage primary, window.storage (kiosk env) as enhancement
 async function getVotes(issue) {
-  try { const r = await window.storage.get(`labs:votes:${issue}`, true); return r ? parseInt(r.value)||0 : 0; } catch { return 0; }
+  try {
+    if (window.storage) { const r = await window.storage.get(`labs:votes:${issue}`, true); if (r) return parseInt(r.value)||0; }
+  } catch {}
+  return parseInt(localStorage.getItem(`labs:votes:${issue}`) || '0');
 }
 async function setVotes(issue, n) {
-  try { await window.storage.set(`labs:votes:${issue}`, String(n), true); } catch {}
+  localStorage.setItem(`labs:votes:${issue}`, String(n));
+  try { if (window.storage) await window.storage.set(`labs:votes:${issue}`, String(n), true); } catch {}
 }
 async function hasVoted(issue) {
-  try { const r = await window.storage.get(`labs:myvote:${issue}`, false); return !!r; } catch { return false; }
+  try {
+    if (window.storage) { const r = await window.storage.get(`labs:myvote:${issue}`, false); if (r) return true; }
+  } catch {}
+  return !!localStorage.getItem(`labs:myvote:${issue}`);
 }
 async function markVoted(issue) {
-  try { await window.storage.set(`labs:myvote:${issue}`, '1', false); } catch {}
+  localStorage.setItem(`labs:myvote:${issue}`, '1');
+  try { if (window.storage) await window.storage.set(`labs:myvote:${issue}`, '1', false); } catch {}
 }
 
 function toast(msg) {
@@ -444,34 +453,8 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-// Init
-if (window.storage) {
-  renderCards();
-} else {
-  // Fallback without storage
-  USE_CASES.forEach(uc => {
-    const grid = document.getElementById('card-grid');
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.filters = uc.filters.join(',');
-    card.innerHTML = `
-      <div class="card-header">
-        <span class="card-num">#${uc.num}</span>
-        <div class="card-title-block">
-          <div class="card-title">${uc.title}</div>
-          <div class="card-tagline">${uc.tagline}</div>
-        </div>
-      </div>
-      <div class="card-abstract">${uc.abstract}</div>
-      <div class="card-tags">${uc.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-      <div class="card-footer">
-        <span style="font-size:0.6rem;color:var(--text-muted)">voting unavailable outside demo</span>
-        <a href="${GH_BASE}${uc.issue}" target="_blank" class="issue-link">${ghIcon()} issue #${uc.issue} ↗</a>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
+// Init — always render with full voting UI
+renderCards();
 </script>
 </body>
 </html>
