@@ -1,11 +1,10 @@
-FROM registry.access.redhat.com/ubi9/python-311
-
-USER 0
-RUN dnf install -y gcc python3-devel && dnf clean all
-
-USER 1001
+FROM python:3.11-slim
 
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
