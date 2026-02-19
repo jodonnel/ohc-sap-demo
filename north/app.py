@@ -622,6 +622,10 @@ def present_mii():
 def present_substation():
     return send_from_directory("/stage", "present-substation.html")
 
+@app.get("/present-job-coach")
+def present_job_coach():
+    return send_from_directory("/stage", "present-job-coach.html")
+
 @app.post("/piport/idoc")
 def piport_idoc():
     global count, last, last_event_time
