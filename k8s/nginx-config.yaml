@@ -21,7 +21,7 @@ data:
         # Serve static files from PVC
         location / {
           root /var/www/html;
-          try_files $uri $uri/ =404;
+          try_files $uri $uri.html $uri/ =404;
         }
 
         # Proxy API requests to Flask
