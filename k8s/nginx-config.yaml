@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    pid /tmp/nginx.pid;
+
+    events {
+      worker_connections 1024;
+    }
+
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+
+      server {
+        listen 8080;
+        server_name _;
+
+        # Serve static files from PVC
+        location / {
+          root /var/www/html;
+          try_files $uri $uri/ =404;
+        }
+
+        # Proxy API requests to Flask
+        location /api/ {
+          proxy_pass http://north-api:5000/;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # SSE endpoint for events
+        location /events {
+          proxy_pass http://north-api:5000/events;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_buffering off;
+          proxy_cache off;
+          proxy_set_header Connection '';
+          proxy_http_version 1.1;
+          chunked_transfer_encoding off;
+        }
+
+        # Health check
+        location /health {
+          proxy_pass http://north-api:5000/health;
+        }
+
+        # API endpoints at root level (single word)
+        location ~ ^/(telemetry|log|state|reset|healthz|readyz|pod-name|about)$ {
+          proxy_pass http://north-api:5000;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Direct API endpoints (not prefixed with /api/)
+        location ~ ^/(badge|scenario|piport|shopfloor|contractor|openblue|ot|ingest|go)/ {
+          proxy_pass http://north-api:5000;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+      }
+    }
