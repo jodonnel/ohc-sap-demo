@@ -8,8 +8,8 @@
 <style>
 :root {
   --bg: #06090F; --surface: #0D1117; --border: #1C2333; --muted: #4E5D6C; --text: #F0F4F8;
-  --green: #00D26A; --blue: #0070F2; --red: #EE0000; --amber: #F59E0B; --purple: #9333EA;
-  --red-glow: rgba(238,0,0,0.10); --blue-glow: rgba(0,112,242,0.10);
+  --green: #00D26A; --blue: #0070F2; --red: #EE0000; --amber: #F59E0B; --purple: #9333EA; --sap-gold: #F0AB00;
+  --red-glow: rgba(238,0,0,0.10); --blue-glow: rgba(0,112,242,0.10); --sap-gold-glow: rgba(240,171,0,0.10);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Red Hat Display',sans-serif; }
@@ -41,7 +41,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 .medium { font-size:clamp(1.2rem,3vw,1.8rem); font-weight:300; line-height:1.4; font-family:'Red Hat Text',sans-serif; }
 .small { font-size:14px; color:var(--muted); font-family:'Red Hat Text',sans-serif; }
 .mono { font-family:'Red Hat Mono',monospace; }
-.red { color:var(--red); } .blue { color:var(--blue); } .green { color:var(--green); }
+.red { color:var(--red); } .blue { color:var(--blue); } .green { color:var(--green); } .sap-gold { color:var(--sap-gold); }
 .amber { color:var(--amber); } .purple { color:var(--purple); } .muted { color:var(--muted); } .center { text-align:center; }
 
 .brand { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
@@ -98,6 +98,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 .arch-node.highlight-blue { border-color:var(--blue); box-shadow:0 0 24px var(--blue-glow); }
 .arch-node.highlight-red { border-color:var(--red); box-shadow:0 0 24px var(--red-glow); }
 .arch-node.highlight-green { border-color:var(--green); box-shadow:0 0 24px rgba(0,210,106,0.12); }
+.arch-node.highlight-sap-gold { border-color:var(--sap-gold); box-shadow:0 0 24px var(--sap-gold-glow); }
 .arch-node .node-icon { font-size:40px; margin-bottom:12px; }
 .arch-node .node-title { font-size:16px; font-weight:700; margin-bottom:6px; }
 .arch-node .node-sub { font-size:12px; color:var(--muted); font-family:'Red Hat Mono',monospace; line-height:1.4; }
@@ -250,9 +251,9 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
         <div class="node-sub">MicroShift · LLaMA 3 · Whisper STT · TTS</div>
       </div>
       <div class="arch-arrow">→</div>
-      <div class="arch-node highlight-green">
+      <div class="arch-node highlight-sap-gold">
         <div class="node-icon">📊</div>
-        <div class="node-title green">SAP BTP</div>
+        <div class="node-title sap-gold">SAP BTP</div>
         <div class="node-sub">Task library · analytics · DSP interface</div>
       </div>
     </div>
@@ -311,7 +312,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
         <div class="stat-label">Current employment rate — massive gap for inclusive tech solutions</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val green">Edge AI</div>
+        <div class="stat-val" style="color:#CC0000;">Edge AI</div>
         <div class="stat-label">Privacy-first design running on Red Hat Device Edge and MicroShift</div>
       </div>
     </div>
