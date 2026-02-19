@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"north","namespace":"qr-demo-qa"},"spec":{"clusterIP":"172.30.154.188","clusterIPs":["172.30.154.188"],"internalTrafficPolicy":"Cluster","ipFamilies":["IPv4"],"ipFamilyPolicy":"SingleStack","ports":[{"name":"http","port":8080,"protocol":"TCP","targetPort":8080}],"selector":{"app":"north"},"sessionAffinity":"None","type":"ClusterIP"}}
+  creationTimestamp: "2026-01-21T08:38:12Z"
+  name: north
+  namespace: qr-demo-qa
+  resourceVersion: "65437"
+  uid: 7b69a3de-b8da-44f0-b9a0-b5c405de1540
+spec:
+  clusterIP: 172.30.154.188
+  clusterIPs:
+  - 172.30.154.188
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: north
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

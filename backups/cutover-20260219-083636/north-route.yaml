@@ -1,0 +1,35 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    haproxy.router.openshift.io/balance: roundrobin
+    haproxy.router.openshift.io/disable_cookies: "true"
+    haproxy.router.openshift.io/set-forwarded-headers: append
+    haproxy.router.openshift.io/timeout: 3600s
+    openshift.io/host.generated: "true"
+  creationTimestamp: "2026-01-21T09:00:44Z"
+  name: north
+  namespace: qr-demo-qa
+  resourceVersion: "700884"
+  uid: 4ee0794c-a8ec-4312-b75d-1ee7ae4eb07b
+spec:
+  host: north-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: north
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+  - conditions:
+    - lastTransitionTime: "2026-01-21T09:00:44Z"
+      status: "True"
+      type: Admitted
+    host: north-qr-demo-qa.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com
+    routerCanonicalHostname: router-default.apps.cluster-nlthm.nlthm.sandbox3528.opentlc.com
+    routerName: default
+    wildcardPolicy: None
