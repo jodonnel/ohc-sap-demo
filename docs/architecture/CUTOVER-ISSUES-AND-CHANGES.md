@@ -501,3 +501,28 @@ All changes documented. Production stable. Mission accomplished.
 **Document Version:** 1.1  
 **Last Updated:** 2026-02-19T18:00:00Z  
 **Post-Cutover Fixes:** 1
+
+### CHANGE-005: Minigame Responsive Layout Fix
+- **Issue:** Wumpus minigame (/play) didn't fit viewport - navigation buttons below fold on desktop and mobile
+- **User Report:** "has to be resized every time it opens in the desktop or you can't see the navigation buttons at the bottom. In mobile, it has to be scrolled."
+- **Fix Applied:**
+  - Changed body from `min-height: 100dvh` to `height: 100dvh; max-height: 100dvh; overflow: hidden`
+  - Added `overflow-y: auto` and `min-height: 0` to `.game` section (scrolls within bounds)
+  - Reduced `.room-display` padding (16px → 12px, 24px → 20px)
+  - Added mobile media queries for screens <700px and <600px height
+    - Scales down fonts (48px → 40px → 36px icons)
+    - Reduces padding on action buttons, minimap, chloe-bar
+- **Files Modified:**
+  - `south-ui/index.html` (26 insertions, 3 deletions)
+- **Approval:** Administrative Override - User tested and confirmed "i think it's good. thanks."
+- **Commit:** `d20b546` - "fix: make Wumpus minigame fit viewport (desktop + mobile)"
+- **Status:** ✅ COMPLETED
+- **Impact:** Desktop no longer requires manual resize, mobile navigation buttons always accessible
+- **Category:** User Experience / Responsive Design
+
+---
+
+**Document Version:** 1.2  
+**Last Updated:** 2026-02-19T18:30:00Z  
+**Administrative Overrides:** 4 (CHANGE-002, CHANGE-003, CHANGE-004, CHANGE-005)
+**Post-Cutover Fixes:** 2 (ISSUE-007, CHANGE-005)
