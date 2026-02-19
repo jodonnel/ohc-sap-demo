@@ -472,3 +472,32 @@ All changes documented. Production stable. Mission accomplished.
 **Last Updated:** 2026-02-19T14:30:00Z
 **Author:** Claude Opus 4.6 (Field Engineering)
 **Reviewed By:** Pending user review
+
+---
+
+## Post-Cutover Issues
+
+### ISSUE-007: Missing south-ui/index.html (Mobile Minigame)
+- **Discovered:** 2026-02-19 (post-cutover)
+- **Symptom:** `/play` endpoint returning 404, QR code "Scan to Play" broken
+- **Root Cause:** During static file migration to PVC, only copied `north/stage/*` files. Missed `south-ui/index.html` which old Flask served at `/play` route.
+- **Impact:** Mobile minigame inaccessible, QR code functionality broken
+- **Fix Applied:**
+  ```bash
+  oc cp south-ui/index.html qr-demo-qa/nginx-pod:/var/www/html/play.html
+  oc cp south-ui/index.html qr-demo-dev/nginx-pod:/var/www/html/play.html
+  ```
+- **Files Modified:** None (deployment only)
+- **Verification:** `/play` returns HTTP 200, minigame loads
+- **Why Missed:** Flask route `@app.get("/play")` served from `/south-ui`, not `/stage`. File copy script only covered `/stage` directory.
+- **Lesson Learned:** During cutover, audit ALL Flask routes and their source directories, not just primary content directory.
+- **Prevention:** Document all static content locations before cutover. Create comprehensive file manifest.
+- **Risk Assessment:** LOW - cosmetic issue, no data loss, quick fix
+- **Resolution Time:** 15 minutes discovery + 2 minutes fix
+- **Issue:** #53 (closed)
+
+---
+
+**Document Version:** 1.1  
+**Last Updated:** 2026-02-19T18:00:00Z  
+**Post-Cutover Fixes:** 1
