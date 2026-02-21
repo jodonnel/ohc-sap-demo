@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>West Trax × Red Hat — Container GTM Demo</title>
+  <meta name="description" content="What the West Trax KPI Analyzer customer journey looks like containerized — from first scan to roundtable, without the meetings.">
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Text:wght@400;500;700&family=Red+Hat+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #06090F;
+      --surface:  #0E1520;
+      --border:   #1E2D3D;
+      --text:     #E8EDF2;
+      --muted:    #8B98A5;
+      --dim:      #4E5D6C;
+      --red:      #EE0000;
+      --blue:     #0070F2;
+      --green:    #00D26A;
+      --amber:    #F5A623;
+      --teal:     #00B8D9;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Red Hat Text', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6, 9, 15, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 52px;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Red Hat Display', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-decoration: none;
+    }
+    .nav-wt  { color: var(--text); }
+    .nav-sep { color: var(--dim); font-weight: 300; }
+    .nav-rh  { color: var(--red); }
+    .nav-back {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.15s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 900px;
+      margin: 80px auto 0;
+      padding: 0 32px 64px;
+      animation: fadeUp 0.7s ease-out both;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    h1 {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: clamp(30px, 5vw, 50px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+    .hero-tagline {
+      font-size: 20px;
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 620px;
+      margin-bottom: 32px;
+    }
+
+    /* Old vs New comparison */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      max-width: 680px;
+      margin-bottom: 0;
+    }
+    .compare-col {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+    .compare-col.old { border-color: rgba(238,0,0,0.2); }
+    .compare-col.new { border-color: rgba(0,210,106,0.2); }
+    .compare-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .compare-label.old { color: var(--red); }
+    .compare-label.new { color: var(--green); }
+    .compare-col ul {
+      list-style: none;
+      font-size: 13px;
+    }
+    .compare-col.old ul li { color: var(--muted); padding: 3px 0; }
+    .compare-col.old ul li::before { content: '✗ '; color: rgba(238,0,0,0.5); }
+    .compare-col.new ul li { color: var(--text); padding: 3px 0; }
+    .compare-col.new ul li::before { content: '✓ '; color: var(--green); }
+
+    /* ── Offer Cards ── */
+    .offers-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 32px 60px;
+      animation: fadeUp 0.6s 0.1s ease-out both;
+    }
+    .offers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .offer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .offer-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .offer-card.roundtable { border-color: rgba(238,0,0,0.3); }
+    .offer-card.roundtable::before { background: var(--red); }
+    .offer-card.trial { border-color: rgba(0,112,242,0.3); }
+    .offer-card.trial::before { background: var(--blue); }
+    .offer-card.platform { border-color: var(--border); }
+    .offer-card.platform::before { background: var(--dim); }
+
+    .offer-tier {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .offer-card.roundtable .offer-tier { color: var(--red); }
+    .offer-card.trial .offer-tier { color: var(--blue); }
+    .offer-card.platform .offer-tier { color: var(--dim); }
+
+    .offer-name {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .offer-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .offer-price {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .offer-card.roundtable .offer-price { color: var(--green); }
+    .offer-card.trial .offer-price { color: var(--muted); }
+    .offer-card.platform .offer-price { color: var(--dim); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      font-family: 'Red Hat Text', sans-serif;
+    }
+    .btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-red    { background: var(--red);  color: #fff; }
+    .btn-blue   { background: var(--blue); color: #fff; }
+    .btn-muted  { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost  { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-green  { background: var(--green); color: #000; }
+
+    /* ── Wizard ── */
+    .wizard-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 32px 100px;
+    }
+    .wizard-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: none;
+      animation: fadeUp 0.4s ease-out both;
+    }
+    .wizard-container.active { display: block; }
+
+    /* Step progress */
+    .wizard-progress {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(6, 9, 15, 0.4);
+    }
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .progress-step .num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      border: 2px solid var(--dim);
+      color: var(--dim);
+      transition: all 0.3s;
+    }
+    .progress-step .label {
+      color: var(--dim);
+      transition: color 0.3s;
+      white-space: nowrap;
+    }
+    .progress-step.done .num  { background: var(--green); border-color: var(--green); color: #000; }
+    .progress-step.done .label { color: var(--muted); }
+    .progress-step.active .num  { background: var(--red); border-color: var(--red); color: #fff; }
+    .progress-step.active .label { color: var(--text); }
+    .progress-connector {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 12px;
+      min-width: 20px;
+    }
+
+    /* Wizard body */
+    .wizard-body {
+      padding: 32px 28px;
+    }
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; animation: fadeUp 0.35s ease-out both; }
+
+    .step-title {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .step-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'Red Hat Text', sans-serif;
+      font-size: 14px;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--red); }
+    select option { background: var(--bg); }
+
+    .nda-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .nda-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .nda-check input[type="checkbox"] {
+      width: 16px; height: 16px;
+      margin-top: 2px;
+      accent-color: var(--red);
+      flex-shrink: 0;
+    }
+    .nda-text {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .nda-text a { color: var(--teal); text-decoration: none; }
+    .nda-text a:hover { text-decoration: underline; }
+
+    .nda-inline {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--dim);
+      line-height: 1.6;
+    }
+    .nda-inline.visible { display: block; }
+
+    /* Status messages */
+    .status-msg {
+      display: none;
+      background: rgba(0, 210, 106, 0.08);
+      border: 1px solid rgba(0, 210, 106, 0.2);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--green);
+      margin-bottom: 16px;
+    }
+    .status-msg.visible { display: block; }
+
+    /* Terminal */
+    .terminal-box {
+      background: #010408;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      font-family: 'Red Hat Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: var(--green);
+      min-height: 280px;
+      position: relative;
+      overflow: hidden;
+    }
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #1a2030;
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-dot.r { background: #ff5f57; }
+    .term-dot.y { background: #ffbd2e; }
+    .term-dot.g { background: #28c840; }
+    .term-title { font-size: 11px; color: var(--dim); margin-left: 6px; }
+
+    .terminal-output .line {
+      opacity: 0;
+      display: block;
+      transition: opacity 0.2s;
+    }
+    .terminal-output .line.visible { opacity: 1; }
+    .terminal-output .line.dim { color: var(--dim); }
+    .terminal-output .line.success { color: var(--green); }
+    .terminal-output .line.upload { color: var(--teal); }
+    .terminal-output .line.done { color: #fff; font-weight: 700; }
+
+    /* Copy command box */
+    .cmd-box {
+      background: #010408;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .cmd-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid #1a2030;
+    }
+    .cmd-label { font-size: 11px; color: var(--dim); font-family: 'Red Hat Mono', monospace; }
+    .copy-btn {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-family: 'Red Hat Text', sans-serif;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--muted); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+    .cmd-code {
+      padding: 16px 18px;
+      font-family: 'Red Hat Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--green);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* Progress bar */
+    .scan-progress {
+      margin: 16px 0;
+      background: var(--border);
+      border-radius: 4px;
+      height: 4px;
+      overflow: hidden;
+    }
+    .scan-progress-bar {
+      height: 100%;
+      background: var(--green);
+      width: 0%;
+      transition: width 0.6s ease;
+      border-radius: 4px;
+    }
+    .scan-status {
+      font-size: 12px;
+      color: var(--dim);
+      margin-bottom: 8px;
+      font-family: 'Red Hat Mono', monospace;
+    }
+
+    /* Scan complete */
+    .scan-complete {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    .scan-complete.visible { display: block; }
+    .check-circle {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: rgba(0, 210, 106, 0.12);
+      border: 2px solid var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 auto 14px;
+    }
+
+    /* Step 4 */
+    .next-steps {
+      list-style: none;
+      margin: 20px 0;
+    }
+    .next-steps li {
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .next-steps li:last-child { border-bottom: none; }
+    .step-num-badge {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(0,112,242,0.15);
+      border: 1px solid rgba(0,112,242,0.3);
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .security-note {
+      background: rgba(78, 93, 108, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--dim);
+      margin: 20px 0;
+      font-family: 'Red Hat Mono', monospace;
+    }
+    .soft-cta {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .soft-cta a { color: var(--teal); text-decoration: none; }
+    .soft-cta a:hover { text-decoration: underline; }
+
+    /* Callout */
+    .callout {
+      background: rgba(0, 184, 217, 0.06);
+      border: 1px solid rgba(0, 184, 217, 0.2);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .callout strong { color: var(--teal); }
+
+    /* Wizard footer actions */
+    .wizard-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 24px;
+      margin-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .wizard-actions .right { display: flex; gap: 10px; }
+
+    /* NDA modal overlay */
+    .nda-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .nda-modal-backdrop.open { display: flex; }
+    .nda-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 560px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .nda-modal h3 {
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .nda-modal p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .nda-modal-close {
+      margin-top: 20px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--dim);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      nav { padding: 0 16px; }
+      .hero, .offers-section, .wizard-section { padding-left: 16px; padding-right: 16px; }
+      .offers-grid { grid-template-columns: 1fr; }
+      .compare { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .wizard-body { padding: 20px 16px; }
+      .progress-step .label { display: none; }
+      h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="#">
+    <span class="nav-wt">WEST TRAX</span>
+    <span class="nav-sep">×</span>
+    <span class="nav-rh">RED HAT</span>
+    <span style="color:var(--dim);font-weight:300;font-size:12px;margin-left:4px">Container GTM</span>
+  </a>
+  <a class="nav-back" href="index.html">← index</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Architecture Demo — For West Trax
+  </div>
+  <h1>From first scan to roundtable —<br>without the meetings.</h1>
+  <p class="hero-tagline">
+    What the West Trax KPI Analyzer customer journey looks like containerized.
+    No refactoring required.
+  </p>
+
+  <div class="compare">
+    <div class="compare-col old">
+      <div class="compare-label old">Today's journey</div>
+      <ul>
+        <li>5 discovery meetings</li>
+        <li>NDA by email chain</li>
+        <li>2 SAP transports installed</li>
+        <li>IT coordination & scheduling</li>
+        <li>Live demo required</li>
+        <li>Weeks before first value</li>
+      </ul>
+    </div>
+    <div class="compare-col new">
+      <div class="compare-label new">Containerized journey</div>
+      <ul>
+        <li>One container command</li>
+        <li>NDA inline — no email</li>
+        <li>Zero SAP transports</li>
+        <li>Read-only RFC, 15 min scan</li>
+        <li>Data ships encrypted</li>
+        <li>Roundtable in 24 hours</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Offer Cards -->
+<div class="offers-section">
+  <div class="offers-grid">
+
+    <!-- Roundtable -->
+    <div class="offer-card roundtable">
+      <div class="offer-tier">Offer 1</div>
+      <div class="offer-name">No-Cost<br>Roundtable</div>
+      <div class="offer-desc">
+        Customer installs one container. It scans SAP via read-only RFC calls
+        and ships encrypted results to West Trax. West Trax and Red Hat jointly
+        analyze the findings and deliver the roundtable session together.
+      </div>
+      <div class="offer-price">Free</div>
+      <button class="btn btn-red" onclick="showWizard()">Start →</button>
+    </div>
+
+    <!-- Trial -->
+    <div class="offer-card trial">
+      <div class="offer-tier">Offer 2</div>
+      <div class="offer-name">30-Day<br>Trial</div>
+      <div class="offer-desc">
+        Same container, self-serve access. Continuous KPI monitoring for 30 days.
+        Optional analysis support from West Trax specialists.
+      </div>
+      <div class="offer-price">Coming soon</div>
+      <button class="btn btn-muted" disabled>Notify me</button>
+    </div>
+
+    <!-- Full Platform -->
+    <div class="offer-card platform">
+      <div class="offer-tier">Offer 3</div>
+      <div class="offer-name">Full<br>Platform</div>
+      <div class="offer-desc">
+        The complete West Trax KPI Analyzer — full configuration, ongoing
+        reporting, and dedicated advisory. No changes to the existing product.
+      </div>
+      <div class="offer-price">Contact West Trax</div>
+      <button class="btn btn-ghost" onclick="alert('In a real deployment this would route to your sales team.')">Talk to West Trax</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Wizard -->
+<div class="wizard-section">
+  <div class="wizard-container" id="wizard">
+
+    <!-- Progress -->
+    <div class="wizard-progress">
+      <div class="progress-step active" id="ps1">
+        <span class="num">1</span>
+        <span class="label">Request</span>
+      </div>
+      <div class="progress-connector"></div>
+      <div class="progress-step" id="ps2">
+        <span class="num">2</span>
+        <span class="label">Install</span>
+      </div>
+      <div class="progress-connector"></div>
+      <div class="progress-step" id="ps3">
+        <span class="num">3</span>
+        <span class="label">Scan</span>
+      </div>
+      <div class="progress-connector"></div>
+      <div class="progress-step" id="ps4">
+        <span class="num">4</span>
+        <span class="label">Scheduled</span>
+      </div>
+    </div>
+
+    <div class="wizard-body">
+
+      <!-- Step 1: Request -->
+      <div class="wizard-step active" id="step1">
+        <div class="step-title">Request your roundtable</div>
+        <div class="step-sub">West Trax and Red Hat will review and respond within 1 business day.</div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Company</label>
+            <input type="text" id="f-company" placeholder="Acme Corp" />
+          </div>
+          <div class="form-group">
+            <label>Your name</label>
+            <input type="text" id="f-name" placeholder="Jane Smith" />
+          </div>
+          <div class="form-group">
+            <label>Work email</label>
+            <input type="email" id="f-email" placeholder="jane@acme.com" />
+          </div>
+          <div class="form-group">
+            <label>SAP version</label>
+            <select id="f-sap">
+              <option value="">Select…</option>
+              <option>S/4HANA</option>
+              <option>ECC 6.0</option>
+              <option>ECC + S/4HANA (mixed)</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Approximate users</label>
+            <select id="f-users">
+              <option value="">Select…</option>
+              <option>Under 100</option>
+              <option>100 – 500</option>
+              <option>500 – 2,000</option>
+              <option>2,000 – 10,000</option>
+              <option>10,000+</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="nda-box">
+          <label class="nda-check">
+            <input type="checkbox" id="nda-agree" />
+            <span class="nda-text">
+              I agree to the mutual NDA between my company and West Trax.
+              <a href="#" onclick="toggleNDA(event)">View NDA terms</a>
+            </span>
+          </label>
+          <div class="nda-inline" id="nda-inline">
+            <strong style="color:var(--muted)">Mutual Non-Disclosure Agreement — Summary</strong><br><br>
+            Both parties agree to keep confidential any non-public information exchanged during
+            the evaluation, including scan results, business data, and product roadmap details.
+            This NDA is mutual — West Trax is equally bound. Information is used solely for
+            evaluating whether West Trax's KPI Analyzer fits your environment. The agreement
+            auto-expires 2 years from the date of signature. Neither party may disclose
+            the other's confidential information to third parties without written consent.
+            This summary is provided for convenience; the executed NDA governs.
+          </div>
+        </div>
+
+        <div class="status-msg" id="step1-received">
+          Request received — you'll hear from West Trax within 1 business day.
+        </div>
+
+        <div class="wizard-actions">
+          <span style="font-size:12px;color:var(--dim)">Demo: auto-advances after approval</span>
+          <div class="right">
+            <button class="btn btn-red" onclick="submitRequest()">Request Roundtable →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Install -->
+      <div class="wizard-step" id="step2">
+        <div class="step-title">Approved — here's your container</div>
+        <div class="step-sub">
+          Run one command on any machine with Docker. No SAP transports. No IT coordination.
+        </div>
+
+        <div class="cmd-box">
+          <div class="cmd-header">
+            <span class="cmd-label">bash</span>
+            <button class="copy-btn" id="copyBtn" onclick="copyCmd()">Copy</button>
+          </div>
+          <div class="cmd-code" id="dockerCmd">docker pull westtrax/kpi-analyzer:latest && \
+  docker run --rm \
+    -e SAP_HOST=your-sap-host \
+    -e SAP_CLIENT=100 \
+    -e SAP_USER=WTKPI \
+    -e ROUNDTABLE_TOKEN=RT-2026-XXXX \
+    westtrax/kpi-analyzer:latest</div>
+        </div>
+
+        <div class="callout">
+          <strong>No SAP transports required.</strong> The container uses read-only RFC calls —
+          the same access your BASIS team already grants to reporting users.
+          The scan completes in 15–30 minutes and exits cleanly.
+        </div>
+
+        <div class="wizard-actions">
+          <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+          <div class="right">
+            <button class="btn btn-red" onclick="goStep(3); startScan()">Simulate Run →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Scan -->
+      <div class="wizard-step" id="step3">
+        <div class="step-title">Scan running</div>
+        <div class="step-sub">The container is reading your SAP environment via RFC. This takes 15–30 minutes.</div>
+
+        <div class="scan-status" id="scanStatus">Initializing…</div>
+        <div class="scan-progress"><div class="scan-progress-bar" id="progressBar"></div></div>
+
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <span class="term-dot r"></span>
+            <span class="term-dot y"></span>
+            <span class="term-dot g"></span>
+            <span class="term-title">westtrax/kpi-analyzer — scan output</span>
+          </div>
+          <div class="terminal-output" id="terminalOutput"></div>
+        </div>
+
+        <div class="scan-complete" id="scanComplete">
+          <div class="check-circle">✓</div>
+          <div style="font-size:16px;font-weight:700;color:var(--green);margin-bottom:6px">Scan complete</div>
+          <div style="font-size:13px;color:var(--muted)">Results encrypted and transmitted to West Trax</div>
+        </div>
+
+        <div class="wizard-actions">
+          <button class="btn btn-ghost" onclick="goStep(2)" id="step3back">← Back</button>
+          <div class="right">
+            <button class="btn btn-green" id="step3next" onclick="goStep(4)" style="display:none">See what's next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Scheduled -->
+      <div class="wizard-step" id="step4">
+        <div class="step-title">Your roundtable is being scheduled.</div>
+        <div class="step-sub">West Trax and Red Hat have received your encrypted scan results and will be in touch within 24 hours.</div>
+
+        <ul class="next-steps">
+          <li>
+            <span class="step-num-badge">1</span>
+            <span>West Trax and Red Hat jointly review your anonymized scan data — module utilization, user counts, license classification — before you speak.</span>
+          </li>
+          <li>
+            <span class="step-num-badge">2</span>
+            <span>You receive a calendar invite within 24 hours. No prep work required on your side.</span>
+          </li>
+          <li>
+            <span class="step-num-badge">3</span>
+            <span>In the roundtable, West Trax and Red Hat walk you through your As-Is ERP usage and license optimization opportunities — with data, not slides.</span>
+          </li>
+        </ul>
+
+        <div class="security-note">
+          ✓ No SAP transports were installed.<br>
+          ✓ No configuration persists after the container exits.<br>
+          ✓ Scan data is encrypted with your roundtable token before transmission.
+        </div>
+
+        <div class="wizard-actions">
+          <button class="btn btn-ghost" onclick="goStep(1); resetWizard()">← Start over</button>
+        </div>
+      </div>
+
+    </div><!-- wizard-body -->
+
+    <div class="soft-cta">
+      Curious about the full platform?
+      <a href="#" onclick="alert('In a real deployment this would route to your West Trax sales contact.')">→ Talk to West Trax</a>
+    </div>
+
+  </div><!-- wizard-container -->
+</div><!-- wizard-section -->
+
+<!-- NDA Modal -->
+<div class="nda-modal-backdrop" id="ndaModal">
+  <div class="nda-modal">
+    <h3>Mutual Non-Disclosure Agreement</h3>
+    <p>
+      This Mutual Non-Disclosure Agreement ("Agreement") is entered into between the customer
+      ("Receiving Party") and West Trax GmbH ("Disclosing Party") as of the date the
+      roundtable request is submitted.
+    </p>
+    <p>
+      <strong style="color:var(--text)">Confidential Information.</strong>
+      Both parties agree that all non-public information exchanged during the evaluation period —
+      including scan results, product roadmap details, pricing, and business data — constitutes
+      Confidential Information and may not be disclosed to third parties.
+    </p>
+    <p>
+      <strong style="color:var(--text)">Mutual obligation.</strong>
+      This agreement binds both parties equally. West Trax will not share your scan results,
+      company data, or evaluation context with any third party.
+    </p>
+    <p>
+      <strong style="color:var(--text)">Permitted use.</strong>
+      Information is used solely to evaluate whether the West Trax KPI Analyzer is a fit
+      for the customer's SAP environment.
+    </p>
+    <p>
+      <strong style="color:var(--text)">Term.</strong>
+      This agreement expires two years from the date of the roundtable request.
+    </p>
+    <p>
+      <strong style="color:var(--text)">No transport, no persistence.</strong>
+      The West Trax container operates read-only. No SAP configuration objects are installed
+      or modified. No data persists after the container exits.
+    </p>
+    <button class="btn btn-muted nda-modal-close" onclick="closeNDA()">Close</button>
+  </div>
+</div>
+
+<footer>
+  <p>
+    West Trax KPI Analyzer &nbsp;·&nbsp; Container GTM Demo &nbsp;·&nbsp;
+    Built with <a href="https://developers.redhat.com/products/openshift/overview">Red Hat OpenShift</a>
+    &nbsp;·&nbsp; <a href="index.html">← Back to index</a>
+  </p>
+</footer>
+
+<script>
+  let currentStep = 1;
+
+  const DOCKER_CMD = `docker pull westtrax/kpi-analyzer:latest && \\
+  docker run --rm \\
+    -e SAP_HOST=your-sap-host \\
+    -e SAP_CLIENT=100 \\
+    -e SAP_USER=WTKPI \\
+    -e ROUNDTABLE_TOKEN=RT-2026-XXXX \\
+    westtrax/kpi-analyzer:latest`;
+
+  const SCAN_LINES = [
+    { text: '[westtrax/kpi-analyzer] Starting SAP KPI scan...', cls: '' },
+    { text: '[RFC] Connecting to SAP system OHC (client 100)...', cls: 'dim' },
+    { text: '[RFC] Connection established ✓', cls: 'success' },
+    { text: '[RFC] Reading user master data (SU01)...', cls: 'dim' },
+    { text: '[RFC] Reading transaction usage logs (SM20)...', cls: 'dim' },
+    { text: '[RFC] Reading license classification (USMM)...', cls: 'dim' },
+    { text: '[RFC] Analyzing module utilization (FI, MM, SD, PP)...', cls: 'dim' },
+    { text: '[SCAN] 1,247 users analyzed', cls: '' },
+    { text: '[SCAN] 89 modules evaluated', cls: '' },
+    { text: '[ENCRYPT] Packaging results with roundtable token RT-2026-XXXX...', cls: '' },
+    { text: '[UPLOAD] Transmitting to West Trax secure vault...', cls: 'upload' },
+    { text: '[UPLOAD] Upload complete ✓', cls: 'success' },
+    { text: '', cls: '' },
+    { text: '[DONE] Scan complete. West Trax will contact you within 24 hours.', cls: 'done' },
+  ];
+
+  function showWizard() {
+    document.getElementById('wizard').classList.add('active');
+    document.getElementById('wizard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function goStep(n) {
+    // Hide current
+    document.getElementById('step' + currentStep).classList.remove('active');
+    // Mark progress
+    const prev = document.getElementById('ps' + currentStep);
+    prev.classList.remove('active');
+    if (n > currentStep) prev.classList.add('done');
+
+    currentStep = n;
+
+    // Show new step
+    document.getElementById('step' + currentStep).classList.add('active');
+    const cur = document.getElementById('ps' + currentStep);
+    cur.classList.remove('done');
+    cur.classList.add('active');
+
+    document.getElementById('wizard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function submitRequest() {
+    const msg = document.getElementById('step1-received');
+    const nda = document.getElementById('nda-agree');
+
+    if (!nda.checked) {
+      alert('Please agree to the mutual NDA to continue.');
+      return;
+    }
+
+    msg.classList.add('visible');
+
+    // Auto-advance after 1.5s
+    setTimeout(() => {
+      msg.classList.remove('visible');
+      goStep(2);
+    }, 1500);
+  }
+
+  function copyCmd() {
+    const btn = document.getElementById('copyBtn');
+    navigator.clipboard.writeText(DOCKER_CMD).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    }).catch(() => {
+      // Fallback for non-HTTPS
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+    });
+  }
+
+  function startScan() {
+    const output = document.getElementById('terminalOutput');
+    output.innerHTML = '';
+    document.getElementById('scanComplete').classList.remove('visible');
+    document.getElementById('step3next').style.display = 'none';
+    document.getElementById('progressBar').style.width = '0%';
+
+    const total = SCAN_LINES.length;
+    let i = 0;
+
+    function addLine() {
+      if (i >= total) {
+        // Done
+        document.getElementById('scanStatus').textContent = 'Complete';
+        document.getElementById('progressBar').style.width = '100%';
+        setTimeout(() => {
+          document.getElementById('scanComplete').classList.add('visible');
+          document.getElementById('step3next').style.display = 'inline-flex';
+        }, 500);
+        return;
+      }
+
+      const line = SCAN_LINES[i];
+      const span = document.createElement('span');
+      span.className = 'line' + (line.cls ? ' ' + line.cls : '');
+      span.textContent = line.text || '\u00A0';
+      output.appendChild(span);
+
+      // Trigger reflow for transition
+      span.offsetHeight;
+      span.classList.add('visible');
+
+      // Scroll terminal to bottom
+      output.parentElement.scrollTop = output.parentElement.scrollHeight;
+
+      // Update progress
+      const pct = Math.round(((i + 1) / total) * 90);
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('scanStatus').textContent = line.text || '';
+
+      i++;
+      const delay = (i < 3) ? 600 : (i < 7) ? 700 : 550;
+      setTimeout(addLine, delay);
+    }
+
+    setTimeout(addLine, 300);
+  }
+
+  function resetWizard() {
+    // Reset progress indicators
+    for (let i = 1; i <= 4; i++) {
+      const ps = document.getElementById('ps' + i);
+      ps.classList.remove('active', 'done');
+    }
+    document.getElementById('ps1').classList.add('active');
+    document.getElementById('terminalOutput').innerHTML = '';
+    document.getElementById('scanComplete').classList.remove('visible');
+    document.getElementById('step3next').style.display = 'none';
+    document.getElementById('step1-received').classList.remove('visible');
+    document.getElementById('nda-agree').checked = false;
+    document.getElementById('nda-inline').classList.remove('visible');
+  }
+
+  function toggleNDA(e) {
+    e.preventDefault();
+    document.getElementById('ndaModal').classList.add('open');
+  }
+
+  function closeNDA() {
+    document.getElementById('ndaModal').classList.remove('open');
+    // Auto-check the NDA box when user reads it
+    document.getElementById('nda-agree').checked = true;
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('ndaModal').addEventListener('click', function(e) {
+    if (e.target === this) closeNDA();
+  });
+</script>
+
+</body>
+</html>
