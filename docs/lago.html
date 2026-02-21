@@ -54,15 +54,7 @@
     text-align: center;
   }
 
-  .shadowman {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 32px;
-    opacity: 0.7;
-    filter: sepia(1) saturate(0.3) brightness(0.8);
-  }
-
-  .eyebrow {
+.eyebrow {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 3px;
@@ -174,11 +166,13 @@
 <body>
 <div class="container">
 
-  <img src="shadowman.png" alt="" class="shadowman">
+  <div style="width:72px;height:72px;background:#1a0505;border-radius:8px;margin:0 auto 32px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+    <img src="shadowman.png" alt="" style="width:64px;height:64px;object-fit:contain;">
+  </div>
 
   <div class="eyebrow">by invitation</div>
 
-  <h1>The Virtual<br>Speakeasy</h1>
+  <h1>Virtual Speakeasy</h1>
   <p class="subtitle">lago at the bellagio &nbsp;·&nbsp; las vegas</p>
 
   <div class="divider"></div>
