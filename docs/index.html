@@ -384,8 +384,9 @@
     <span style="color:var(--dim);font-weight:300;font-size:12px;margin-left:4px">OHC Edge Demo</span>
   </a>
   <div class="nav-links">
+    <a href="go.html" style="color:var(--green);font-weight:700;">▶ Play</a>
+    <a href="#live">Live</a>
     <a href="#architecture">Architecture</a>
-    <a href="#events">Events</a>
     <a href="#quickstart">Quick Start</a>
     <a href="#docs">Docs</a>
     <a href="https://github.com/jodonnel/ohc-sap-demo" class="external">GitHub</a>
@@ -407,13 +408,44 @@
     Live, interactive, open source.
   </p>
   <div class="hero-actions">
-    <a href="play.html" class="btn btn-primary">▶ Play the Demo</a>
+    <a href="go.html" class="btn btn-primary">▶ Play the Demo</a>
     <a href="architecture.html" class="btn btn-secondary">Architecture Diagram</a>
     <a href="https://github.com/jodonnel/ohc-sap-demo" class="btn btn-secondary">GitHub</a>
   </div>
 </div>
 
 <main>
+
+  <!-- Live -->
+  <section id="live">
+    <h2>Live</h2>
+    <div class="transport-grid">
+      <div class="transport-card">
+        <h3 style="color:var(--green)">▶ Edge Demo Game</h3>
+        <div class="meta">Mobile · Cluster if up, static fallback if not</div>
+        <p style="margin-bottom:12px">Wumpus-style physical security sim. Scan to play on your phone or open in any browser.</p>
+        <a href="go.html" class="btn btn-primary" style="font-size:12px;padding:8px 14px;">Open</a>
+      </div>
+      <div class="transport-card">
+        <h3 style="color:var(--amber)">SOC Dashboard</h3>
+        <div class="meta">North · OpenShift · Live SSE</div>
+        <p style="margin-bottom:12px">Real-time security operations center view. Shows CloudEvents as they arrive from south devices.</p>
+        <a href="https://north-qr-demo-qa.apps.rosa.rosa-rvdtn.ypet.p3.openshiftapps.com/stage" class="btn btn-secondary" style="font-size:12px;padding:8px 14px;" target="_blank">Open ↗</a>
+      </div>
+      <div class="transport-card">
+        <h3 style="color:var(--blue)">Presenter View</h3>
+        <div class="meta">North · OpenShift · SAP + Red Hat decks</div>
+        <p style="margin-bottom:12px">Seller presentations with live event feed. Select SAP or Red Hat framing.</p>
+        <a href="https://north-qr-demo-qa.apps.rosa.rosa-rvdtn.ypet.p3.openshiftapps.com/present-index" class="btn btn-secondary" style="font-size:12px;padding:8px 14px;" target="_blank">Open ↗</a>
+      </div>
+      <div class="transport-card">
+        <h3 style="color:var(--dim)">QR Code</h3>
+        <div class="meta">Booth display · Full-screen</div>
+        <p style="margin-bottom:12px">Large-format QR for the booth screen. Scan sends attendees to the game.</p>
+        <a href="https://north-qr-demo-qa.apps.rosa.rosa-rvdtn.ypet.p3.openshiftapps.com/stage/qr.html" class="btn btn-secondary" style="font-size:12px;padding:8px 14px;" target="_blank">Open ↗</a>
+      </div>
+    </div>
+  </section>
 
   <!-- Architecture -->
   <section id="architecture">
@@ -685,17 +717,17 @@ python app.py</pre>
       <a href="architecture.html" class="doc-link">
         <span class="icon">🗺️</span> Architecture Diagram
       </a>
-      <a href="components.md" class="doc-link">
+      <a href="go.html" class="doc-link">
+        <span class="icon">🎮</span> Edge Demo Game
+      </a>
+      <a href="https://github.com/jodonnel/ohc-sap-demo/blob/main/docs/components.md" class="doc-link">
         <span class="icon">🧩</span> Component Model
       </a>
-      <a href="adr/001-collapse-south-ui.md" class="doc-link">
-        <span class="icon">📝</span> ADR-001: South-UI Consolidation
+      <a href="https://github.com/jodonnel/ohc-sap-demo/blob/main/docs/adr/001-collapse-south-ui.md" class="doc-link">
+        <span class="icon">📝</span> ADR-001
       </a>
-      <a href="adr/002-state-persistence.md" class="doc-link">
-        <span class="icon">📝</span> ADR-002: State Persistence
-      </a>
-      <a href="play.html" class="doc-link">
-        <span class="icon">🎮</span> Edge Demo Game
+      <a href="https://github.com/jodonnel/ohc-sap-demo/blob/main/docs/adr/002-state-persistence.md" class="doc-link">
+        <span class="icon">📝</span> ADR-002
       </a>
       <a href="https://github.com/jodonnel/ohc-sap-demo/issues" class="doc-link">
         <span class="icon">🐛</span> Issue Tracker
