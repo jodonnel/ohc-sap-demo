@@ -112,8 +112,8 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 
 /* Bullet list */
 .bullets { list-style:none; text-align:left; max-width:760px; width:100%; }
-.bullets li { display:flex; align-items:flex-start; gap:12px; margin-bottom:20px; font-family:'Red Hat Text',sans-serif; font-size:clamp(1rem,2vw,1.35rem); line-height:1.4; }
-.bullets li::before { content:'→'; color:var(--red); flex-shrink:0; margin-top:2px; }
+.bullets li { display:block; position:relative; padding-left:28px; margin-bottom:20px; font-family:'Red Hat Text',sans-serif; font-size:clamp(1rem,2vw,1.35rem); line-height:1.4; }
+.bullets li::before { content:'→'; color:var(--red); position:absolute; left:0; top:2px; }
 
 /* Stack row */
 .stack-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:20px 0; }
