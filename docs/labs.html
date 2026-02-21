@@ -304,7 +304,7 @@ const USE_CASES = [
     filters:["IoT","EIC","OpenShift"]
   },
   {
-    num:"06", issue:46, demo:null,
+    num:"06", issue:60, demo:null,
     title:"Mercedes-Benz Connected Vehicle Relay",
     tagline:"Real OEM data. Kafka stream. No hardware retrofit.",
     abstract:"Mercedes-Benz publishes a production Fleet API — a Kafka push stream delivering live vehicle telemetry (odometer, fuel, EV range, diagnostics, maintenance signals) from factory-fitted modules. OpenShift hosts a Kafka consumer that normalizes the stream into CloudEvents and routes via EIC to SAP PM/EAM. Dev sandbox via Mercedes Softcars — no contract required.",
@@ -351,6 +351,14 @@ const USE_CASES = [
     tags:["OpenShift AI","Device Edge","MicroShift","BTP","Meta Glasses"],
     filters:["AI","IoT","Edge"],
     repo:"https://github.com/jodonnel/job-coach"
+  },
+  {
+    num:"12", issue:64, demo:null,
+    title:"Meta Ray-Ban Workplace Monitor",
+    tagline:"Wearable edge AI for workplace accessibility. Photo → Claude → guidance.",
+    abstract:"Worker says 'Hey Meta, take a photo.' The glasses capture what they're looking at — a pallet label, a pressure gauge, a safety panel. The image posts to an OpenShift ingest endpoint. Claude analyzes it and returns spoken guidance in under 400ms. Events log to SAP SuccessFactors as task completions. Edge AI that runs at the speed of work, on hardware people already wear.",
+    tags:["OpenShift AI","Device Edge","Claude API","SAP SuccessFactors","Meta Glasses"],
+    filters:["AI","IoT","Edge"]
   }
 ];
 
