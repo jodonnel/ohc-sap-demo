@@ -46,7 +46,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 
 /* Progress */
 .progress { position:fixed; top:0; left:0; height:3px; z-index:200; background:linear-gradient(90deg,var(--red),var(--blue)); transition:width 0.3s; }
-.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted); }
+.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted); display:flex; align-items:center; gap:16px; } .nav-btn { background:none; border:1px solid var(--border,#253040); border-radius:4px; color:var(--muted,#8B98A5); font-family:'Red Hat Mono',monospace; font-size:13px; padding:6px 14px; cursor:pointer; transition:border-color 0.15s,color 0.15s; } .nav-btn:hover { border-color:var(--text,#E8EDF2); color:var(--text,#E8EDF2); } .nav-btn:disabled { opacity:0.2; cursor:default; }
 
 /* Typography */
 .mega { font-size:clamp(3rem,8vw,6rem); font-weight:900; line-height:1.05; }
@@ -182,7 +182,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 <body>
 
 <div class="progress" id="progress"></div>
-<div class="slide-num" id="slideNum">1 / 6</div>
+<div class="slide-num"><button class="nav-btn" id="prevBtn" onclick="if(current>1)showSlide(--current)">←</button><span id="slideNum"></span><button class="nav-btn" id="nextBtn" onclick="if(current<total)showSlide(++current)">→</button></div>
 <a href="/present-index" class="back-link">&#8592; INDEX</a>
 
 <div class="live-pip" id="livePip">

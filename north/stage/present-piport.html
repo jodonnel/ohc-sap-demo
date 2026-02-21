@@ -36,7 +36,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
 .progress { position:fixed; top:0; left:0; height:3px; z-index:200; background:linear-gradient(90deg,var(--red),var(--blue)); transition:width 0.3s; }
-.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted); }
+.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted); display:flex; align-items:center; gap:16px; } .nav-btn { background:none; border:1px solid var(--border,#253040); border-radius:4px; color:var(--muted,#8B98A5); font-family:'Red Hat Mono',monospace; font-size:13px; padding:6px 14px; cursor:pointer; transition:border-color 0.15s,color 0.15s; } .nav-btn:hover { border-color:var(--text,#E8EDF2); color:var(--text,#E8EDF2); } .nav-btn:disabled { opacity:0.2; cursor:default; }
 .back-link { position:fixed; top:20px; left:28px; z-index:200; font-size:12px; color:var(--muted); text-decoration:none; font-family:'Red Hat Mono',monospace; }
 .back-link:hover { color:var(--text); }
 
@@ -112,8 +112,8 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 
 /* Bullet list */
 .bullets { list-style:none; text-align:left; max-width:760px; width:100%; }
-.bullets li { display:flex; align-items:flex-start; gap:12px; margin-bottom:20px; font-family:'Red Hat Text',sans-serif; font-size:clamp(1rem,2vw,1.35rem); line-height:1.4; }
-.bullets li::before { content:'→'; color:var(--red); flex-shrink:0; margin-top:2px; }
+.bullets li { display:block; position:relative; padding-left:28px; margin-bottom:20px; font-family:'Red Hat Text',sans-serif; font-size:clamp(1rem,2vw,1.35rem); line-height:1.4; }
+.bullets li::before { content:'→'; color:var(--red); position:absolute; left:0; top:2px; }
 
 /* Stack row */
 .stack-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:20px 0; }
@@ -124,7 +124,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 
 <a href="/present-index" class="back-link">← index</a>
 <div class="progress" id="progress"></div>
-<div class="slide-num" id="slideNum"></div>
+<div class="slide-num"><button class="nav-btn" id="prevBtn" onclick="if(current>1)showSlide(--current)">←</button><span id="slideNum"></span><button class="nav-btn" id="nextBtn" onclick="if(current<total)showSlide(++current)">→</button></div>
 <div class="live-pip" id="pip">
   <div class="dot"></div>
   <span class="count" id="pipCount">0</span>
@@ -157,8 +157,8 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
       <span class="stack-pill" style="color:var(--red);">OpenShift</span>
       <span class="stack-pill" style="color:var(--blue);">EIC</span>
       <span class="stack-pill" style="color:var(--blue);">SAP BTP</span>
-      <span class="stack-pill" style="color:var(--muted);">RHEL</span>
-      <span class="stack-pill" style="color:var(--muted);">Ansible</span>
+      <span class="stack-pill" style="color:var(--red);">RHEL</span>
+      <span class="stack-pill" style="color:var(--red);">AAP</span>
     </div>
   </div>
 
@@ -255,7 +255,7 @@ function showSlide(n) {
   document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
   document.getElementById('s' + n).classList.add('active');
   document.getElementById('progress').style.width = (n / total * 100) + '%';
-  document.getElementById('slideNum').textContent = n + ' / ' + total;
+  document.getElementById('slideNum').textContent = n + ' / ' + total; document.getElementById('prevBtn').disabled = n <= 1; document.getElementById('nextBtn').disabled = n >= total;
 }
 
 document.addEventListener('keydown', e => {
