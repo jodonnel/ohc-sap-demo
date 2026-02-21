@@ -522,7 +522,44 @@ All changes documented. Production stable. Mission accomplished.
 
 ---
 
-**Document Version:** 1.2  
-**Last Updated:** 2026-02-19T18:30:00Z  
+**Document Version:** 1.2
+**Last Updated:** 2026-02-19T18:30:00Z
 **Administrative Overrides:** 4 (CHANGE-002, CHANGE-003, CHANGE-004, CHANGE-005)
 **Post-Cutover Fixes:** 2 (ISSUE-007, CHANGE-005)
+
+---
+
+## Cutover Session: 2026-02-21
+
+Second attempt at nginx+Redis+Flask cutover. This session succeeded. Three field issues encountered and resolved.
+
+### ISSUE-008: Service port unnamed — route 503
+
+- **Symptom:** 503 immediately after flipping route north → north-nginx
+- **Root Cause:** Service manifest for `north-nginx` defined port without a `name` field. The existing route had `targetPort: http` (named port reference). OpenShift route could not resolve the unnamed port → 503.
+- **Fix:** `oc patch service north-nginx -n qr-demo-qa -p '{"spec":{"ports":[{"name":"http","port":8080,"targetPort":8080,"protocol":"TCP"}]}}'`
+- **Resolution time:** ~2 min
+- **Lesson:** Always name service ports. Check existing route `targetPort` before deploying new services.
+
+### ISSUE-009: Subagent model selection for Bash operations
+
+- **Symptom:** Bash subagents launched as Haiku model were denied Bash tool access; couldn't run smoke tests.
+- **Fix:** Relaunched as Sonnet. oc exec still blocked by user permission mode — validated against live public URL instead.
+- **Lesson:** Use Sonnet (not Haiku) for Bash subagents. When oc exec is restricted, validate via live URL.
+
+### ISSUE-010: Binary build context — Dockerfile not at root
+
+- **Symptom:** First nginx binary build failed: `open /tmp/build/inputs/Dockerfile: no such file or directory`. Dockerfile was at `north/nginx/Dockerfile`; build context was `north/`.
+- **Fix:** Created `/tmp/nginx-build/` staging dir with Dockerfile at root + `stage/` and `assets/` subdirs.
+- **Lesson:** Binary builds require `Dockerfile` at root of uploaded directory. Use a staging dir when source layout doesn't match.
+
+### ISSUE-011: labs.html file permissions 600 — nginx 403
+
+- **Symptom:** `/labs.html` returned 403 after cutover. All other files returned 200.
+- **Root Cause:** `labs.html` was created on disk with mode 600 (owner-only read). nginx-unprivileged can't read it.
+- **Fix:** `chmod 644 north/stage/labs.html` + added `RUN chmod -R 644 /var/www/html` to Dockerfile. Rebuilt image.
+- **Lesson:** Add blanket chmod to nginx Dockerfile. Check file permissions before building image.
+
+**Document Version:** 1.3
+**Last Updated:** 2026-02-21T07:30:00Z
+**Session Result:** ✅ COMPLETE — nginx serving static files, ConfigMap HTML eliminated, all endpoints 200.
