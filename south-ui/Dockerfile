@@ -2,6 +2,7 @@ FROM nginxinc/nginx-unprivileged:1.27-alpine
 
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY index.html /var/www/html/index.html
+COPY shadowman.png /var/www/html/shadowman.png
 
 USER root
 RUN chmod -R 644 /var/www/html && find /var/www/html -type d -exec chmod 755 {} +

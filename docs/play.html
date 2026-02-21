@@ -257,7 +257,7 @@
 
 <!-- Splash / entry -->
 <div class="splash" id="splash">
-  <div class="shadowman-wrap"><img src="/shadowman.png" alt="shadowman"></div>
+  <div class="shadowman-wrap"><img src="shadowman.png" alt="shadowman"></div>
   <div class="terminal" id="splashTerminal"></div>
   <button class="start-btn" id="startBtn" style="opacity:0;pointer-events:none;transition:opacity 0.6s;">Activate mobile credential</button>
   <p id="startHint" style="font-size:11px;margin-top:4px;opacity:0;transition:opacity 0.6s;">~90 seconds · 3 tasks · confront the threat</p>
@@ -634,7 +634,7 @@ function renderMinimap() {
     if (completedRoomTasks.has(i)) cell.classList.add("task-done");
     if (gameOver && i === wumpusRoom) cell.classList.add("wumpus-found");
     if (lockedRooms.has(i)) cell.classList.add("locked-out");
-    if (i === currentRoom) cell.innerHTML = '<div style="width:100%;height:100%;background:#1a0505;border-radius:4px;display:flex;align-items:center;justify-content:center;"><img src="/shadowman.png" style="width:100%;height:100%;object-fit:contain;"></div>';
+    if (i === currentRoom) cell.innerHTML = '<div style="width:100%;height:100%;background:#1a0505;border-radius:4px;display:flex;align-items:center;justify-content:center;"><img src="shadowman.png" style="width:100%;height:100%;object-fit:contain;"></div>';
     else if (gameOver && i === wumpusRoom) cell.innerText = r.icon;
     else cell.innerText = visited.has(i) ? r.icon : "?";
     minimapEl.appendChild(cell);
