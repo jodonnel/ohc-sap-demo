@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Glasses Blackjack — Edge Vision Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090F; --surface: #0D1117; --border: #1C2333; --muted: #4E5D6C; --text: #F0F4F8;
+  --green: #00D26A; --blue: #0070F2; --red: #EE0000;
+  --font-display: 'Red Hat Display', sans-serif;
+  --font-text: 'Red Hat Text', sans-serif;
+  --font-mono: 'Red Hat Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:var(--font-display); }
+
+.deck { position:relative; width:100vw; height:100vh; }
+.slide {
+  position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity 0.4s;
+  display:flex; align-items:center; justify-content:center;
+}
+.slide.active { opacity:1; pointer-events:auto; }
+
+/* Video placeholder slides */
+.slide.video-slide {
+  background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+  flex-direction: column; gap: 24px; padding: 80px;
+}
+.slide.video-slide .video-placeholder {
+  width: 160px; height: 160px; border-radius: 50%;
+  background: radial-gradient(circle, var(--red) 0%, rgba(238,0,0,0.3) 70%, transparent 100%);
+  display: flex; align-items: center; justify-content: center; font-size: 64px;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+.slide.video-slide h1 {
+  font-size: 48px; font-weight: 900; text-align: center; line-height: 1.2;
+}
+.slide.video-slide p {
+  font-family: var(--font-text); font-size: 18px; color: var(--muted); text-align: center; max-width: 600px;
+}
+
+/* Image slides */
+.slide.image-slide {
+  display:grid; grid-template-columns: 2fr 1fr; gap:0; padding:0;
+}
+.slide.image-slide.flip {
+  grid-template-columns: 1fr 2fr;
+}
+.img-panel {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  display:flex; align-items:center; justify-content:center; padding: 60px;
+}
+.img-panel .placeholder-icon {
+  font-size: 120px; opacity: 0.3;
+}
+.caption-panel {
+  background:var(--surface); padding:60px; display:flex; flex-direction:column; justify-content:center;
+}
+.caption-panel .num {
+  font-size:14px; font-weight:700; color:var(--red); letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;
+}
+.caption-panel h2 {
+  font-size:clamp(28px,3.5vw,48px); font-weight:900; line-height:1.1; margin-bottom:20px;
+}
+.caption-panel p {
+  font-family:var(--font-text); font-size:clamp(14px,1.2vw,18px); line-height:1.7; color:#CCC;
+}
+
+/* Text slide */
+.slide.text-slide {
+  flex-direction:column; padding:80px 120px; max-width:1200px; margin:0 auto;
+}
+.slide.text-slide h2 {
+  font-size:clamp(32px,4vw,56px); font-weight:900; margin-bottom:32px; text-align:center;
+}
+.slide.text-slide .content {
+  font-family:var(--font-text); font-size:18px; line-height:1.8; color:#CCC;
+}
+.pipeline {
+  display:flex; align-items:center; gap:12px; margin:32px 0; flex-wrap:wrap; justify-content:center;
+}
+.pipeline .node {
+  background:var(--surface); border:2px solid var(--border); border-radius:8px; padding:16px 24px;
+  font-family:var(--font-mono); font-size:14px; font-weight:700;
+}
+.pipeline .node.red { border-color:var(--red); color:var(--red); }
+.pipeline .node.blue { border-color:var(--blue); color:var(--blue); }
+.pipeline .arr { color:var(--red); font-size:24px; font-weight:900; }
+
+/* HUD */
+.hud {
+  position:fixed; bottom:0; left:0; right:0; height:48px; background:rgba(6,9,15,0.95); backdrop-filter:blur(10px);
+  border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; z-index:100;
+}
+.hud-left { display:flex; align-items:center; gap:16px; }
+.hud-title { font-size:14px; font-weight:700; }
+.hud-pos { font-family:var(--font-mono); font-size:12px; color:var(--muted); }
+.hud-right { display:flex; gap:10px; }
+.hud-btn {
+  background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:5px;
+  padding:5px 12px; font-size:11px; font-family:var(--font-mono); color:var(--text); cursor:pointer; transition:all 0.2s;
+}
+.hud-btn:hover { background:rgba(255,255,255,0.1); }
+.hud-btn.exit { border-color:var(--red); color:var(--red); }
+.progress-bar {
+  position:fixed; bottom:48px; left:0; height:3px; background:linear-gradient(90deg,var(--red),var(--green));
+  transition:width 0.3s; z-index:101;
+}
+</style>
+</head>
+<body>
+
+<div class="deck">
+  <!-- Slide 1: Disclaimer -->
+  <div class="slide video-slide active">
+    <video autoplay muted loop playsinline style="width:100%; max-width:800px; height:auto;">
+      <source src="/assets/videos/disclaimer.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Slide 2: The Warning -->
+  <div class="slide image-slide">
+    <div class="img-panel"><div class="placeholder-icon">🤫</div></div>
+    <div class="caption-panel">
+      <div class="num">Panel 01</div>
+      <h2>The Warning</h2>
+      <p>Meta smart glasses. A blackjack table. A demonstration of what happens when you connect edge devices to enterprise AI in under 400 milliseconds.</p>
+    </div>
+  </div>
+
+  <!-- Slide 3: At the Table -->
+  <div class="slide image-slide flip">
+    <div class="caption-panel">
+      <div class="num">Panel 02</div>
+      <h2>At the Table</h2>
+      <p>The glasses see the cards. 10 of Hearts. 6 of Spades. The dealer shows a 6. Every card that hits the felt becomes data. Every data point becomes an event.</p>
+    </div>
+    <div class="img-panel"><div class="placeholder-icon">🎴</div></div>
+  </div>
+
+  <!-- Slide 4: The HUD -->
+  <div class="slide image-slide">
+    <div class="img-panel"><div class="placeholder-icon">👁️</div></div>
+    <div class="caption-panel">
+      <div class="num">Panel 03</div>
+      <h2>The HUD</h2>
+      <p>Hand: 16. Dealer: 6. Strategy: STAND. Round trip: 412ms. The decision flows back down the pipeline and into the earpiece. Only she heard it.</p>
+    </div>
+  </div>
+
+  <!-- Slide 5: Architecture -->
+  <div class="slide text-slide">
+    <h2>How It Works</h2>
+    <div class="content">
+      <p style="text-align:center; margin-bottom:24px;">Image becomes CloudEvent. CloudEvent hits OpenShift. OpenShift routes to SAP BTP, where a strategy engine evaluates the hand against basic strategy.</p>
+      <div class="pipeline">
+        <div class="node">META GLASSES</div>
+        <div class="arr">→</div>
+        <div class="node red">OPENSHIFT</div>
+        <div class="arr">→</div>
+        <div class="node blue">SAP BTP</div>
+        <div class="arr">→</div>
+        <div class="node">S/4HANA</div>
+        <div class="arr">→</div>
+        <div class="node">EARPIECE</div>
+      </div>
+      <p style="text-align:center; margin-top:24px;">The whole round trip: 389 milliseconds. Same architecture as a badge scan. Same pipeline as a door sensor. Different stakes.</p>
+    </div>
+  </div>
+
+  <!-- Slide 6: The Win -->
+  <div class="slide video-slide">
+    <video autoplay muted loop playsinline style="width:100%; max-width:800px; height:auto;">
+      <source src="/assets/videos/winning.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
+
+<div class="hud">
+  <div class="hud-left">
+    <div class="hud-title">Meta Glasses Blackjack</div>
+    <div class="hud-pos"><span id="current">1</span> / 6</div>
+  </div>
+  <div class="hud-right">
+    <button class="hud-btn" onclick="toggleFullscreen()">F</button>
+    <button class="hud-btn exit" onclick="window.location.href='/present-index'">✕ Exit</button>
+  </div>
+</div>
+<div class="progress-bar" id="progress"></div>
+
+<script>
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+
+function go(n) {
+  if (n < 0 || n >= total) return;
+  slides[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  document.getElementById('current').textContent = current + 1;
+  document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+}
+
+function next() { go(current + 1); }
+function prev() { go(current - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  if (e.key === 'Home') { e.preventDefault(); go(0); }
+  if (e.key === 'End') { e.preventDefault(); go(total - 1); }
+  if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+});
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+let touchStart = 0;
+document.addEventListener('touchstart', e => touchStart = e.changedTouches[0].screenX);
+document.addEventListener('touchend', e => {
+  const diff = touchStart - e.changedTouches[0].screenX;
+  if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+});
+
+go(0);
+</script>
+</body>
+</html>

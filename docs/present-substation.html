@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OHC Presentation — Energy Anomaly Detection → SAP EAM</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090F; --surface: #0D1117; --border: #1C2333; --muted: #4E5D6C; --text: #F0F4F8;
+  --green: #00D26A; --blue: #0070F2; --red: #EE0000;
+  --red-glow: rgba(238,0,0,0.10);
+  --amber: #F59E0B; --teal: #14B8A6;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Red Hat Display',sans-serif; }
+
+.deck { position:relative; width:100vw; height:100vh; }
+.slide {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:60px 80px;
+  opacity:0; pointer-events:none; transition:opacity 0.5s ease;
+}
+.slide.active { opacity:1; pointer-events:auto; }
+
+/* Live pip */
+.live-pip {
+  position:fixed; bottom:24px; right:32px; z-index:100;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:10px 18px; display:flex; align-items:center; gap:12px;
+  opacity:0; transition:opacity 0.4s;
+}
+.live-pip.visible { opacity:1; }
+.live-pip .dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+.live-pip .count { font-family:'Red Hat Mono',monospace; font-size:16px; font-weight:700; color:var(--red); font-variant-numeric:tabular-nums; }
+.live-pip .label { font-size:11px; color:var(--muted); }
+
+/* Progress */
+.progress { position:fixed; top:0; left:0; height:3px; z-index:200; background:linear-gradient(90deg,var(--red),var(--blue)); transition:width 0.3s; }
+.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted); }
+
+/* Back link */
+.back-link {
+  position:fixed; top:16px; left:24px; z-index:100;
+  color:var(--muted); font-family:'Red Hat Mono',monospace; font-size:12px;
+  text-decoration:none; border:1px solid var(--border); border-radius:6px;
+  padding:5px 12px; background:var(--surface); transition:color 0.2s, border-color 0.2s;
+}
+.back-link:hover { color:var(--text); border-color:var(--muted); }
+
+/* Typography */
+.mega { font-size:clamp(3rem,8vw,6rem); font-weight:900; line-height:1.05; }
+.big { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; line-height:1.15; }
+.medium { font-size:clamp(1.2rem,3vw,1.8rem); font-weight:300; line-height:1.4; font-family:'Red Hat Text',sans-serif; }
+.small { font-size:14px; color:var(--muted); font-family:'Red Hat Text',sans-serif; }
+.mono { font-family:'Red Hat Mono',monospace; }
+.red { color:var(--red); } .blue { color:var(--blue); } .muted { color:var(--muted); } .center { text-align:center; }
+
+.brand { display:flex; align-items:center; gap:20px; margin-bottom:32px; }
+.brand .rh { color:var(--red); font-size:14px; font-weight:700; letter-spacing:2px; }
+.brand .sep { color:var(--muted); font-size:20px; }
+.brand .sap { color:var(--blue); font-size:14px; font-weight:700; letter-spacing:2px; }
+.brand .nerc { color:var(--amber); font-size:14px; font-weight:700; letter-spacing:2px; }
+
+.spacer { height:24px; } .spacer-lg { height:48px; }
+
+/* Points */
+.points { list-style:none; margin-top:24px; }
+.points li { font-size:18px; font-weight:300; padding:10px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; font-family:'Red Hat Text',sans-serif; }
+.points li .icon { font-size:22px; }
+
+/* Alert line */
+.alert-line {
+  margin-top:32px; padding:16px 28px;
+  border-left:4px solid var(--red); background:rgba(238,0,0,0.06);
+  border-radius:0 8px 8px 0;
+  font-size:clamp(1rem,2.5vw,1.4rem); font-weight:700; color:var(--red);
+  font-family:'Red Hat Text',sans-serif;
+}
+
+/* Architecture flow */
+.flow-wrap {
+  width:100%; max-width:860px; margin-top:24px;
+  display:flex; flex-direction:column; gap:0;
+}
+.flow-node {
+  display:flex; align-items:center; gap:24px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:18px 28px;
+}
+.flow-node .node-icon { font-size:28px; flex-shrink:0; }
+.flow-node .node-body { flex:1; }
+.flow-node .node-title { font-size:16px; font-weight:700; font-family:'Red Hat Mono',monospace; color:var(--text); }
+.flow-node .node-desc { font-size:13px; color:var(--muted); margin-top:3px; font-family:'Red Hat Text',sans-serif; }
+.flow-arrow {
+  display:flex; align-items:center; justify-content:center;
+  height:28px; color:var(--muted); font-size:22px; line-height:1;
+}
+.flow-subtext {
+  margin-top:20px; padding:12px 20px;
+  border:1px solid var(--border); border-radius:8px;
+  background:rgba(245,158,11,0.06); border-color:rgba(245,158,11,0.3);
+  font-size:13px; color:var(--amber); font-family:'Red Hat Mono',monospace;
+  text-align:center;
+}
+
+/* Demo trigger zone */
+.trigger-zone {
+  width:100%; max-width:760px; margin-top:20px;
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:28px 32px;
+}
+.trigger-label {
+  font-size:11px; font-weight:700; color:var(--muted); letter-spacing:1px;
+  text-transform:uppercase; margin-bottom:10px; font-family:'Red Hat Text',sans-serif;
+}
+.btn-group { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+.sel-btn {
+  font-family:'Red Hat Mono',monospace; font-size:13px; font-weight:700;
+  padding:8px 16px; border-radius:8px; cursor:pointer;
+  border:1px solid var(--border); background:var(--bg); color:var(--muted);
+  transition:all 0.15s;
+}
+.sel-btn:hover { border-color:var(--red); color:var(--text); }
+.sel-btn.selected { border-color:var(--red); background:rgba(238,0,0,0.12); color:var(--red); }
+
+.payload-preview {
+  background:rgba(6,9,15,0.8); border:1px solid var(--border); border-radius:8px;
+  padding:14px 18px; margin-bottom:20px;
+  font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--text); line-height:1.7;
+}
+.payload-preview .key { color:var(--muted); }
+.payload-preview .val-str { color:var(--green); }
+.payload-preview .val-num { color:var(--amber); }
+.payload-preview .val-hi { color:var(--red); }
+
+.fire-btn {
+  width:100%; padding:16px; border-radius:10px; cursor:pointer;
+  border:none; background:var(--red); color:#fff;
+  font-family:'Red Hat Display',sans-serif; font-size:18px; font-weight:700;
+  letter-spacing:0.5px; transition:background 0.15s, transform 0.1s;
+}
+.fire-btn:hover:not(:disabled) { background:#CC0000; }
+.fire-btn:active:not(:disabled) { transform:scale(0.98); }
+.fire-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+.result-box {
+  margin-top:16px; padding:14px 18px; border-radius:8px;
+  background:rgba(0,210,106,0.07); border:1px solid rgba(0,210,106,0.25);
+  font-family:'Red Hat Mono',monospace; font-size:13px; color:var(--green);
+  display:none;
+}
+.result-box.visible { display:block; }
+.result-error {
+  background:rgba(238,0,0,0.07); border-color:rgba(238,0,0,0.25); color:var(--red);
+}
+
+/* Subtle ambient glow */
+.glow-bg::before {
+  content:''; position:absolute; top:40%; left:50%; width:800px; height:800px;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,var(--red-glow) 0%,transparent 70%);
+  pointer-events:none; z-index:-1;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation:fadeUp 0.6s ease-out both; }
+.delay-1 { animation-delay:0.15s; } .delay-2 { animation-delay:0.3s; }
+.delay-3 { animation-delay:0.45s; } .delay-4 { animation-delay:0.6s; }
+
+/* Mobile */
+@media (max-width:768px) {
+  .slide { padding:24px 20px; }
+  .mega { font-size:clamp(2rem,10vw,3.5rem); }
+  .big { font-size:clamp(1.4rem,6vw,2.2rem); }
+  .medium { font-size:clamp(1rem,4vw,1.3rem); }
+  .stat-row { gap:16px; }
+  .brand { margin-bottom:16px; }
+  .spacer-lg { height:24px; }
+  .live-pip { bottom:10px; right:10px; padding:6px 10px; }
+  .slide-num { bottom:10px; font-size:10px; }
+  .points li { font-size:14px; padding:8px 0; }
+  .flow-node { padding:12px 16px; gap:14px; }
+  .flow-node .node-icon { font-size:22px; }
+  .trigger-zone { padding:18px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="slide-num" id="slideNum">1 / 6</div>
+
+<a href="/present-index" class="back-link">&larr; index</a>
+
+<div class="live-pip" id="livePip">
+  <div class="dot"></div>
+  <span class="count" id="pipCount">0</span>
+  <span class="label">anomalies</span>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 1: Hook -->
+  <div class="slide active glow-bg" data-slide="1">
+    <div class="brand fade-up">
+      <span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span>
+      <span class="sep">·</span><span class="nerc">NERC CIP</span>
+    </div>
+    <div class="mega center fade-up delay-1">AI at the substation.</div>
+    <div class="spacer"></div>
+    <div class="medium center muted fade-up delay-2">Predict equipment failure before the lineman gets dispatched into danger.</div>
+    <div class="spacer-lg"></div>
+    <div class="small mono fade-up delay-3">Energy Anomaly Detection &rarr; SAP EAM</div>
+  </div>
+
+  <!-- 2: Problem -->
+  <div class="slide" data-slide="2">
+    <div class="big center fade-up">Without correlated context, field crews go in blind.</div>
+    <div class="spacer-lg"></div>
+    <ul class="points fade-up delay-1" style="width:100%;max-width:780px">
+      <li><span class="icon">&#x26A1;</span>A substation transformer shows a voltage spike &mdash; the sensor fires an alert</li>
+      <li><span class="icon">&#x1F4CB;</span>The alert goes to a queue. A supervisor triages it. A lineman is dispatched.</li>
+      <li><span class="icon">&#x26A0;</span>The lineman arrives. There was no context: a second fault is developing on the adjacent breaker.</li>
+      <li><span class="icon">&#x1F6A8;</span>Two faults. One lineman. No warning.</li>
+    </ul>
+    <div class="alert-line fade-up delay-2">This is not hypothetical. This is the Duke Energy story.</div>
+  </div>
+
+  <!-- 3: Architecture -->
+  <div class="slide glow-bg" data-slide="3">
+    <div class="big center fade-up" style="margin-bottom:8px">Sensor &rarr; AI &rarr; EAM &rarr; lineman briefed before departure.</div>
+    <div class="flow-wrap fade-up delay-1">
+      <div class="flow-node">
+        <span class="node-icon">&#x26A1;</span>
+        <div class="node-body">
+          <div class="node-title">Substation Sensor</div>
+          <div class="node-desc">Voltage / temp / vibration &mdash; thousands/sec</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#x2193;</div>
+      <div class="flow-node">
+        <span class="node-icon">&#x1F9E0;</span>
+        <div class="node-body">
+          <div class="node-title">OpenShift AI Edge Node</div>
+          <div class="node-desc">Anomaly classifier (confidence: 91%)</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#x2193;</div>
+      <div class="flow-node">
+        <span class="node-icon">&#x1F504;</span>
+        <div class="node-body">
+          <div class="node-title">EIC on OpenShift</div>
+          <div class="node-desc"><span class="mono" style="color:var(--teal)">ohc.demo.ot.anomaly_detected</span> CloudEvent</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#x2193;</div>
+      <div class="flow-node">
+        <span class="node-icon">&#x1F4CB;</span>
+        <div class="node-body">
+          <div class="node-title">SAP EAM</div>
+          <div class="node-desc">Predictive maintenance work order &mdash; correlated context attached</div>
+        </div>
+      </div>
+    </div>
+    <div class="flow-subtext fade-up delay-2">NERC CIP Zone 3 &mdash; High Voltage &nbsp;|&nbsp; Air-gapped edge node &nbsp;|&nbsp; No cloud dependency.</div>
+  </div>
+
+  <!-- 4: Fire the event -->
+  <div class="slide" data-slide="4">
+    <div class="big center fade-up">Detect an anomaly.</div>
+    <div class="medium center muted fade-up delay-1" style="margin-top:8px">Simulate a substation sensor reading exceeding threshold.</div>
+    <div class="trigger-zone fade-up delay-2">
+      <div class="trigger-label">Asset</div>
+      <div class="btn-group" id="assetBtns">
+        <button class="sel-btn selected" data-val="XFMR-SUB-14" onclick="selectAsset(this)">XFMR-SUB-14</button>
+        <button class="sel-btn" data-val="BRKR-SUB-07" onclick="selectAsset(this)">BRKR-SUB-07</button>
+        <button class="sel-btn" data-val="CAP-BANK-03" onclick="selectAsset(this)">CAP-BANK-03</button>
+      </div>
+      <div class="trigger-label">Anomaly Type</div>
+      <div class="btn-group" id="anomalyBtns">
+        <button class="sel-btn selected" data-val="voltage_spike" onclick="selectAnomaly(this)">voltage_spike</button>
+        <button class="sel-btn" data-val="temp_exceedance" onclick="selectAnomaly(this)">temp_exceedance</button>
+        <button class="sel-btn" data-val="vibration_harmonic" onclick="selectAnomaly(this)">vibration_harmonic</button>
+      </div>
+      <div class="payload-preview" id="payloadPreview">
+        <span class="key">&#123;</span><br>
+        &nbsp;&nbsp;<span class="key">"asset_id":</span> <span class="val-str" id="previewAsset">"XFMR-SUB-14"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"anomaly_type":</span> <span class="val-str" id="previewAnomaly">"voltage_spike"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"sensor_reading":</span> <span class="val-num">14200</span>,<br>
+        &nbsp;&nbsp;<span class="key">"threshold":</span> <span class="val-num">13800</span>,<br>
+        &nbsp;&nbsp;<span class="key">"severity":</span> <span class="val-hi">"high"</span><br>
+        <span class="key">&#125;</span>
+      </div>
+      <button class="fire-btn" id="fireBtn" onclick="fireAnomaly()">&#x26A1; Detect Anomaly</button>
+      <div class="result-box" id="resultBox"></div>
+    </div>
+  </div>
+
+  <!-- 5: Compliance -->
+  <div class="slide glow-bg" data-slide="5">
+    <div class="big center fade-up">NERC CIP doesn't forgive gaps.</div>
+    <div class="spacer-lg"></div>
+    <ul class="points fade-up delay-1" style="width:100%;max-width:780px">
+      <li><span class="icon">&#x1F4DC;</span>North American Electric Reliability Corporation Critical Infrastructure Protection</li>
+      <li><span class="icon">&#x26A0;</span>Every unlogged anomaly is a potential NERC CIP violation</li>
+      <li><span class="icon">&#x2705;</span>SAP EAM work orders create the audit trail automatically &mdash; timestamped, correlated, immutable</li>
+      <li><span class="icon">&#x1F512;</span>OpenShift edge nodes run air-gapped &mdash; no data leaves the substation boundary</li>
+      <li><span class="icon">&#x1F5FA;</span>RegScale CCM maps every alert to the NERC CIP control it satisfies</li>
+    </ul>
+  </div>
+
+  <!-- 6: Close -->
+  <div class="slide glow-bg" data-slide="6">
+    <div class="mega center fade-up">Predict. Prevent. Protect.</div>
+    <div class="spacer-lg"></div>
+    <div class="medium center muted fade-up delay-1">The lineman gets a briefed dispatch. Not a blind one.</div>
+    <div class="spacer-lg"></div>
+    <div class="big center red fade-up delay-2">OpenShift AI at the edge. SAP EAM at the enterprise. One pipeline.</div>
+    <div class="spacer-lg"></div>
+    <div class="brand fade-up delay-3" style="justify-content:center">
+      <span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span>
+      <span class="sep">·</span><span class="nerc">NERC CIP</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let current = 0;
+let anomalyCount = 0;
+
+const progressEl = document.getElementById('progress');
+const slideNumEl = document.getElementById('slideNum');
+const livePip = document.getElementById('livePip');
+const pipCountEl = document.getElementById('pipCount');
+
+// Demo state
+let selectedAsset = 'XFMR-SUB-14';
+let selectedAnomaly = 'voltage_spike';
+
+function goTo(n) {
+  if (n < 0 || n >= totalSlides) return;
+  slides[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  progressEl.style.width = ((current+1)/totalSlides*100)+'%';
+  slideNumEl.innerText = (current+1)+' / '+totalSlides;
+  livePip.classList.toggle('visible', current >= 3);
+
+  fetch('/ingest', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({specversion:'1.0', type:'presenter.slide_change', source:'present-substation',
+      data:{slide:current+1, total:totalSlides, title:slides[current].dataset.slide}})
+  }).catch(()=>{});
+}
+function next() { goTo(current+1); }
+function prev() { goTo(current-1); }
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key===' '||e.key==='PageDown') { e.preventDefault(); next(); }
+  if (e.key==='ArrowLeft'||e.key==='PageUp') { e.preventDefault(); prev(); }
+  if (e.key==='Home') { e.preventDefault(); goTo(0); }
+  if (e.key==='End') { e.preventDefault(); goTo(totalSlides-1); }
+  if (e.key==='f'||e.key==='F') {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+});
+
+// Touch swipe
+let touchStartX = 0;
+let touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = touchStartX - e.changedTouches[0].clientX;
+  const dy = touchStartY - e.changedTouches[0].clientY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+    dx > 0 ? next() : prev();
+  }
+}, {passive:true});
+
+// Click (desktop only — left 20% back, rest forward)
+document.addEventListener('click', e => {
+  if (e.target.closest('a,button,.trigger-zone,.back-link')) return;
+  if (e.clientX < window.innerWidth * 0.2) prev();
+  else next();
+});
+
+// Asset / anomaly selection
+function selectAsset(btn) {
+  document.querySelectorAll('#assetBtns .sel-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedAsset = btn.dataset.val;
+  document.getElementById('previewAsset').innerText = '"'+selectedAsset+'"';
+  clearResult();
+}
+
+function selectAnomaly(btn) {
+  document.querySelectorAll('#anomalyBtns .sel-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedAnomaly = btn.dataset.val;
+  document.getElementById('previewAnomaly').innerText = '"'+selectedAnomaly+'"';
+  clearResult();
+}
+
+function clearResult() {
+  const r = document.getElementById('resultBox');
+  r.classList.remove('visible','result-error');
+  r.innerText = '';
+}
+
+// Fire anomaly
+function fireAnomaly() {
+  const btn = document.getElementById('fireBtn');
+  const resultBox = document.getElementById('resultBox');
+  btn.disabled = true;
+  btn.innerText = 'Sending…';
+  clearResult();
+
+  const payload = {
+    asset_id: selectedAsset,
+    anomaly_type: selectedAnomaly,
+    severity: 'high',
+    sensor_reading: 14200,
+    threshold: 13800
+  };
+
+  fetch('/ot/anomaly', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  })
+  .then(d => {
+    anomalyCount++;
+    pipCountEl.innerText = anomalyCount;
+    const wo = d.work_order || d.workOrder || d.work_order_id || d.id || '(received)';
+    const at = d.anomaly_type || selectedAnomaly;
+    resultBox.classList.remove('result-error');
+    resultBox.innerHTML =
+      '&#x2705; Work order created<br>' +
+      '<span style="color:var(--muted)">work_order: </span><strong>'+wo+'</strong><br>' +
+      '<span style="color:var(--muted)">anomaly_type: </span>'+at;
+    resultBox.classList.add('visible');
+  })
+  .catch(err => {
+    resultBox.classList.add('result-error','visible');
+    resultBox.innerText = '&#x26A0; '+err.message;
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerText = '&#x26A1; Detect Anomaly';
+  });
+}
+
+// SSE for live pip (optional — tolerates absence)
+function connectSSE() {
+  try {
+    const es = new EventSource('/events');
+    es.onmessage = e => {
+      try {
+        const d = JSON.parse(e.data);
+        if (d.count) { anomalyCount = d.count; pipCountEl.innerText = anomalyCount; }
+      } catch(_) {}
+    };
+    es.onerror = () => { es.close(); setTimeout(connectSSE, 3000); };
+  } catch(_) {}
+}
+
+connectSSE();
+goTo(0);
+</script>
+</body>
+</html>

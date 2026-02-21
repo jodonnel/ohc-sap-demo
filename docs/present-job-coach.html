@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Glasses Job Coach — Edge AI for IDD Independence</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090F; --surface: #0D1117; --border: #1C2333; --muted: #4E5D6C; --text: #F0F4F8;
+  --green: #00D26A; --blue: #0070F2; --red: #EE0000; --amber: #F59E0B; --purple: #9333EA; --sap-gold: #F0AB00;
+  --red-glow: rgba(238,0,0,0.10); --blue-glow: rgba(0,112,242,0.10); --sap-gold-glow: rgba(240,171,0,0.10);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Red Hat Display',sans-serif; }
+
+.deck { position:relative; width:100vw; height:100vh; }
+.slide {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:60px 80px;
+  opacity:0; pointer-events:none; transition:opacity 0.5s ease;
+}
+.slide.active { opacity:1; pointer-events:auto; }
+
+/* Progress */
+.progress { position:fixed; top:0; left:0; height:3px; z-index:200; background:linear-gradient(90deg,var(--red),var(--blue)); transition:width 0.3s; }
+.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted); }
+
+/* Back link */
+.back-link {
+  position:fixed; top:20px; left:28px; z-index:200;
+  font-size:12px; color:var(--muted); text-decoration:none;
+  font-family:'Red Hat Mono',monospace; letter-spacing:1px;
+  transition:color 0.2s;
+}
+.back-link:hover { color:var(--text); }
+
+/* Typography */
+.mega { font-size:clamp(3rem,8vw,6rem); font-weight:900; line-height:1.05; }
+.big { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; line-height:1.15; }
+.medium { font-size:clamp(1.2rem,3vw,1.8rem); font-weight:300; line-height:1.4; font-family:'Red Hat Text',sans-serif; }
+.small { font-size:14px; color:var(--muted); font-family:'Red Hat Text',sans-serif; }
+.mono { font-family:'Red Hat Mono',monospace; }
+.red { color:var(--red); } .blue { color:var(--blue); } .green { color:var(--green); } .sap-gold { color:var(--sap-gold); }
+.amber { color:var(--amber); } .purple { color:var(--purple); } .muted { color:var(--muted); } .center { text-align:center; }
+
+.brand { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+.brand .rh { color:var(--red); font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+.brand .sep { color:var(--muted); }
+.brand .meta { color:var(--blue); font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+.brand .sap { color:var(--amber); font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+
+.spacer { height:24px; } .spacer-lg { height:48px; }
+
+/* Bullet list */
+.bullets { list-style:none; text-align:left; max-width:900px; width:100%; margin-top:20px; }
+.bullets li { display:flex; align-items:flex-start; gap:14px; margin-bottom:18px; font-family:'Red Hat Text',sans-serif; font-size:clamp(1rem,2.2vw,1.4rem); line-height:1.45; }
+.bullets li::before { content:'→'; color:var(--red); flex-shrink:0; margin-top:2px; font-weight:700; }
+
+/* Stats grid */
+.stat-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:24px;
+  width:100%; max-width:900px; margin-top:32px;
+}
+.stat-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:28px 24px; text-align:center;
+}
+.stat-card .stat-val { font-family:'Red Hat Mono',monospace; font-size:clamp(1.6rem,3.5vw,2.5rem); font-weight:700; margin-bottom:8px; line-height:1.1; }
+.stat-card .stat-label { font-size:12px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:'Red Hat Text',sans-serif; line-height:1.5; }
+
+/* Capabilities */
+.caps-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
+  width:100%; max-width:960px; margin-top:28px;
+}
+.cap-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:28px 24px; text-align:center; transition:transform 0.2s, border-color 0.2s;
+}
+.cap-card:hover { transform:translateY(-4px); }
+.cap-card.c1 { border-color:rgba(0,112,242,0.4); }
+.cap-card.c2 { border-color:rgba(238,0,0,0.4); }
+.cap-card.c3 { border-color:rgba(0,210,106,0.4); }
+.cap-icon { font-size:48px; margin-bottom:14px; }
+.cap-title { font-size:18px; font-weight:700; margin-bottom:10px; line-height:1.2; }
+.cap-desc { font-size:13px; color:var(--muted); font-family:'Red Hat Text',sans-serif; line-height:1.5; }
+
+/* Architecture flow */
+.arch-flow {
+  display:flex; align-items:center; gap:0; margin-top:32px;
+  width:100%; max-width:1000px; flex-wrap:nowrap;
+}
+.arch-node {
+  flex:1; background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:24px 18px; text-align:center; min-width:0;
+}
+.arch-node.highlight-blue { border-color:var(--blue); box-shadow:0 0 24px var(--blue-glow); }
+.arch-node.highlight-red { border-color:var(--red); box-shadow:0 0 24px var(--red-glow); }
+.arch-node.highlight-green { border-color:var(--green); box-shadow:0 0 24px rgba(0,210,106,0.12); }
+.arch-node.highlight-sap-gold { border-color:var(--sap-gold); box-shadow:0 0 24px var(--sap-gold-glow); }
+.arch-node .node-icon { font-size:40px; margin-bottom:12px; }
+.arch-node .node-title { font-size:16px; font-weight:700; margin-bottom:6px; }
+.arch-node .node-sub { font-size:12px; color:var(--muted); font-family:'Red Hat Mono',monospace; line-height:1.4; }
+.arch-arrow {
+  font-size:28px; color:var(--red); flex-shrink:0;
+  padding:0 12px; font-weight:700;
+}
+
+/* Demo mockup */
+.demo-mockup {
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  padding:32px 40px; width:100%; max-width:800px; margin-top:28px;
+}
+.mockup-header {
+  font-size:14px; color:var(--muted); margin-bottom:20px;
+  font-family:'Red Hat Mono',monospace; text-transform:uppercase;
+  letter-spacing:1.5px; border-bottom:1px solid var(--border); padding-bottom:10px;
+}
+.mockup-screen {
+  background:#06090F; border:2px solid var(--blue); border-radius:12px;
+  padding:24px 28px; font-family:'Red Hat Mono',monospace; font-size:15px;
+  line-height:1.8; min-height:220px; position:relative;
+}
+.mockup-step { margin-bottom:14px; display:flex; align-items:flex-start; gap:12px; }
+.mockup-step .num { color:var(--blue); font-weight:700; flex-shrink:0; }
+.mockup-step .text { color:var(--text); }
+.mockup-step.active { animation:pulse-text 2s infinite; }
+.mockup-footer {
+  margin-top:16px; font-size:12px; color:var(--muted);
+  text-align:center; font-family:'Red Hat Text',sans-serif;
+}
+
+/* Hero persona */
+.persona-card {
+  background:linear-gradient(135deg,rgba(0,112,242,0.08),rgba(0,112,242,0.02));
+  border:1px solid rgba(0,112,242,0.3); border-radius:20px;
+  padding:32px 40px; max-width:600px; text-align:center; margin:20px 0;
+}
+.persona-name { font-size:2.8rem; font-weight:900; color:var(--blue); margin-bottom:8px; }
+.persona-desc { font-size:16px; color:var(--muted); font-family:'Red Hat Text',sans-serif; line-height:1.6; }
+
+/* Stack pills */
+.stack-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:24px 0; }
+.stack-pill { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:8px 18px; font-size:13px; font-weight:700; font-family:'Red Hat Mono',monospace; }
+
+/* Ambient glow */
+.glow-bg::before {
+  content:''; position:absolute; top:40%; left:50%; width:900px; height:900px;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,var(--blue-glow) 0%,transparent 70%);
+  pointer-events:none; z-index:-1;
+}
+
+@keyframes pulse-text { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation:fadeUp 0.6s ease-out both; }
+.delay-1 { animation-delay:0.15s; } .delay-2 { animation-delay:0.3s; }
+.delay-3 { animation-delay:0.45s; } .delay-4 { animation-delay:0.6s; }
+
+/* Mobile */
+@media (max-width:768px) {
+  .slide { padding:32px 24px; }
+  .mega { font-size:clamp(2rem,10vw,3.5rem); }
+  .big { font-size:clamp(1.5rem,7vw,2.2rem); }
+  .medium { font-size:clamp(1rem,4vw,1.3rem); }
+  .caps-grid { grid-template-columns:1fr; gap:16px; }
+  .stat-grid { grid-template-columns:1fr; gap:16px; }
+  .arch-flow { flex-direction:column; gap:8px; }
+  .arch-arrow { transform:rotate(90deg); padding:4px 0; }
+  .demo-mockup { padding:20px; }
+  .mockup-screen { font-size:13px; padding:18px; }
+  .brand { margin-bottom:16px; gap:10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="slide-num" id="slideNum">1 / 6</div>
+<a href="/present-index" class="back-link">← index</a>
+
+<div class="deck">
+
+  <!-- SLIDE 1 — HOOK -->
+  <div class="slide active glow-bg" data-slide="1">
+    <div class="brand fade-up">
+      <span class="rh">RED HAT</span>
+      <span class="sep">×</span>
+      <span class="meta">META</span>
+      <span class="sep">×</span>
+      <span class="sap">SAP</span>
+    </div>
+    <div class="persona-card fade-up delay-1">
+      <div class="persona-name">Brian</div>
+      <div class="persona-desc">Adult with intellectual and developmental disabilities (IDD).<br>Wants to work independently. Needs the right tools.</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="big center fade-up delay-2">What if Brian could work<br><span class="blue">independently</span>?</div>
+    <div class="spacer"></div>
+    <div class="medium center muted fade-up delay-3">An AI job coach. Running at the edge. On glasses he already wears.</div>
+  </div>
+
+  <!-- SLIDE 2 — THE PROBLEM -->
+  <div class="slide" data-slide="2">
+    <div class="big center fade-up" style="margin-bottom:32px;">5.4M adults with IDD in the US.<br><span class="red">Less than 20% employment rate.</span></div>
+    <ul class="bullets fade-up delay-1">
+      <li><strong>Supportive technology lags decades behind consumer tech.</strong> Most assistive devices are single-purpose, expensive, and stigmatizing.</li>
+      <li><strong>Job coaching is manual and inconsistent.</strong> Direct Support Professionals (DSPs) provide critical guidance, but they can't be everywhere at once.</li>
+      <li><strong>Independence requires real-time support.</strong> Task sequences, danger awareness, social navigation — all need to happen in the moment, not after the fact.</li>
+      <li><strong>Privacy and dignity matter.</strong> Recording everything to the cloud, or requiring visible supervision, undermines autonomy.</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 3 — THE SOLUTION -->
+  <div class="slide glow-bg" data-slide="3">
+    <div class="big center fade-up" style="margin-bottom:20px;">Three capabilities. <span class="blue">Edge AI.</span> One platform.</div>
+    <div class="caps-grid fade-up delay-1">
+      <div class="cap-card c1">
+        <div class="cap-icon">📋</div>
+        <div class="cap-title blue">Job Task Coaching</div>
+        <div class="cap-desc">Step-by-step audio prompts for work tasks. Learned once with a DSP, replayed on demand. Reinforces independence.</div>
+      </div>
+      <div class="cap-card c2">
+        <div class="cap-icon">⚠️</div>
+        <div class="cap-title red">Danger Steering</div>
+        <div class="cap-desc">Real-time alerts for unsafe situations — hot surfaces, moving equipment, restricted zones. Vision model runs locally.</div>
+      </div>
+      <div class="cap-card c3">
+        <div class="cap-icon">🗣️</div>
+        <div class="cap-title green">Social Navigation</div>
+        <div class="cap-desc">Guided prompts for ordering food, checking out at a store, responding to small talk. Contextual, respectful, private.</div>
+      </div>
+    </div>
+    <div class="small center muted fade-up delay-2" style="margin-top:28px;">Privacy-first design. All inference at the edge. No constant cloud recording. Brian's data stays with Brian.</div>
+  </div>
+
+  <!-- SLIDE 4 — ARCHITECTURE -->
+  <div class="slide" data-slide="4">
+    <div class="big center fade-up" style="margin-bottom:16px;">Meta glasses <span class="red">→</span> edge AI <span class="red">→</span> SAP BTP workflow.</div>
+    <div class="arch-flow fade-up delay-1">
+      <div class="arch-node highlight-blue">
+        <div class="node-icon">👓</div>
+        <div class="node-title blue">Meta Ray-Ban</div>
+        <div class="node-sub">Camera, mic, bone conduction audio</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node highlight-red">
+        <div class="node-icon">🔥</div>
+        <div class="node-title red">Device Edge</div>
+        <div class="node-sub">MicroShift · LLaMA 3 · Whisper STT · TTS</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node highlight-sap-gold">
+        <div class="node-icon">📊</div>
+        <div class="node-title sap-gold">SAP BTP</div>
+        <div class="node-sub">Task library · analytics · DSP interface</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="stack-row fade-up delay-2">
+      <span class="stack-pill" style="color:var(--red);">Red Hat Device Edge</span>
+      <span class="stack-pill" style="color:var(--red);">MicroShift</span>
+      <span class="stack-pill" style="color:var(--blue);">LLaMA 3</span>
+      <span class="stack-pill" style="color:var(--blue);">Whisper</span>
+      <span class="stack-pill" style="color:var(--amber);">SAP BTP</span>
+    </div>
+    <div class="small center muted fade-up delay-3" style="margin-top:8px;">Red Hat OpenShift AI orchestrates model training and deployment. Device Edge runs inference locally. SAP BTP manages workflows and DSP collaboration.</div>
+  </div>
+
+  <!-- SLIDE 5 — DEMO CONCEPT -->
+  <div class="slide glow-bg" data-slide="5">
+    <div class="big center fade-up" style="margin-bottom:8px;">Demo concept: <span class="blue">Task playback.</span></div>
+    <div class="demo-mockup fade-up delay-1">
+      <div class="mockup-header">Brian's View — "How do I stock the shelf?"</div>
+      <div class="mockup-screen">
+        <div class="mockup-step">
+          <span class="num">1.</span>
+          <span class="text">"Pick up the box from the cart."</span>
+        </div>
+        <div class="mockup-step">
+          <span class="num">2.</span>
+          <span class="text">"Find the product tag on the shelf — it matches the box label."</span>
+        </div>
+        <div class="mockup-step active">
+          <span class="num">3.</span>
+          <span class="text">"Place items on the shelf, left to right, labels facing forward."</span>
+        </div>
+        <div class="mockup-step">
+          <span class="num">4.</span>
+          <span class="text">"Move the empty box to the recycling bin near the back door."</span>
+        </div>
+        <div class="mockup-step">
+          <span class="num">5.</span>
+          <span class="text">"Great work. Ready for the next box?"</span>
+        </div>
+      </div>
+      <div class="mockup-footer">DSP recorded this task sequence once. Brian can replay it anytime, at his own pace.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — IMPACT -->
+  <div class="slide glow-bg" data-slide="6">
+    <div class="big center fade-up" style="margin-bottom:32px;"><span style="color:#CC0000;">Independence.</span> Dignity. Determination.</div>
+    <div class="stat-grid fade-up delay-1">
+      <div class="stat-card">
+        <div class="stat-val blue">5.4M</div>
+        <div class="stat-label">Adults with IDD in the US — underserved market for assistive tech</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val amber">&lt;20%</div>
+        <div class="stat-label">Current employment rate — massive gap for inclusive tech solutions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:#CC0000;">Edge AI</div>
+        <div class="stat-label">Privacy-first design running on Red Hat Device Edge and MicroShift</div>
+      </div>
+    </div>
+    <div class="spacer-lg"></div>
+    <div class="medium center fade-up delay-2">Brian gets the coaching he needs.<br>When he needs it. <span class="blue">Where he needs it.</span></div>
+    <div class="spacer"></div>
+    <div class="small center muted fade-up delay-3">A concept built on respect, technical credibility, and the belief that independence is a right, not a privilege.</div>
+  </div>
+
+</div><!-- /deck -->
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let current = 0;
+
+const progressEl = document.getElementById('progress');
+const slideNumEl = document.getElementById('slideNum');
+
+function goTo(n) {
+  if (n < 0 || n >= totalSlides) return;
+  slides[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  progressEl.style.width = ((current+1)/totalSlides*100)+'%';
+  slideNumEl.innerText = (current+1)+' / '+totalSlides;
+
+  // Optional: Send slide change event to backend
+  fetch('/ingest', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      specversion:'1.0',
+      type:'presenter.slide_change',
+      source:'present-job-coach',
+      data:{slide:current+1, total:totalSlides, title:slides[current].dataset.slide}
+    })
+  }).catch(()=>{});
+}
+
+function next() { goTo(current+1); }
+function prev() { goTo(current-1); }
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key===' '||e.key==='PageDown') { e.preventDefault(); next(); }
+  if (e.key==='ArrowLeft'||e.key==='PageUp') { e.preventDefault(); prev(); }
+  if (e.key==='Home') { e.preventDefault(); goTo(0); }
+  if (e.key==='End') { e.preventDefault(); goTo(totalSlides-1); }
+  if (e.key==='f'||e.key==='F') {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+});
+
+// Touch swipe support
+let touchStartX = 0;
+let touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = touchStartX - e.changedTouches[0].clientX;
+  const dy = touchStartY - e.changedTouches[0].clientY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+    dx > 0 ? next() : prev();
+  }
+}, {passive:true});
+
+// Click navigation (left 20% = back, rest = forward)
+document.addEventListener('click', e => {
+  if (e.target.closest('a,button')) return;
+  if (e.clientX < window.innerWidth * 0.2) prev();
+  else next();
+});
+
+goTo(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PI/PO EOL Migration Factory — OHC Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Mono:wght@400;700&family=Red+Hat+Text:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090F; --surface: #0D1117; --border: #1C2333; --muted: #4E5D6C; --text: #F0F4F8;
+  --green: #00D26A; --blue: #0070F2; --red: #EE0000; --amber: #F59E0B;
+  --red-glow: rgba(238,0,0,0.10);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Red Hat Display',sans-serif; }
+
+.deck { position:relative; width:100vw; height:100vh; }
+.slide {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:60px 80px;
+  opacity:0; pointer-events:none; transition:opacity 0.5s ease;
+}
+.slide.active { opacity:1; pointer-events:auto; }
+
+.live-pip {
+  position:fixed; bottom:24px; right:32px; z-index:100;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:10px 18px; display:flex; align-items:center; gap:12px;
+  opacity:0; transition:opacity 0.4s;
+}
+.live-pip.visible { opacity:1; }
+.live-pip .dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+.live-pip .count { font-family:'Red Hat Mono',monospace; font-size:16px; font-weight:700; color:var(--red); font-variant-numeric:tabular-nums; }
+.live-pip .label { font-size:11px; color:var(--muted); }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.progress { position:fixed; top:0; left:0; height:3px; z-index:200; background:linear-gradient(90deg,var(--red),var(--blue)); transition:width 0.3s; }
+.slide-num { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100; font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted); }
+.back-link { position:fixed; top:20px; left:28px; z-index:200; font-size:12px; color:var(--muted); text-decoration:none; font-family:'Red Hat Mono',monospace; }
+.back-link:hover { color:var(--text); }
+
+.mega { font-size:clamp(3rem,8vw,6rem); font-weight:900; line-height:1.05; }
+.big { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; line-height:1.15; }
+.medium { font-size:clamp(1.1rem,2.5vw,1.6rem); font-weight:300; line-height:1.5; font-family:'Red Hat Text',sans-serif; }
+.small { font-size:14px; color:var(--muted); font-family:'Red Hat Text',sans-serif; }
+.mono { font-family:'Red Hat Mono',monospace; }
+.red { color:var(--red); } .blue { color:var(--blue); } .amber { color:var(--amber); } .green { color:var(--green); } .muted { color:var(--muted); } .center { text-align:center; }
+
+.brand { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+.brand .rh { color:var(--red); font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+.brand .sep { color:var(--muted); }
+.brand .sap { color:var(--blue); font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+
+/* Deadline counter */
+.deadline-block {
+  background:linear-gradient(135deg,rgba(238,0,0,0.12),rgba(238,0,0,0.03));
+  border:1px solid rgba(238,0,0,0.3); border-radius:16px;
+  padding:32px 48px; text-align:center; margin:24px 0;
+}
+.deadline-num { font-size:clamp(4rem,10vw,8rem); font-weight:900; color:var(--red); line-height:1; font-variant-numeric:tabular-nums; }
+.deadline-label { font-size:16px; color:var(--muted); margin-top:8px; letter-spacing:2px; text-transform:uppercase; }
+
+/* Flow diagram */
+.flow {
+  display:flex; align-items:center; gap:0; margin:32px 0; flex-wrap:nowrap;
+  width:100%; max-width:900px;
+}
+.flow-node {
+  flex:1; background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:20px 16px; text-align:center; min-width:0;
+}
+.flow-node .f-icon { font-size:28px; margin-bottom:8px; }
+.flow-node .f-label { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.flow-node .f-sub { font-size:11px; color:var(--muted); font-family:'Red Hat Mono',monospace; }
+.flow-node.highlight { border-color:var(--red); background:rgba(238,0,0,0.06); }
+.flow-node.confirmed { border-color:var(--green); background:rgba(0,210,106,0.06); }
+.flow-arrow { flex-shrink:0; padding:0 8px; color:var(--muted); font-size:20px; }
+
+/* Stat grid */
+.stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; width:100%; max-width:800px; margin:24px 0; }
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px 20px; text-align:center; }
+.stat-num { font-size:2.4rem; font-weight:900; line-height:1; margin-bottom:6px; }
+.stat-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+
+/* Demo trigger */
+.trigger-zone {
+  display:flex; flex-direction:column; align-items:center; gap:20px;
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  padding:40px 60px; margin:24px 0; width:100%; max-width:700px;
+}
+.idoc-preview {
+  font-family:'Red Hat Mono',monospace; font-size:12px; color:var(--muted);
+  background:var(--bg); border:1px solid var(--border); border-radius:8px;
+  padding:16px 20px; width:100%; text-align:left; line-height:1.8;
+}
+.idoc-preview .k { color:var(--blue); }
+.idoc-preview .v { color:var(--green); }
+.fire-btn {
+  background:var(--red); color:#fff; border:none; border-radius:10px;
+  padding:16px 40px; font-family:'Red Hat Display',sans-serif; font-size:16px;
+  font-weight:700; cursor:pointer; letter-spacing:0.5px;
+  transition:all 0.2s; display:flex; align-items:center; gap:10px;
+}
+.fire-btn:hover { background:#CC0000; transform:translateY(-1px); box-shadow:0 4px 20px rgba(238,0,0,0.3); }
+.fire-btn:active { transform:scale(0.98); }
+.fire-btn:disabled { background:var(--green); cursor:default; transform:none; box-shadow:none; }
+.fire-result {
+  font-family:'Red Hat Mono',monospace; font-size:13px; color:var(--green);
+  min-height:20px; text-align:center;
+}
+
+/* Bullet list */
+.bullets { list-style:none; text-align:left; max-width:760px; width:100%; }
+.bullets li { display:flex; align-items:flex-start; gap:12px; margin-bottom:20px; font-family:'Red Hat Text',sans-serif; font-size:clamp(1rem,2vw,1.35rem); line-height:1.4; }
+.bullets li::before { content:'→'; color:var(--red); flex-shrink:0; margin-top:2px; }
+
+/* Stack row */
+.stack-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:20px 0; }
+.stack-pill { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:8px 18px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<a href="/present-index" class="back-link">← index</a>
+<div class="progress" id="progress"></div>
+<div class="slide-num" id="slideNum"></div>
+<div class="live-pip" id="pip">
+  <div class="dot"></div>
+  <span class="count" id="pipCount">0</span>
+  <span class="label">events</span>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: HOOK -->
+  <div class="slide active" id="s1">
+    <div class="brand"><span class="rh">Red Hat</span><span class="sep">×</span><span class="sap">SAP</span></div>
+    <div class="deadline-block">
+      <div class="deadline-num">Dec 31</div>
+      <div class="deadline-label">2027 — SAP PI/PO end of mainstream maintenance</div>
+    </div>
+    <div class="big center" style="max-width:700px;margin-top:24px;">Every enterprise running legacy middleware <span class="red">faces a mandatory migration.</span></div>
+    <div class="small center" style="margin-top:20px;">SAP Process Integration · SAP Process Orchestration · Every IDoc. Every interface. Every customer.</div>
+  </div>
+
+  <!-- SLIDE 2: THE PROBLEM -->
+  <div class="slide" id="s2">
+    <div class="big" style="margin-bottom:32px;">The migration path has <span class="red">one destination.</span></div>
+    <ul class="bullets">
+      <li>SAP PI/PO → <strong>SAP Integration Suite</strong> on SAP BTP</li>
+      <li>On-premises and edge scenarios require <strong>SAP Edge Integration Cell</strong> (EIC)</li>
+      <li>EIC only runs on <strong>Kubernetes</strong> — no exceptions</li>
+      <li>Red Hat OpenShift is the <strong>certified, preferred runtime</strong> for EIC</li>
+    </ul>
+    <div class="stack-row" style="margin-top:8px;">
+      <span class="stack-pill" style="color:var(--red);">OpenShift</span>
+      <span class="stack-pill" style="color:var(--blue);">EIC</span>
+      <span class="stack-pill" style="color:var(--blue);">SAP BTP</span>
+      <span class="stack-pill" style="color:var(--muted);">RHEL</span>
+      <span class="stack-pill" style="color:var(--muted);">Ansible</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: THE SCALE -->
+  <div class="slide" id="s3">
+    <div class="big center" style="margin-bottom:32px;">The urgency is <span class="red">board-level.</span></div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num red">~3,000</div>
+        <div class="stat-label">SAP customers running PI/PO globally</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num amber">700+</div>
+        <div class="stat-label">days until end of mainstream maintenance</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num blue">100%</div>
+        <div class="stat-label">of EIC deployments require Kubernetes</div>
+      </div>
+    </div>
+    <div class="medium center muted" style="max-width:640px;margin-top:8px;">Every SAP Edge deal is an OpenShift deal. Every PI/PO migration is an OHC deal.</div>
+  </div>
+
+  <!-- SLIDE 4: THE DEMO FLOW -->
+  <div class="slide" id="s4">
+    <div class="big center" style="margin-bottom:12px;">Live IDoc flow. <span class="green">End to end.</span></div>
+    <div class="medium center muted" style="margin-bottom:28px;">Badge tap at a plant gate → goods receipt IDoc → EIC on OpenShift → S/4HANA</div>
+    <div class="flow">
+      <div class="flow-node">
+        <div class="f-icon">🏭</div>
+        <div class="f-label">Plant Gate</div>
+        <div class="f-sub">badge tap</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node highlight">
+        <div class="f-icon">📦</div>
+        <div class="f-label">IDoc</div>
+        <div class="f-sub">MBGMCR002</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node highlight">
+        <div class="f-icon">🔄</div>
+        <div class="f-label">EIC</div>
+        <div class="f-sub">on OpenShift</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node confirmed">
+        <div class="f-icon">✅</div>
+        <div class="f-label">S/4HANA</div>
+        <div class="f-sub">GR confirmed</div>
+      </div>
+    </div>
+    <div class="medium muted center">This is not a simulation of the migration story —<br>it <em>is</em> the migration story, running live.</div>
+  </div>
+
+  <!-- SLIDE 5: FIRE THE EVENT -->
+  <div class="slide" id="s5">
+    <div class="big center" style="margin-bottom:8px;">Fire the <span class="red">IDoc.</span></div>
+    <div class="medium center muted" style="margin-bottom:24px;">Trigger a live goods receipt IDoc through the OHC pipeline.</div>
+    <div class="trigger-zone">
+      <div class="idoc-preview">
+        <span class="k">IDOC_TYPE</span>: <span class="v">"MBGMCR002"</span><br>
+        <span class="k">PLANT</span>:     <span class="v">"PLANT_01"</span><br>
+        <span class="k">MATERIAL</span>: <span class="v">"MAT-00001"</span><br>
+        <span class="k">QUANTITY</span>: <span class="v">1</span><br>
+        <span class="k">ROUTING</span>:  <span class="v">"PI/PO → EIC → S/4HANA"</span>
+      </div>
+      <button class="fire-btn" id="fireBtn" onclick="fireIDoc()">
+        <span>⚡</span> Fire IDoc
+      </button>
+      <div class="fire-result" id="fireResult"></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WHY RED HAT -->
+  <div class="slide" id="s6">
+    <div class="big" style="margin-bottom:32px;">Why Red Hat <span class="red">wins this deal.</span></div>
+    <ul class="bullets">
+      <li><strong>Only certified Kubernetes runtime</strong> for SAP EIC — not a preference, a requirement</li>
+      <li><strong>Ansible automates the migration</strong> — interface-by-interface, rollback-safe</li>
+      <li><strong>RHEL underpins every node</strong> — same OS as the SAP HANA servers they already run</li>
+      <li><strong>OpenShift Virtualization</strong> lets legacy PI/PO coexist during transition — no cliff edge</li>
+    </ul>
+    <div class="medium red" style="margin-top:24px; text-align:center;">Every SAP edge deal is an OHC deal. Every OHC deal is a platform deal.</div>
+  </div>
+
+</div><!-- /deck -->
+
+<script>
+let current = 1;
+const total = 6;
+
+function showSlide(n) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+  document.getElementById('progress').style.width = (n / total * 100) + '%';
+  document.getElementById('slideNum').textContent = n + ' / ' + total;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { if (current < total) showSlide(++current); }
+  if (e.key === 'ArrowLeft') { if (current > 1) showSlide(--current); }
+});
+
+// Live event counter
+(function pollCount() {
+  fetch('/state').then(r => r.json()).then(d => {
+    const c = d.count || 0;
+    document.getElementById('pipCount').textContent = c;
+    document.getElementById('pip').classList.toggle('visible', c > 0);
+  }).catch(()=>{});
+  setTimeout(pollCount, 3000);
+})();
+
+async function fireIDoc() {
+  const btn = document.getElementById('fireBtn');
+  const result = document.getElementById('fireResult');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Sending…';
+  result.textContent = '';
+  try {
+    const r = await fetch('/piport/idoc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idoc_type: 'MBGMCR002', plant: 'PLANT_01', material: 'MAT-00001', quantity: 1 })
+    });
+    const d = await r.json();
+    btn.innerHTML = '<span>✅</span> Delivered';
+    result.textContent = '✓ S/4HANA confirmation: ' + d.s4_confirmation;
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = '<span>⚡</span> Fire IDoc';
+    result.textContent = '⚠ Connection error — is the server running?';
+    result.style.color = 'var(--amber)';
+  }
+}
+
+showSlide(1);
+</script>
+</body>
+</html>
