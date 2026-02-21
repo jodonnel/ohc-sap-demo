@@ -122,9 +122,9 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
 </head>
 <body>
 
-<a href="/present-index" class="back-link">← index</a>
+<a href="present-index.html" class="back-link">← index</a>
 <div class="progress" id="progress"></div>
-<div class="slide-num"><button class="nav-btn" id="prevBtn" onclick="if(current>1)showSlide(--current)">←</button><span id="slideNum"></span><button class="nav-btn" id="nextBtn" onclick="if(current<total)showSlide(++current)">→</button></div>
+<div class="slide-num"><button class="nav-btn" id="prevBtn" onclick="if(current>1)showSlide(--current)">←</button><span id="slideNum"></span><button class="nav-btn" id="nextBtn" onclick="if(current<total)showSlide(++current)">→</button><a href="present-index.html" class="nav-btn" style="text-decoration:none;">⌂</a></div>
 <div class="live-pip" id="pip">
   <div class="dot"></div>
   <span class="count" id="pipCount">0</span>

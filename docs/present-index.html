@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OHC Edge Demo — Select Audience</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;700;900&family=Red+Hat+Text:wght@300;400;700&family=Red+Hat+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090F; --surface: #0D1117; --border: #1C2333;
+  --muted: #4E5D6C; --text: #F0F4F8;
+  --red: #EE0000; --blue: #0070F2; --green: #00D26A;
+  --red-glow: rgba(238,0,0,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Red Hat Display',sans-serif; }
+
+.page {
+  max-width:720px; margin:0 auto; padding:60px 24px;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+.brand { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.brand .rh { color:var(--red); font-size:12px; font-weight:700; letter-spacing:2px; }
+.brand .sep { color:var(--muted); font-size:18px; }
+.brand .sap { color:var(--blue); font-size:12px; font-weight:700; letter-spacing:2px; }
+
+h1 {
+  font-size:clamp(1.8rem,5vw,2.6rem); font-weight:900; text-align:center;
+  line-height:1.1; margin-bottom:6px;
+}
+.subtitle { font-size:14px; color:var(--muted); font-family:'Red Hat Text',sans-serif; margin-bottom:40px; text-align:center; }
+
+.cards { display:flex; flex-direction:column; gap:12px; width:100%; }
+
+a.card {
+  display:flex; align-items:center; gap:16px;
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:20px 24px; text-decoration:none; color:var(--text);
+  transition:all 0.2s;
+}
+a.card:hover { border-color:var(--red); background:#0D1117; box-shadow:0 0 24px var(--red-glow); transform:translateY(-1px); }
+a.card:active { transform:scale(0.99); }
+
+.card-icon { font-size:28px; flex-shrink:0; width:44px; text-align:center; }
+.card-body { flex:1; }
+.card-title { font-size:16px; font-weight:700; margin-bottom:2px; }
+.card-desc { font-size:12px; color:var(--muted); font-family:'Red Hat Text',sans-serif; line-height:1.4; }
+.card-arrow { color:var(--muted); font-size:18px; flex-shrink:0; transition:color 0.2s; }
+a.card:hover .card-arrow { color:var(--red); }
+
+.divider { width:100%; height:1px; background:var(--border); margin:20px 0; }
+.section-label { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; align-self:flex-start; }
+
+.footer { margin-top:40px; font-size:11px; color:var(--muted); font-family:'Red Hat Mono',monospace; text-align:center; }
+.footer a { color:var(--blue); text-decoration:none; }
+
+/* ═══ KIOSK ═══ */
+.kiosk-bar {
+  display:flex; align-items:center; gap:12px; width:100%;
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:14px 20px; margin-bottom:12px; cursor:pointer; user-select:none; transition:all 0.2s;
+}
+.kiosk-bar:hover { border-color:var(--green); }
+.kiosk-bar.open { border-color:var(--green); background:rgba(0,210,106,0.03); border-radius:14px 14px 0 0; margin-bottom:0; }
+.kb-icon { font-size:18px; }
+.kb-label { font-size:14px; font-weight:700; flex:1; }
+.kb-hint { font-size:10px; color:var(--muted); font-family:'Red Hat Mono',monospace; letter-spacing:1px; }
+
+.kiosk-drawer {
+  display:none; width:100%; background:var(--surface); border:1px solid var(--green);
+  border-top:none; border-radius:0 0 14px 14px; padding:16px 20px 20px; margin-bottom:12px;
+  flex-direction:column; gap:14px;
+}
+.kiosk-drawer.open { display:flex; }
+.kd-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.kd-label { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; width:64px; flex-shrink:0; }
+.kd-checks { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+.kd-chip {
+  font-size:11px; font-family:'Red Hat Text',sans-serif; padding:5px 10px;
+  background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px;
+  cursor:pointer; user-select:none; transition:all 0.15s; display:flex; align-items:center; gap:5px;
+}
+.kd-chip:hover { border-color:rgba(255,255,255,0.2); }
+.kd-chip.on { border-color:var(--green); color:var(--green); background:rgba(0,210,106,0.05); }
+.kd-dot { width:7px; height:7px; border-radius:50%; border:1.5px solid var(--muted); transition:all 0.15s; }
+.kd-chip.on .kd-dot { background:var(--green); border-color:var(--green); }
+.kd-slider { flex:1; -webkit-appearance:none; height:3px; background:rgba(255,255,255,0.08); border-radius:2px; outline:none; }
+.kd-slider::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--green); cursor:pointer; }
+.kd-val { font-family:'Red Hat Mono',monospace; font-size:15px; font-weight:700; color:var(--green); min-width:32px; text-align:right; }
+.kd-go {
+  font-family:'Red Hat Display',sans-serif; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase;
+  background:var(--red); color:white; border:none; border-radius:10px; padding:11px 0; width:100%; cursor:pointer; transition:all 0.15s;
+}
+.kd-go:hover { background:#FF2222; }
+.kd-go:disabled { background:var(--muted); cursor:not-allowed; }
+
+.kiosk-fs { position:fixed; inset:0; z-index:9999; display:none; background:var(--bg); }
+.kiosk-fs.on { display:block; }
+.kiosk-fs iframe { width:100%; height:100%; border:none; }
+.kf-hud {
+  position:fixed; bottom:0; left:0; right:0; height:40px;
+  background:rgba(6,9,15,0.94); backdrop-filter:blur(10px);
+  display:flex; align-items:center; justify-content:space-between; padding:0 18px;
+  z-index:10000; border-top:1px solid var(--border);
+  transform:translateY(100%); transition:transform 0.25s;
+}
+.kf-hud.show { transform:translateY(0); }
+.kf-left { display:flex; align-items:center; gap:12px; }
+.kf-deck { font-weight:700; font-size:12px; }
+.kf-pos { font-family:'Red Hat Mono',monospace; font-size:11px; color:var(--muted); }
+.kf-right { display:flex; gap:6px; }
+.kf-btn {
+  font-family:'Red Hat Mono',monospace; font-size:10px;
+  background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border);
+  border-radius:5px; padding:4px 10px; cursor:pointer;
+}
+.kf-btn:hover { background:rgba(255,255,255,0.1); }
+.kf-btn.x { border-color:var(--red); color:var(--red); }
+.kf-bar { position:fixed; bottom:40px; left:0; height:2px; background:linear-gradient(90deg,var(--red),var(--green)); transition:width 0.4s; z-index:10001; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="brand"><span class="rh">RED HAT</span><span class="sep">×</span><span class="sap">SAP</span></div>
+  <h1>Open. Hybrid. Cloud.</h1>
+  <div class="subtitle">Select your audience to launch the presentation</div>
+
+  <!-- KIOSK MODE -->
+  <div class="kiosk-bar" id="kBar" onclick="K.toggle()">
+    <span class="kb-icon">🔄</span>
+    <span class="kb-label">Kiosk Mode</span>
+    <span class="kb-hint">AUTO-CYCLE</span>
+  </div>
+  <div class="kiosk-drawer" id="kDrawer">
+    <div class="kd-row">
+      <span class="kd-label">Decks</span>
+      <div class="kd-checks" id="kChecks"></div>
+    </div>
+    <div class="kd-row">
+      <span class="kd-label">Interval</span>
+      <input type="range" class="kd-slider" id="kSlider" min="3" max="30" value="8" oninput="K.updSlider()">
+      <span class="kd-val" id="kVal">8s</span>
+    </div>
+    <button class="kd-go" id="kGo" disabled onclick="K.start()">Select at least one deck</button>
+  </div>
+
+  <div class="section-label">Customer / Partner Audiences</div>
+  <div class="cards">
+
+    <a class="card" href="/present">
+      <span class="card-icon">🏢</span>
+      <div class="card-body">
+        <div class="card-title">SAP Customers & Partners</div>
+        <div class="card-desc">General edge integration pitch. BTP consumption. Physical security to digital core.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-util">
+      <span class="card-icon">⚡</span>
+      <div class="card-body">
+        <div class="card-title">SAP for Utilities</div>
+        <div class="card-desc">Substations, NERC CIP, Metcalf, predictive maintenance. Physical GRC for critical infrastructure.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-rail">
+      <span class="card-icon">🚆</span>
+      <div class="card-body">
+        <div class="card-title">Rail</div>
+        <div class="card-desc">Depot & yard security, trackside predictive maintenance, incident qualification. Consolidation-ready.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-ad">
+      <span class="card-icon">🛡️</span>
+      <div class="card-body">
+        <div class="card-title">Aerospace & Defense</div>
+        <div class="card-desc">SCIFs, CMMC/NIST 800-171, disconnected ops, NS2-ready. They already run OpenShift and SAP.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Internal</div>
+  <div class="cards">
+
+    <a class="card" href="/present-rh">
+      <span class="card-icon">🎯</span>
+      <div class="card-body">
+        <div class="card-title">Red Hat Sellers</div>
+        <div class="card-desc">OHC + Partner comp framing. Every SAP Edge deal is an OHC deal and a Partner deal.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">OHC Labs</div>
+  <div class="cards">
+
+    <a class="card" href="/labs">
+      <span class="card-icon">🧪</span>
+      <div class="card-body">
+        <div class="card-title">OHC Labs</div>
+        <div class="card-desc">Skunkworks in progress. Vote on what gets built next.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-piport">
+      <span class="card-icon">🔄</span>
+      <div class="card-body">
+        <div class="card-title">PI/PO EOL Migration</div>
+        <div class="card-desc">The Dec 2027 deadline every SAP customer faces. IDoc → EIC → S/4HANA live.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-grc">
+      <span class="card-icon">🛡️</span>
+      <div class="card-body">
+        <div class="card-title">3D-GRC Kill Chain</div>
+        <div class="card-desc">Badge clone → IT lateral → OT shutdown. Three events, one story.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-shopfloor">
+      <span class="card-icon">🏭</span>
+      <div class="card-body">
+        <div class="card-title">Shop-Floor Visual Inspection</div>
+        <div class="card-desc">Camera sees defect. SAP creates inspection lot. Under 500ms.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-openblue">
+      <span class="card-icon">🏢</span>
+      <div class="card-body">
+        <div class="card-title">Johnson Controls OpenBlue</div>
+        <div class="card-desc">Chiller fault → work order. $111B TAM. OpenShift displaces Azure.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-mii">
+      <span class="card-icon">⚙️</span>
+      <div class="card-body">
+        <div class="card-title">MII/ME Coexistence Migration</div>
+        <div class="card-desc">Run old and new side-by-side. No production downtime. Migration in waves.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-substation">
+      <span class="card-icon">⚡</span>
+      <div class="card-body">
+        <div class="card-title">Energy Anomaly → SAP EAM</div>
+        <div class="card-desc">AI at the substation. Predict failure before the lineman gets hurt. NERC CIP.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/present-blackjack">
+      <span class="card-icon">🃏</span>
+      <div class="card-body">
+        <div class="card-title">Meta Glasses Blackjack</div>
+        <div class="card-desc">Camera → OpenShift → BTP → earpiece. 389ms. Nobody forgets this.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Beta</div>
+  <div class="cards">
+
+    <a class="card" href="/present-dtw">
+      <span class="card-icon">🧪</span>
+      <div class="card-body">
+        <div class="card-title">Demo to Win (Beta)</div>
+        <div class="card-desc">Tell → Show → Tell structure. Nervous system metaphor. Built for the close.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Demo Tools</div>
+  <div class="cards">
+
+    <a class="card" href="/stage">
+      <span class="card-icon">📊</span>
+      <div class="card-body">
+        <div class="card-title">Stage Dashboard</div>
+        <div class="card-desc">Edge Operations Center — live event feed, class bars, device mosaic. Open on your laptop.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="https://jodonnel.github.io/ohc-sap-demo/architecture.html" target="_blank">
+      <span class="card-icon">🏗️</span>
+      <div class="card-body">
+        <div class="card-title">Architecture Diagram</div>
+        <div class="card-desc">Interactive edge-to-core reference architecture. Click devices on/off, filter by event class.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/play">
+      <span class="card-icon">📱</span>
+      <div class="card-body">
+        <div class="card-title">Confront the Wumpus</div>
+        <div class="card-desc">The mobile game. Badge through 12 zones, complete tasks, find the threat.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a class="card" href="/qr">
+      <span class="card-icon">📷</span>
+      <div class="card-body">
+        <div class="card-title">QR Code (Projector)</div>
+        <div class="card-desc">Full-screen scannable QR code for audience onboarding.</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    Jim O'Donnell · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="13797c777c7d7d767f536176777b72673d707c7e">[email&#160;protected]</a> · <a href="https://github.com/jodonnel/ohc-sap-demo">github.com/jodonnel/ohc-sap-demo</a>
+  </div>
+</div>
+
+<!-- KIOSK FULLSCREEN -->
+<div class="kiosk-fs" id="kFs">
+  <iframe id="kFrame"></iframe>
+  <div class="kf-bar" id="kBar2" style="width:0%"></div>
+  <div class="kf-hud" id="kHud">
+    <div class="kf-left"><span class="kf-deck" id="kDeck">&mdash;</span><span class="kf-pos" id="kPos">&mdash;</span></div>
+    <div class="kf-right">
+      <div class="kf-btn" onclick="K.pause()"><span id="kPauseL">&#9208; Pause</span></div>
+      <div class="kf-btn x" onclick="K.stop()">&#9632; Stop</div>
+    </div>
+  </div>
+</div>
+
+<script>
+window.K=(function(){
+  var DECKS=[
+    {id:'gen',  label:'SAP General',     path:'/present',      n:10},
+    {id:'util', label:'Utilities',       path:'/present-util', n:10},
+    {id:'rail', label:'Rail',            path:'/present-rail', n:10},
+    {id:'ad',   label:'Aerospace & Def', path:'/present-ad',   n:10},
+    {id:'rh',   label:'RH Sellers',      path:'/present-rh',   n:10},
+    {id:'dtw',  label:'Demo to Win',     path:'/present-dtw',  n:10},
+    {id:'ccsp', label:'CCSP',            path:'/present-ccsp', n:10}
+  ];
+  var sel=new Set(),list=[],idx=0,paused=false,tmr=null,hudTmr;
+  var $=function(id){return document.getElementById(id)};
+
+  DECKS.forEach(function(d){
+    var el=document.createElement('div');
+    el.className='kd-chip';
+    el.innerHTML='<span class="kd-dot"></span>'+d.label;
+    el.onclick=function(e){
+      e.stopPropagation();
+      if(sel.has(d.id)){sel.delete(d.id);el.classList.remove('on')}
+      else{sel.add(d.id);el.classList.add('on')}
+      updBtn();
+    };
+    $('kChecks').appendChild(el);
+  });
+
+  function updBtn(){
+    var b=$('kGo');
+    if(!sel.size){b.disabled=true;b.textContent='Select at least one deck';return}
+    var tot=DECKS.filter(function(d){return sel.has(d.id)}).reduce(function(s,d){return s+d.n},0);
+    b.disabled=false;b.textContent='Start kiosk \u2014 '+tot+' slides';
+  }
+
+  function toggle(){
+    var open=$('kDrawer').classList.toggle('open');
+    $('kBar').classList.toggle('open',open);
+  }
+
+  function updSlider(){$('kVal').textContent=$('kSlider').value+'s'}
+
+  function start(){
+    list=[];
+    DECKS.filter(function(d){return sel.has(d.id)}).forEach(function(d){
+      for(var s=1;s<=d.n;s++) list.push({d:d,s:s});
+    });
+    if(!list.length)return;
+    idx=0;paused=false;$('kPauseL').textContent='\u23F8 Pause';
+    $('kFs').classList.add('on');
+    load();tick();
+  }
+
+  function load(){
+    var e=list[idx],fr=$('kFrame'),src=fr.src||'';
+    $('kDeck').textContent=e.d.label;
+    $('kPos').textContent=e.s+' / '+e.d.n+'  \u00B7  '+(idx+1)+'/'+list.length;
+    $('kBar2').style.width=((idx+1)/list.length*100)+'%';
+    if(src.indexOf(e.d.path)===-1){
+      fr.onload=function(){setTimeout(function(){goSlide(e.s)},350);fr.onload=null};
+      fr.src=e.d.path;
+    } else goSlide(e.s);
+  }
+
+  function goSlide(n){
+    try{
+      var doc=$('kFrame').contentWindow.document;
+      var slides=doc.querySelectorAll('.slide');
+      slides.forEach(function(s){s.classList.remove('active')});
+      var t=doc.querySelector('[data-slide="'+n+'"]');
+      if(t)t.classList.add('active');
+      var c=doc.getElementById('slideNum');
+      if(c)c.textContent=n+' / '+slides.length;
+      var b=doc.getElementById('progressBar');
+      if(b)b.style.width=(n/slides.length*100)+'%';
+    }catch(ex){}
+  }
+
+  function tick(){
+    clearInterval(tmr);
+    var ms=parseInt($('kSlider').value)*1000;
+    tmr=setInterval(function(){if(paused)return;idx=(idx+1)%list.length;load()},ms);
+  }
+
+  function pause(){
+    paused=!paused;
+    $('kPauseL').textContent=paused?'\u25B6 Resume':'\u23F8 Pause';
+  }
+
+  function stop(){
+    clearInterval(tmr);
+    $('kFs').classList.remove('on');
+    $('kFrame').src='';
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(!$('kFs').classList.contains('on'))return;
+    if(e.key==='Escape')stop();
+    if(e.key===' '){e.preventDefault();pause()}
+  });
+
+  document.addEventListener('mousemove',function(e){
+    if(!$('kFs').classList.contains('on'))return;
+    if(e.clientY>window.innerHeight-80){
+      $('kHud').classList.add('show');
+      clearTimeout(hudTmr);
+      hudTmr=setTimeout(function(){$('kHud').classList.remove('show')},3000);
+    }
+  });
+
+  return {toggle:toggle,start:start,stop:stop,pause:pause,updSlider:updSlider};
+})();
+</script>
+</body>
+</html>
