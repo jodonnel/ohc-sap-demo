@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OHC Edge Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #06090F;
+    color: #4E5D6C;
+    font-family: 'Red Hat Mono', 'Courier New', monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .dot { animation: blink 1s step-end infinite; }
+</style>
+</head>
+<body>
+<span>connecting<span class="dot">...</span></span>
+<script>
+const CLUSTER = 'https://south-ui-qr-demo-qa.apps.rosa.rosa-rvdtn.ypet.p3.openshiftapps.com';
+const HEALTH  = 'https://north-qr-demo-qa.apps.rosa.rosa-rvdtn.ypet.p3.openshiftapps.com/healthz';
+const STATIC  = 'play.html';
+
+const ctrl = new AbortController();
+const timer = setTimeout(() => ctrl.abort(), 3000);
+
+fetch(HEALTH, { signal: ctrl.signal, mode: 'no-cors' })
+  .then(() => {
+    clearTimeout(timer);
+    window.location.replace(CLUSTER);
+  })
+  .catch(() => {
+    window.location.replace(STATIC);
+  });
+</script>
+</body>
+</html>
