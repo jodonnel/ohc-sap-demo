@@ -17,5 +17,11 @@ document.addEventListener('DOMContentLoaded', function() {
     correctLevel: QRCode.CorrectLevel.M
   });
   var label = document.getElementById('qr-url');
-  if (label) label.textContent = QR_TARGET;
+  if (label) {
+    var a = document.createElement('a');
+    a.href = QR_TARGET;
+    a.textContent = QR_TARGET;
+    a.style.cssText = 'color:inherit;text-decoration:underline;';
+    label.appendChild(a);
+  }
 });
