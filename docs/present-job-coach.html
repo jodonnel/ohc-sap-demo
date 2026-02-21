@@ -268,7 +268,39 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
     <div class="small center muted fade-up delay-3" style="margin-top:8px;">RHEL Image Mode delivers an immutable, container-built OS to the device. IBM Granite and Watson STT run inference locally. SAP BTP manages workflows and DSP collaboration.</div>
   </div>
 
-  <!-- SLIDE 5 — DEMO CONCEPT -->
+  <!-- SLIDE 5 — MODEL UPDATES -->
+  <div class="slide" data-slide="5">
+    <div class="big center fade-up" style="margin-bottom:24px;">How does the model <span class="blue">get smarter?</span></div>
+    <div class="arch-flow fade-up delay-1">
+      <div class="arch-node highlight-blue">
+        <div class="node-icon">🏗️</div>
+        <div class="node-title blue">ROSA / OpenShift AI</div>
+        <div class="node-sub">Fine-tune Granite on new task data · bake weights into bootc image · push to registry</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node highlight-red">
+        <div class="node-icon">📦</div>
+        <div class="node-title red">bootc upgrade</div>
+        <div class="node-sub">Device pulls image diff · stages atomically · reboots into new OS + model · rollback in one command</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node highlight-green">
+        <div class="node-icon">🔁</div>
+        <div class="node-title green">Federated loop</div>
+        <div class="node-sub">Brian's corrections ship back as CloudEvents · cluster retrains · next image includes his improvements</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="stack-row fade-up delay-2">
+      <span class="stack-pill" style="color:var(--blue);">OpenShift AI</span>
+      <span class="stack-pill" style="color:var(--red);">Image Mode</span>
+      <span class="stack-pill" style="color:var(--green);">Federated Learning</span>
+      <span class="stack-pill" style="color:var(--red);">CloudEvents</span>
+    </div>
+    <div class="small center muted fade-up delay-3" style="margin-top:8px;">A model update is a container image update. Atomic. Auditable. Reversible. Brian's data never leaves the system unencrypted.</div>
+  </div>
+
+  <!-- SLIDE 6 — DEMO CONCEPT (was 5) -->
   <div class="slide glow-bg" data-slide="5">
     <div class="big center fade-up" style="margin-bottom:8px;">Demo concept: <span class="blue">Task playback.</span></div>
     <div class="demo-mockup fade-up delay-1">
@@ -299,7 +331,7 @@ html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text
     </div>
   </div>
 
-  <!-- SLIDE 6 — IMPACT -->
+  <!-- SLIDE 7 — IMPACT (was 6) -->
   <div class="slide glow-bg" data-slide="6">
     <div class="big center fade-up" style="margin-bottom:32px;"><span style="color:#CC0000;">Independence.</span> Dignity. Determination.</div>
     <div class="stat-grid fade-up delay-1">
