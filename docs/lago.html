@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Virtual Speakeasy — Lago at the Bellagio</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Mono:wght@300;400;700&family=Red+Hat+Display:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #0a0505;
+    --surface: #110808;
+    --border:  #2a1010;
+    --red:     #CC0000;
+    --dim:     #4a3030;
+    --muted:   #8a7070;
+    --text:    #e8e0d8;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Red Hat Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.04) 3px,
+      rgba(0,0,0,0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .container {
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .shadowman {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 32px;
+    opacity: 0.7;
+    filter: sepia(1) saturate(0.3) brightness(0.8);
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Red Hat Display', sans-serif;
+    font-size: clamp(28px, 6vw, 42px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 48px;
+  }
+
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--border);
+    margin: 0 auto 40px;
+  }
+
+  .detail-block {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    gap: 16px;
+  }
+
+  .detail-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  .detail-value {
+    font-size: 13px;
+    color: var(--text);
+    text-align: right;
+  }
+
+  .detail-value.highlight {
+    color: var(--red);
+    font-weight: 700;
+  }
+
+  .note {
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.7;
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin-bottom: 48px;
+    text-align: left;
+  }
+
+  .note::before {
+    content: '// ';
+    color: var(--red);
+    opacity: 0.5;
+  }
+
+  .footer-text {
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-text a {
+    color: var(--dim);
+    text-decoration: none;
+  }
+
+  .footer-text a:hover {
+    color: var(--muted);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .container { animation: fadeUp 0.8s ease-out both; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <img src="shadowman.png" alt="" class="shadowman">
+
+  <div class="eyebrow">by invitation</div>
+
+  <h1>The Virtual<br>Speakeasy</h1>
+  <p class="subtitle">lago at the bellagio &nbsp;·&nbsp; las vegas</p>
+
+  <div class="divider"></div>
+
+  <div class="detail-block">
+    <div class="detail-row">
+      <span class="detail-label">date</span>
+      <span class="detail-value">tuesday, february 24</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">time</span>
+      <span class="detail-value highlight">7:30 — 9:00 pm</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">venue</span>
+      <span class="detail-value">lago by julian serrano<br>the bellagio, las vegas</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">dress</span>
+      <span class="detail-value">smart casual</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">hosted by</span>
+      <span class="detail-value">red hat &amp; partners</span>
+    </div>
+  </div>
+
+  <div class="note">
+    specialty cocktails. curated conversation. no slides.
+    this is where the real work happens.
+  </div>
+
+  <p class="footer-text">
+    <a href="index.html">← back</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    questions? find maria.
+  </p>
+
+</div>
+</body>
+</html>
