@@ -2,11 +2,14 @@
 
 ## The Rule
 
-**South is the edge. North is the intelligence.**
+**South is the edge. North is the platform. Further north is the enterprise.**
 
-Every demo in this system follows one pattern:
+This system is a continuum, not a two-tier architecture:
 - **South** generates events — edge devices, field simulations, sensors, vehicles, equipment, games, anything that represents the physical world
-- **North** receives, aggregates, routes, and responds — integration with SAP BTP, SAP Edge Integration Cell, AI, dashboards, presentations
+- **North** receives, aggregates, routes, and presents — the OpenShift platform layer, integration middleware, dashboards
+- **Further north** (future) — SAP BTP apps, decision systems, AI inference, EIC integration logic; things that consume what north aggregates and act on it
+
+Not every demo lives in the south. BTP applications and decision systems will live further north. The key question for any new component is: *where does it sit in the event flow?*
 
 ## What Belongs South
 
@@ -57,7 +60,14 @@ South services are named `south-*`. North services are named `north-*`. Routes f
 
 ## Adding a New Demo
 
-1. Build the device simulation/relay as a south component under `south-*/`
+First ask: where does this component sit in the event flow?
+
+- **Generates events from a physical or simulated device?** → South
+- **Receives, routes, or presents events?** → North
+- **Consumes aggregated data to make decisions or integrate with SAP?** → Further north (BTP, EIC, AI layer)
+
+For south components:
+1. Build under `south-*/`
 2. POST CloudEvents to relative `/ingest` (south nginx proxies to north internally)
 3. North receives and aggregates — no north code changes required for new south sources
 4. Add a presentation deck to `north/stage/` if the demo needs a slide deck
