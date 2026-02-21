@@ -29,20 +29,7 @@
   <p class="sub">Your phone becomes the edge device</p>
   <div class="qr" id="qr"></div>
   <p class="hint">📱 Open your camera and scan</p>
-  <p class="url" id="url-label"></p>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-  const TARGET = 'https://jodonnel.github.io/ohc-sap-demo/go.html';
-  document.getElementById('url-label').textContent = TARGET;
-  new QRCode(document.getElementById('qr'), {
-    text: TARGET,
-    width: 380,
-    height: 380,
-    colorDark: '#06090F',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.M
-  });
-</script>
+  <p class="url" id="qr-url"></p>
+  <script src="https://jodonnel.github.io/ohc-sap-demo/qr.js"></script>
 </body>
 </html>
