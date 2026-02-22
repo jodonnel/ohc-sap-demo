@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OHC Presentation — Demo to Win</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;700;900&family=Red+Hat+Text:wght@400;500;700&family=Red+Hat+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rh-red: #EE0000;
+    --rh-red-dark: #A30000;
+    --rh-black: #151515;
+    --rh-white: #FFFFFF;
+    --rh-gray-100: #F5F5F5;
+    --rh-gray-200: #D2D2D2;
+    --rh-gray-600: #6A6E73;
+    --rh-gray-900: #1F1F1F;
+    --sap-gold: #F0AB00;
+    --sap-blue: #0070F2;
+    --slide-transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    --pulse: #00FF88;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Red Hat Display', sans-serif;
+    background: var(--rh-black);
+    color: var(--rh-white);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  body.hydrated { opacity: 1; }
+
+  /* ═══ NAV BAR ═══ */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 48px;
+    background: rgba(21, 21, 21, 0.95);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-left { display: flex; align-items: center; gap: 12px; }
+  .nav-brand {
+    font-family: 'Red Hat Display', sans-serif;
+    font-weight: 900; font-size: 13px; letter-spacing: 0.5px;
+    color: var(--rh-red);
+  }
+  .nav-brand span { color: var(--rh-gray-200); font-weight: 400; }
+  .nav-slide {
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 12px; color: var(--rh-gray-600);
+  }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .nav-counter {
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 13px; font-weight: 700;
+    color: var(--pulse);
+    min-width: 32px; text-align: right;
+  }
+  .nav-counter-label {
+    font-size: 10px; color: var(--rh-gray-600);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  /* ═══ SLIDES ═══ */
+  .slide {
+    position: absolute;
+    top: 48px; left: 0; right: 0; bottom: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 48px 64px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity var(--slide-transition), transform var(--slide-transition);
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  /* ═══ TYPOGRAPHY ═══ */
+  .hero-text {
+    font-family: 'Red Hat Display', sans-serif;
+    font-weight: 900;
+    font-size: clamp(36px, 5vw, 72px);
+    line-height: 1.05;
+    text-align: center;
+    max-width: 900px;
+  }
+  .hero-sub {
+    font-family: 'Red Hat Text', sans-serif;
+    font-weight: 400;
+    font-size: clamp(16px, 2vw, 24px);
+    line-height: 1.6;
+    text-align: center;
+    color: var(--rh-gray-200);
+    max-width: 700px;
+    margin-top: 24px;
+  }
+  .section-label {
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--rh-red);
+    margin-bottom: 16px;
+  }
+  .emphasis { color: var(--rh-red); }
+  .emphasis-gold { color: var(--sap-gold); }
+  .dim { color: var(--rh-gray-600); }
+  .glow {
+    text-shadow: 0 0 40px rgba(238, 0, 0, 0.3);
+  }
+
+  /* ═══ METAPHOR VISUAL — nervous system pulse ═══ */
+  .nerve-line {
+    position: absolute;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, var(--rh-red), transparent);
+    opacity: 0.08;
+    animation: nerve-pulse 12s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    will-change: opacity;
+  }
+  @keyframes nerve-pulse {
+    0%, 100% { opacity: 0.04; }
+    50% { opacity: 0.10; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nerve-line { animation: none; opacity: 0.06; }
+  }
+
+  /* ═══ LIVE STATS GRID ═══ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 800px;
+    width: 100%;
+    margin-top: 32px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--pulse);
+  }
+  .stat-label {
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 12px;
+    color: var(--rh-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 8px;
+  }
+
+  /* ═══ WIDE STATS ROW (slide 7) ═══ */
+  .stats-wide {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+    max-width: 960px;
+    width: 100%;
+    margin-top: 24px;
+  }
+  .stat-wide {
+    text-align: center;
+    padding: 16px 8px;
+  }
+  .stat-wide .stat-value { font-size: 28px; }
+
+  /* ═══ BULLET LIST (commercial slide) ═══ */
+  .value-list {
+    list-style: none;
+    max-width: 700px;
+    margin-top: 32px;
+  }
+  .value-list li {
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .value-list li:last-child { border-bottom: none; }
+  .value-icon { font-size: 20px; flex-shrink: 0; }
+
+  /* ═══ QR PLACEHOLDER ═══ */
+  .qr-frame {
+    width: 220px; height: 220px;
+    background: var(--rh-white);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 32px;
+    padding: 16px;
+  }
+  .qr-frame canvas { width: 100%; height: 100%; }
+
+  /* ═══ ARCHITECTURE EMBED ═══ */
+  .arch-placeholder {
+    max-width: 800px;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 24px;
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 14px;
+    color: var(--rh-gray-600);
+  }
+
+  /* ═══ CLOSE SLIDE ═══ */
+  .close-cta {
+    font-family: 'Red Hat Display', sans-serif;
+    font-size: 14px;
+    color: var(--rh-gray-600);
+    margin-top: 24px;
+  }
+  .close-cta a {
+    color: var(--rh-red);
+    text-decoration: none;
+  }
+
+  /* ═══ PROGRESS BAR ═══ */
+  .progress {
+    position: fixed;
+    bottom: 0; left: 0;
+    height: 3px;
+    background: var(--rh-red);
+    transition: width 0.4s ease;
+    z-index: 100;
+  }
+
+  /* ═══ KEYBOARD HINT ═══ */
+  .key-hint {
+    position: fixed;
+    bottom: 16px; right: 24px;
+    font-family: 'Red Hat Mono', monospace;
+    font-size: 11px;
+    color: var(--rh-gray-600);
+    opacity: 0.5;
+    z-index: 100;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<div class="nav">
+  <div class="nav-left">
+    <div class="nav-brand">RED HAT<span> × </span>SAP</div>
+    <div class="nav-slide" id="slideNum">1 / 10</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-counter" id="navCount">—</div>
+    <div class="nav-counter-label">events</div>
+    <a href="/about-panel" target="_blank" style="color:var(--rh-gray-600);text-decoration:none;font-size:14px;opacity:0.5;margin-left:8px;" title="System evidence">&#9881;</a>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 1 — LIMBIC OPENER ═══ -->
+<div class="slide active" data-slide="1">
+  <div class="section-label">Tell</div>
+  <div class="hero-text glow">
+    Your building has a <span class="emphasis">nervous system.</span>
+  </div>
+  <div class="hero-sub">
+    Every badge tap is a heartbeat. Every door sensor, a reflex.<br>
+    Every camera alert, a pain signal.<br><br>
+    Right now, <span class="emphasis">nobody is listening.</span>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 2 — AMPLIFY THE PAIN ═══ -->
+<div class="slide" data-slide="2">
+  <div class="hero-text">
+    3.2 billion nerve impulses a year.
+  </div>
+  <div class="hero-sub">
+    That's how many badge events Fortune 500 facilities generate annually.<br><br>
+    Every one is a data point about who is where, doing what, and whether something is wrong.<br><br>
+    <span class="emphasis">Zero of them reach SAP.</span><br><br>
+    <span class="dim">Your building is screaming. Your digital core is deaf.</span>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 3 — THE WHAT-IF (bridge) ═══ -->
+<div class="slide" data-slide="3">
+  <div class="section-label">The question</div>
+  <div class="hero-text">
+    What if you could <span class="emphasis-gold">wire the nervous system</span><br>
+    to the brain?
+  </div>
+  <div class="hero-sub">
+    Every badge tap, every door sensor, every camera alert —<br>
+    flowing as a business event into <span class="emphasis-gold">SAP Business Technology Platform</span>.<br><br>
+    Not a dashboard. Not a silo.<br>
+    A closed-loop nervous system — <em>sensory input up, motor commands down.</em>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 4 — THE ARCHITECTURE (Tell before Show) ═══ -->
+<div class="slide" data-slide="4">
+  <div class="section-label">How it works</div>
+  <div class="hero-text" style="font-size: clamp(28px, 3.5vw, 48px);">
+    Edge → <span class="emphasis">Red Hat OpenShift</span> → <span class="emphasis-gold">SAP Edge Integration Cell</span> → <span style="color:var(--sap-blue)">BTP</span>
+  </div>
+  <div class="hero-sub">
+    The OpenShift cluster is running right now — live, not a mockup.<br>
+    Next stop: <strong>SAP Edge Integration Cell</strong> wires it to BTP.
+  </div>
+  <div class="stats-grid" style="margin-top: 32px;">
+    <div class="stat-card">
+      <div class="stat-value" id="archCount">—</div>
+      <div class="stat-label">Events Ingested</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="archRate">—</div>
+      <div class="stat-label">/sec</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="archDevices">—</div>
+      <div class="stat-label">Devices</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 5 — THE HAND-OFF (you become the nerve ending) ═══ -->
+<div class="slide" data-slide="5">
+  <div class="section-label">Show</div>
+  <div class="hero-text">
+    Your phone is about to become<br>
+    a <span class="emphasis">nerve ending.</span>
+  </div>
+  <div class="hero-sub">
+    Scan the code. Badge through a building.<br>
+    Every tap generates a CloudEvent — modeled on real <strong>Lenel OnGuard</strong> protocols.<br><br>
+    Badge scans · Door sensors · HVAC · Fire safety · Biometrics · Air quality
+  </div>
+  <div class="qr-frame" id="qrContainer">
+    <canvas id="qrCanvas"></canvas>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 6 — LIVE PROOF (the "Show") ═══ -->
+<div class="slide" data-slide="6">
+  <div class="section-label">Live — right now</div>
+  <div class="hero-text" style="font-size: clamp(48px, 8vw, 96px);">
+    <span id="bigCount" class="emphasis" style="font-family: 'Red Hat Mono', monospace;">—</span>
+  </div>
+  <div class="stats-wide">
+    <div class="stat-wide">
+      <div class="stat-value" id="liveRate">—</div>
+      <div class="stat-label">events/sec</div>
+    </div>
+    <div class="stat-wide">
+      <div class="stat-value" id="liveDevices">—</div>
+      <div class="stat-label">devices</div>
+    </div>
+    <div class="stat-wide">
+      <div class="stat-value" id="livePeak">—</div>
+      <div class="stat-label">peak/sec</div>
+    </div>
+    <div class="stat-wide">
+      <div class="stat-value" id="liveBattery">—</div>
+      <div class="stat-label">avg battery</div>
+    </div>
+    <div class="stat-wide">
+      <div class="stat-value" id="liveNetworks">—</div>
+      <div class="stat-label">network mix</div>
+    </div>
+    <div class="stat-wide">
+      <div class="stat-value" id="liveLocales">—</div>
+      <div class="stat-label">locales</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 7 — THE "SO WHAT" (sensory → motor) ═══ -->
+<div class="slide" data-slide="7">
+  <div class="section-label">Tell — the payoff</div>
+  <div class="hero-text">
+    You just wired<br>
+    <span id="resultCount" class="emphasis" style="font-family: 'Red Hat Mono';">—</span>
+    nerve impulses<br>
+    to the brain.
+  </div>
+  <div class="hero-sub">
+    Each event flowed through <strong>Red Hat OpenShift</strong>.<br>
+    Next stop: <strong>SAP Edge Integration Cell</strong> → <strong>BTP</strong>.<br><br>
+    <span class="dim">Sensory input up. Motor commands down.</span><br>
+    <span class="dim">That's a closed-loop nervous system.</span>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 8 — COMMERCIAL (what the brain unlocks) ═══ -->
+<div class="slide" data-slide="8">
+  <div class="section-label">What this means commercially</div>
+  <div class="hero-text" style="font-size: clamp(24px, 3vw, 40px);">
+    Every edge deal is a <span class="emphasis-gold">BTP deal.</span>
+  </div>
+  <ul class="value-list">
+    <li><span class="value-icon">📦</span> <strong>Integration Suite</strong> — cloud quota, the license that connects the nerves</li>
+    <li><span class="value-icon">⚡</span> <strong>Event Mesh</strong> — consumption-based, scales with every new sensor</li>
+    <li><span class="value-icon">📊</span> <strong>Analytics Cloud</strong> — the brain's visual cortex, named user licenses</li>
+    <li><span class="value-icon">🤖</span> <strong>AI Core</strong> — pattern recognition, inference, the autonomic layer</li>
+    <li><span class="value-icon">🔧</span> <strong>Red Hat OpenShift</strong> — the spinal cord. We sell it. Not your quota.</li>
+  </ul>
+</div>
+
+<!-- ═══ SLIDE 9 — THE CHALLENGE ═══ -->
+<div class="slide" data-slide="9">
+  <div class="hero-text">
+    Your customer's building<br>
+    is <span class="emphasis">already screaming.</span>
+  </div>
+  <div class="hero-sub">
+    The badge readers are installed. The sensors are live. The cameras are rolling.<br><br>
+    The only thing missing is the <span class="emphasis">spinal cord</span><br>
+    that connects the body to the brain.<br><br>
+    <strong>That's OpenShift. That's Edge Integration Cell. That's this demo.</strong>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 10 — CLOSE (callback to opener) ═══ -->
+<div class="slide" data-slide="10">
+  <div class="section-label">Let's build this</div>
+  <div class="hero-text glow">
+    Let's give your customer<br>
+    a <span class="emphasis">nervous system.</span>
+  </div>
+  <div class="hero-sub" style="margin-top: 32px;">
+    Jim O'Donnell · <a href="mailto:jodonnel@redhat.com" style="color: var(--rh-red); text-decoration: none;">jodonnel@redhat.com</a>
+  </div>
+  <div class="close-cta" style="margin-top: 48px;">
+    Demo still live → scan the QR if you haven't
+  </div>
+</div>
+
+<!-- ═══ PROGRESS BAR ═══ -->
+<div class="progress" id="progressBar" style="width: 10%;"></div>
+
+<!-- ═══ KEYBOARD HINT ═══ -->
+<div class="key-hint">← → or Space to navigate</div>
+
+<!-- ═══ BACKGROUND NERVE LINES ═══ -->
+<div class="nerve-line" style="left: 12%; top: 0; height: 100vh; animation-delay: 0s;"></div>
+<div class="nerve-line" style="left: 37%; top: 0; height: 100vh; animation-delay: 1.1s;"></div>
+<div class="nerve-line" style="left: 63%; top: 0; height: 100vh; animation-delay: 0.6s;"></div>
+<div class="nerve-line" style="left: 88%; top: 0; height: 100vh; animation-delay: 1.8s;"></div>
+
+<!-- ═══ QR LIB ═══ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ═══ CONFIG ═══
+  const BASE = location.origin;
+  const TOTAL_SLIDES = 10;
+  let current = 1;
+  let count = 0;
+  let devices = 0;
+  let peakRate = 0;
+  let rateWindow = [];
+
+  // ═══ ELEMENTS ═══
+  const $ = id => document.getElementById(id);
+
+  // ═══ SLIDE NAVIGATION ═══
+  function goTo(n) {
+    if (n < 1 || n > TOTAL_SLIDES) return;
+    document.querySelector('.slide.active')?.classList.remove('active');
+    document.querySelector(`[data-slide="${n}"]`)?.classList.add('active');
+    current = n;
+    $('slideNum').textContent = `${n} / ${TOTAL_SLIDES}`;
+    $('progressBar').style.width = `${(n / TOTAL_SLIDES) * 100}%`;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+  });
+
+  // Click to advance (left third = back, rest = forward)
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button, .qr-frame')) return;
+    const x = e.clientX / window.innerWidth;
+    goTo(current + (x < 0.33 ? -1 : 1));
+  });
+
+  // Touch swipe
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1));
+  });
+
+  // ═══ SSE — live event stream ═══
+  function connectSSE() {
+    const es = new EventSource(`${BASE}/events`);
+    es.onmessage = e => {
+      try {
+        const d = JSON.parse(e.data);
+        count = d.count || count + 1;
+        updateCounters();
+        // Rate calc
+        const now = Date.now();
+        rateWindow.push(now);
+        rateWindow = rateWindow.filter(t => now - t < 5000);
+        const rate = (rateWindow.length / 5).toFixed(1);
+        if (parseFloat(rate) > peakRate) peakRate = parseFloat(rate);
+        safeSet('liveRate', rate);
+        safeSet('livePeak', peakRate.toFixed(1));
+        safeSet('archRate', rate);
+      } catch (_) {}
+    };
+    es.onerror = () => { es.close(); setTimeout(connectSSE, 3000); };
+  }
+
+  function updateCounters() {
+    safeSet('navCount', count);
+    safeSet('archCount', count);
+    safeSet('bigCount', count);
+    safeSet('resultCount', count);
+  }
+
+  function safeSet(id, val) {
+    const el = $(id);
+    if (el) el.textContent = val;
+  }
+
+  // ═══ TELEMETRY POLL ═══
+  async function pollTelemetry() {
+    try {
+      const r = await fetch(`${BASE}/telemetry`);
+      const t = await r.json();
+      devices = t.devices || 0;
+      safeSet('archDevices', devices);
+      safeSet('liveDevices', devices);
+      safeSet('liveBattery', t.batteryCount > 0 ? `${t.avgBattery}%` : '—');
+
+      // Network mix
+      const nets = Object.entries(t.networks || {});
+      if (nets.length) {
+        const netIcons = {wifi:'📶','4g':'📱','5g':'📱',wired:'🔌'};
+        safeSet('liveNetworks', nets.map(([k,v]) => `${netIcons[k.toLowerCase()]||'🌐'} ${k} ${v}`).join('  '));
+      }
+
+      // Locales
+      const locs = Object.entries(t.locales || {});
+      if (locs.length) {
+        const flags = {'en-US':'🇺🇸','en-GB':'🇬🇧',en:'🇺🇸',de:'🇩🇪',fr:'🇫🇷',es:'🇪🇸',ja:'🇯🇵',ko:'🇰🇷',zh:'🇨🇳',pt:'🇧🇷',it:'🇮🇹'};
+        safeSet('liveLocales', locs.map(([k,v]) => `${flags[k]||'🌐'} ${k} ${v}`).join('  '));
+      }
+    } catch (_) {}
+  }
+
+  // ═══ INITIAL STATE ═══
+  async function init() {
+    try {
+      const r = await fetch(`${BASE}/state`);
+      const s = await r.json();
+      count = s.count || 0;
+      updateCounters();
+    } catch (_) {}
+
+    // Reveal — state is hydrated, no more "0" flash
+    document.body.classList.add('hydrated');
+
+    // QR code
+    try {
+      new QRious({
+        element: $('qrCanvas'),
+        value: `${BASE}/play`,
+        size: 200,
+        backgroundAlpha: 0,
+        foreground: '#151515',
+        level: 'M'
+      });
+    } catch (_) {}
+
+    connectSSE();
+    pollTelemetry();
+    setInterval(pollTelemetry, 5000);
+  }
+
+  // Failsafe: reveal after 2s even if fetch fails
+  setTimeout(() => document.body.classList.add('hydrated'), 2000);
+  init();
+})();
+</script>
+</body>
+</html>
